@@ -670,7 +670,6 @@
     <div class="header-meta">
       <div><span class="live-dot"></span><span id="last-updated">đang cập nhật...</span></div>
       <button class="btn-refresh" onclick="loadData()">↻ Tải lại</button>
-      <div style="margin-top:6px"><a href="#" onclick="resetConfig();return false" style="color:var(--ink-muted);font-size:11px">⚙ Đổi URL API</a></div>
     </div>
   </header>
   
@@ -937,28 +936,15 @@ let SORT_COL = 'ngay';
 let SORT_DIR = 'desc';
 let CHARTS = {};
 
-const STORAGE_KEY = 'nonson_dashboard_api_url';
-
 // ============ CONFIG ============
+// URL Apps Script đã nhúng sẵn - người dùng không cần nhập
+const API_URL = 'https://script.google.com/macros/s/AKfycbzyXDCP9btvxFr_fcNpqVPMKByf9zJyCm6puquvC2BpT91ykjx_WVLCl2ZBBHHdtrv6/exec';
+
 function getApiUrl() {
-  return localStorage.getItem(STORAGE_KEY) || '';
-}
-function saveConfig() {
-  const url = document.getElementById('config-url').value.trim();
-  if (!url || !url.includes('script.google.com')) {
-    alert('Vui lòng nhập URL Google Apps Script hợp lệ');
-    return;
-  }
-  localStorage.setItem(STORAGE_KEY, url);
-  document.getElementById('config-screen').style.display = 'none';
-  document.getElementById('main-app').style.display = 'block';
-  loadData();
+  return API_URL;
 }
 function resetConfig() {
-  if (confirm('Đổi URL API? Bạn sẽ cần nhập URL mới.')) {
-    localStorage.removeItem(STORAGE_KEY);
-    location.reload();
-  }
+  alert('URL API đã được nhúng cứng trong file. Để đổi, sửa biến API_URL trong code.');
 }
 
 // ============ FETCH DATA ============
@@ -1772,12 +1758,8 @@ function getCategoryClass(cat) {
 
 // ============ INIT ============
 window.addEventListener('DOMContentLoaded', () => {
-  if (getApiUrl()) {
-    document.getElementById('main-app').style.display = 'block';
-    loadData();
-  } else {
-    document.getElementById('config-screen').style.display = 'block';
-  }
+  document.getElementById('main-app').style.display = 'block';
+  loadData();
 });
 
 // ESC để đóng modal
