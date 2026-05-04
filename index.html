@@ -78,9 +78,16 @@
     letter-spacing: -0.02em;
     line-height: 1;
   }
-  .header-title em {
-    font-style: italic;
+  .header-title .ampersand {
+    font-family: 'Fraunces', serif;
     font-weight: 400;
+    color: var(--terracotta);
+    font-style: normal;
+    margin: 0 4px;
+    font-size: 1.1em;
+  }
+  .header-title .accent {
+    font-weight: 500;
     color: var(--terracotta);
   }
   .header-sub {
@@ -807,7 +814,7 @@
     <div class="header-left">
       <span class="header-mark">P</span>
       <div>
-        <h1 class="header-title">Theo dõi <em>& Phân tích</em></h1>
+        <h1 class="header-title">Theo dõi <span class="ampersand">&amp;</span> <span class="accent">Phân tích</span></h1>
         <div class="header-sub">Sản phẩm · Tồn kho · Khu vực</div>
       </div>
     </div>
@@ -1220,7 +1227,7 @@
 </div>
 <script>
 // ============ STATE ============
-const API_URL = 'https://script.google.com/macros/s/AKfycbxZP0h6spvEwWhP-jdNQd1WcmXN967dPyX3leDWDsZG7HuJ7RLFM9r3oetQwcrCjeai/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycby8AlhMLN1vgcM2Ct1dw1krXb_NN1sKHrDbo3UhN_IKy4zMpi8P_BysOlp34Euo8_M/exec';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -1254,6 +1261,21 @@ async function loadData() {
     RAW_DATA = data.sales || [];
     IMAGE_MAP = data.images || {};
     STOCK_DATA = data.stock || [];
+    
+    // Debug info nếu tồn kho không đọc được
+    if (STOCK_DATA.length === 0 && data.debug) {
+      const dbg = data.debug;
+      let msg = '⚠️ Không đọc được dữ liệu tồn kho. ';
+      if (dbg.sheetsFound && dbg.sheetsFound.length === 0) {
+        msg += 'Không tìm thấy sheet nào có tên chứa "TỒN KHO". ';
+      } else if (dbg.sheetsFound) {
+        msg += 'Đã tìm thấy: ' + dbg.sheetsFound.join(', ') + ' nhưng không đọc được dữ liệu. ';
+      }
+      msg += 'Kiểm tra Console (F12) để xem chi tiết.';
+      console.warn('Stock debug:', dbg);
+      document.getElementById('error').style.display = 'block';
+      document.getElementById('error').textContent = msg;
+    }
     
     document.getElementById('last-updated').textContent = 
       'Cập nhật ' + new Date().toLocaleTimeString('vi-VN');
