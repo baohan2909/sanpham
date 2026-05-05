@@ -1790,30 +1790,72 @@ async function loadData() {
       setLoadingMessage('Đang tải dữ liệu lần đầu (sẽ nhanh hơn ở các lần sau)...');
       
       const res = await fetch(API_URL);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (!res.ok) throw new Error('HTTP ' + res.status + ' từ Apps Script. Kiểm tra deployment có set "Anyone" không.');
       const data = await res.json();
-      if (data.error) throw new Error(data.error);
+      
+      console.log('[DEBUG] API Response:', data);
+      console.log('[DEBUG] Response keys:', Object.keys(data));
+      
+      if (data.error) {
+        console.error('[DEBUG] Apps Script error:', data);
+        throw new Error('Apps Script: ' + data.error);
+      }
       
       META_INFO = data.meta || null;
       IMAGE_MAP = data.images || {};
       STOCK_DATA = data.stock || [];
       
-      const cmStable = data.cmStable || [];
-      const todayData = data.today || [];
+      // FALLBACK: hỗ trợ cả response cũ (sales) và mới (cmStable + today)
+      let cmStable = data.cmStable || [];
+      let todayData = data.today || [];
+      
+      // Nếu Apps Script chưa được redeploy với code mới, response sẽ có "sales" thay vì "cmStable"+"today"
+      if ((!data.cmStable && !data.today) && data.sales) {
+        console.warn('[DEBUG] Apps Script trả về format CŨ (sales), không có cmStable/today.');
+        console.warn('[DEBUG] Cần redeploy Apps Script với code v4 mới.');
+        const today = todayString();
+        const allSales = data.sales || [];
+        todayData = allSales.filter(r => r.ngay === today);
+        cmStable = allSales.filter(r => r.ngay && r.ngay < today);
+      }
+      
       RAW_DATA = [...cmStable, ...todayData];
+      
+      console.log('[DEBUG] Loaded:', {
+        meta: META_INFO,
+        cmStable: cmStable.length,
+        today: todayData.length,
+        stock: STOCK_DATA.length,
+        images: Object.keys(IMAGE_MAP).length,
+        totalRaw: RAW_DATA.length
+      });
+      
+      // Show warning if data is empty
+      if (RAW_DATA.length === 0 && STOCK_DATA.length === 0 && Object.keys(IMAGE_MAP).length === 0) {
+        let msg = '⚠️ Apps Script trả về response rỗng. ';
+        msg += 'Possible issues:\n';
+        msg += '1. Apps Script chưa được redeploy với code v4 mới\n';
+        msg += '2. URL deployment sai\n';
+        msg += '3. Sheet IDs trong CONFIG không đúng\n';
+        msg += 'Mở F12 > Console để xem response chi tiết.';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').innerText = msg;
+      }
       
       if (META_INFO) {
         LOADED_MONTHS.clear();
         LOADED_MONTHS.add(META_INFO.currentMonth);
         
         // Cache cmStable theo ngày (1 ngày qua → khác ngày → cache invalid)
-        cacheSet('cmStable', { 
-          sales: cmStable, 
-          _date: todayString() 
-        }, 86400 * 2); // 2 ngày để safety
+        if (cmStable.length > 0) {
+          cacheSet('cmStable', { 
+            sales: cmStable, 
+            _date: todayString() 
+          }, 86400 * 2);
+        }
         
-        cacheSet('images', IMAGE_MAP, 86400);
-        cacheSet('stock', STOCK_DATA, 1800);
+        if (Object.keys(IMAGE_MAP).length > 0) cacheSet('images', IMAGE_MAP, 86400);
+        if (STOCK_DATA.length > 0) cacheSet('stock', STOCK_DATA, 1800);
         cacheSet('meta', META_INFO, 86400);
       }
       
@@ -1848,15 +1890,25 @@ async function refreshTodayAndStock() {
   try {
     const today = todayString();
     
-    // Fetch today data
-    const todayRes = await fetch(API_URL + '?action=today');
-    if (todayRes.ok) {
-      const todayData = await todayRes.json();
-      if (todayData.sales) {
-        // Loại bỏ data hôm nay cũ trong RAW_DATA, thay bằng mới
-        RAW_DATA = RAW_DATA.filter(r => r.ngay !== today);
-        RAW_DATA = RAW_DATA.concat(todayData.sales);
+    // Fetch today data - thử endpoint mới trước
+    let todayRes = await fetch(API_URL + '?action=today');
+    let todayData = todayRes.ok ? await todayRes.json() : null;
+    
+    // Fallback: nếu endpoint 'today' không tồn tại hoặc không có sales, dùng 'live' và filter
+    if (!todayData || !todayData.sales) {
+      console.log('[DEBUG] action=today không hỗ trợ, fallback sang action=live');
+      const liveRes = await fetch(API_URL + '?action=live');
+      if (liveRes.ok) {
+        const liveData = await liveRes.json();
+        if (liveData.sales) {
+          todayData = { sales: liveData.sales.filter(r => r.ngay === today) };
+        }
       }
+    }
+    
+    if (todayData && todayData.sales) {
+      RAW_DATA = RAW_DATA.filter(r => r.ngay !== today);
+      RAW_DATA = RAW_DATA.concat(todayData.sales);
     }
     
     // Fetch fresh stock
