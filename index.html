@@ -1679,7 +1679,7 @@
 </div>
 <script>
 // ============ STATE ============
-const API_URL = 'https://script.google.com/macros/s/AKfycbyzgmOuOl7YVxY6wH50YVdyHL-Rpnrv194-XCejKsto7tCVQ91A4K0QAffbME-0RLHl/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwLFRIAtQakFlNax7Uezg9w50FIaIihvTOAd6o2Qtqx-zP4VrE6lXxgYJYaCjkmC-D2/exec';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -1750,203 +1750,184 @@ function cacheClearOld() {
 }
 
 // Main entry - load nhanh nhất có thể
+// ============================================================
+// PARALLEL FETCH - chạy nhiều endpoint đồng thời
+// ============================================================
+async function fetchEndpoint(action, params = {}) {
+  let url = API_URL + '?action=' + encodeURIComponent(action);
+  Object.entries(params).forEach(([k, v]) => {
+    url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(v);
+  });
+  
+  const t0 = performance.now();
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`${action}: HTTP ${res.status}`);
+  const data = await res.json();
+  const elapsed = Math.round(performance.now() - t0);
+  console.log(`[FETCH] ${action} ${elapsed}ms`, data.error ? 'ERROR' : 'OK');
+  
+  if (data.error) throw new Error(`${action}: ${data.error}`);
+  return data;
+}
+
+// ============================================================
+// MAIN LOAD - progressive: hiện UI ngay khi có data đầu tiên
+// ============================================================
 async function loadData() {
   document.getElementById('loading').style.display = 'flex';
   document.getElementById('error').style.display = 'none';
+  setLoadingMessage('Đang khởi tạo...');
   
   try {
-    setLoadingMessage('Đang tải...');
-    
-    // Step 1: Try restore càng nhiều càng tốt từ cache trước khi gọi server
-    const cachedCmStable = cacheGet('cmStable');
+    // ============ STEP 1: Restore từ cache (instant) ============
     const cachedImages = cacheGet('images');
     const cachedStock = cacheGet('stock');
     const cachedMeta = cacheGet('meta');
+    const cachedToday = cacheGet('today_' + todayString());
     
-    let needFullFetch = true;
+    let hasCachedData = false;
     
-    // Nếu có cache cmStable hợp lệ (chưa qua ngày mới) → chỉ cần fetch today + stock
-    if (cachedCmStable && cachedCmStable._date === todayString() && cachedMeta) {
-      needFullFetch = false;
-      
+    if (cachedMeta) {
       META_INFO = cachedMeta;
-      IMAGE_MAP = cachedImages || {};
-      
-      // Restore cmStable - filter Phụ kiện
-      RAW_DATA = cachedCmStable.sales.filter(r => isAllowedCategory(r.nganhHang));
-      LOADED_MONTHS.clear();
-      LOADED_MONTHS.add(META_INFO.currentMonth);
-      
-      // Stock có cache nhưng cần refresh (data thay đổi)
-      if (cachedStock) {
-        STOCK_DATA = cachedStock.filter(s => isAllowedCategory(s.nganhCap1));
-      }
-      
-      // Restore các tháng cũ từ cache
+      hasCachedData = true;
+    }
+    if (cachedImages) {
+      IMAGE_MAP = cachedImages;
+      hasCachedData = true;
+    }
+    if (cachedStock) {
+      STOCK_DATA = cachedStock.filter(s => isAllowedCategory(s.nganhCap1));
+      hasCachedData = true;
+    }
+    if (cachedToday) {
+      RAW_DATA = cachedToday.filter(r => isAllowedCategory(r.nganhHang));
+      hasCachedData = true;
+    }
+    
+    // Restore loaded archive months
+    LOADED_MONTHS.clear();
+    if (META_INFO) LOADED_MONTHS.add(META_INFO.currentMonth);
+    if (META_INFO && META_INFO.archiveMonths) {
       restoreFromCache();
-      
-      // Render với data từ cache trước cho mượt
+    }
+    
+    // Render ngay với data từ cache (nếu có)
+    if (hasCachedData) {
       indexStock();
       initFilters();
       applyFilters();
-      
-      // Background fetch today + fresh stock
-      setLoadingMessage('Đang cập nhật dữ liệu hôm nay...');
-      await refreshTodayAndStock();
+      setLoadingMessage('Đang cập nhật dữ liệu mới...');
+    } else {
+      setLoadingMessage('Đang tải lần đầu (~10 giây)...');
     }
     
-    // Nếu chưa có cache hoặc cache hết hạn → fetch full
-    if (needFullFetch) {
-      setLoadingMessage('Đang tải dữ liệu lần đầu (sẽ nhanh hơn ở các lần sau)...');
-      
-      const res = await fetch(API_URL);
-      if (!res.ok) throw new Error('HTTP ' + res.status + ' từ Apps Script. Kiểm tra deployment có set "Anyone" không.');
-      const data = await res.json();
-      
-      console.log('[DEBUG] API Response:', data);
-      console.log('[DEBUG] Response keys:', Object.keys(data));
-      
-      if (data.error) {
-        console.error('[DEBUG] Apps Script error:', data);
-        throw new Error('Apps Script: ' + data.error);
-      }
-      
-      META_INFO = data.meta || null;
-      IMAGE_MAP = data.images || {};
-      STOCK_DATA = data.stock || [];
-      
-      // Filter: chỉ giữ Mũ bảo hiểm và Nón vải, loại bỏ Phụ kiện và các ngành khác
-      const beforeStockCount = STOCK_DATA.length;
-      STOCK_DATA = STOCK_DATA.filter(s => isAllowedCategory(s.nganhCap1));
-      console.log(`[DEBUG] Stock filter: ${beforeStockCount} → ${STOCK_DATA.length} (loại Phụ kiện + ngành khác)`);
-      
-      // FALLBACK: hỗ trợ cả response cũ (sales) và mới (cmStable + today)
-      let cmStable = data.cmStable || [];
-      let todayData = data.today || [];
-      
-      // Nếu Apps Script chưa được redeploy với code mới, response sẽ có "sales" thay vì "cmStable"+"today"
-      if ((!data.cmStable && !data.today) && data.sales) {
-        console.warn('[DEBUG] Apps Script trả về format CŨ (sales), không có cmStable/today.');
-        console.warn('[DEBUG] Cần redeploy Apps Script với code v4 mới.');
-        const today = todayString();
-        const allSales = data.sales || [];
-        todayData = allSales.filter(r => r.ngay === today);
-        cmStable = allSales.filter(r => r.ngay && r.ngay < today);
-      }
-      
-      // Filter sales: chỉ giữ Mũ bảo hiểm và Nón vải
-      const beforeSalesCount = cmStable.length + todayData.length;
-      cmStable = cmStable.filter(r => isAllowedCategory(r.nganhHang));
-      todayData = todayData.filter(r => isAllowedCategory(r.nganhHang));
-      console.log(`[DEBUG] Sales filter: ${beforeSalesCount} → ${cmStable.length + todayData.length}`);
-      
-      RAW_DATA = [...cmStable, ...todayData];
-      
-      console.log('[DEBUG] Loaded:', {
-        meta: META_INFO,
-        cmStable: cmStable.length,
-        today: todayData.length,
-        stock: STOCK_DATA.length,
-        images: Object.keys(IMAGE_MAP).length,
-        totalRaw: RAW_DATA.length
-      });
-      
-      // Show warning if data is empty
-      if (RAW_DATA.length === 0 && STOCK_DATA.length === 0 && Object.keys(IMAGE_MAP).length === 0) {
-        let msg = '⚠️ Apps Script trả về response rỗng. ';
-        msg += 'Possible issues:\n';
-        msg += '1. Apps Script chưa được redeploy với code v4 mới\n';
-        msg += '2. URL deployment sai\n';
-        msg += '3. Sheet IDs trong CONFIG không đúng\n';
-        msg += 'Mở F12 > Console để xem response chi tiết.';
-        document.getElementById('error').style.display = 'block';
-        document.getElementById('error').innerText = msg;
-      }
-      
-      if (META_INFO) {
-        LOADED_MONTHS.clear();
-        LOADED_MONTHS.add(META_INFO.currentMonth);
-        
-        // Cache cmStable theo ngày (1 ngày qua → khác ngày → cache invalid)
-        if (cmStable.length > 0) {
-          cacheSet('cmStable', { 
-            sales: cmStable, 
-            _date: todayString() 
-          }, 86400 * 2);
-        }
-        
-        if (Object.keys(IMAGE_MAP).length > 0) cacheSet('images', IMAGE_MAP, 86400);
-        if (STOCK_DATA.length > 0) cacheSet('stock', STOCK_DATA, 1800);
-        cacheSet('meta', META_INFO, 86400);
-      }
-      
-      // Restore archive months
-      if (META_INFO && META_INFO.archiveMonths) {
-        restoreFromCache();
-      }
-      
-      indexStock();
-      initFilters();
-      applyFilters();
+    // ============ STEP 2: Fetch các endpoint song song ============
+    // Quan trọng: fetch SONG SONG, không tuần tự!
+    const t0 = performance.now();
+    
+    const [metaResult, todayResult, stockResult, imagesResult] = await Promise.allSettled([
+      fetchEndpoint('meta'),
+      fetchEndpoint('today'),
+      fetchEndpoint('stock'),
+      fetchEndpoint('images')
+    ]);
+    
+    const totalElapsed = Math.round(performance.now() - t0);
+    console.log(`[LOAD] Tất cả endpoint hoàn tất trong ${totalElapsed}ms`);
+    
+    // ============ STEP 3: Process results ============
+    if (metaResult.status === 'fulfilled') {
+      META_INFO = metaResult.value;
+      cacheSet('meta', META_INFO, 86400);
+    } else {
+      console.error('[LOAD] meta failed:', metaResult.reason);
     }
     
+    if (todayResult.status === 'fulfilled') {
+      const todaySales = (todayResult.value.sales || [])
+        .filter(r => isAllowedCategory(r.nganhHang));
+      // Replace data hôm nay trong RAW_DATA
+      const today = todayString();
+      RAW_DATA = RAW_DATA.filter(r => r.ngay !== today);
+      RAW_DATA = RAW_DATA.concat(todaySales);
+      // Cache today
+      cacheSet('today_' + today, todayResult.value.sales || [], 600); // 10 phút
+    } else {
+      console.error('[LOAD] today failed:', todayResult.reason);
+    }
+    
+    if (stockResult.status === 'fulfilled') {
+      const stockRaw = stockResult.value.stock || [];
+      STOCK_DATA = stockRaw.filter(s => isAllowedCategory(s.nganhCap1));
+      cacheSet('stock', stockRaw, 1800); // cache raw để filter sau
+    } else {
+      console.error('[LOAD] stock failed:', stockResult.reason);
+    }
+    
+    if (imagesResult.status === 'fulfilled') {
+      IMAGE_MAP = imagesResult.value.images || {};
+      cacheSet('images', IMAGE_MAP, 86400);
+    } else {
+      console.error('[LOAD] images failed:', imagesResult.reason);
+    }
+    
+    // Báo lỗi nếu tất cả fail
+    const allFailed = [metaResult, todayResult, stockResult, imagesResult]
+      .every(r => r.status === 'rejected');
+    if (allFailed) {
+      throw new Error('Không endpoint nào trả về data. Kiểm tra URL Apps Script.');
+    }
+    
+    // ============ STEP 4: Final render ============
     document.getElementById('last-updated').textContent = 
       'Cập nhật ' + new Date().toLocaleTimeString('vi-VN');
     
+    indexStock();
+    initFilters();
+    applyFilters();
     updateInfoBar();
     setupAutoRefresh();
+    
+    console.log(`[LOAD] Hoàn tất - ${RAW_DATA.length} sales, ${STOCK_DATA.length} stock, ${Object.keys(IMAGE_MAP).length} images`);
     
   } catch (err) {
     document.getElementById('error').style.display = 'block';
     document.getElementById('error').textContent = 
-      'Lỗi tải dữ liệu: ' + err.message + '. Kiểm tra URL Apps Script hoặc tên sheet.';
-    console.error(err);
+      'Lỗi tải dữ liệu: ' + err.message + '. Mở F12 → Console để xem chi tiết.';
+    console.error('[LOAD ERROR]', err);
   } finally {
     document.getElementById('loading').style.display = 'none';
   }
 }
 
-// Refresh chỉ data hôm nay + stock - request rất nhỏ
+// Refresh chỉ data hôm nay + stock - request song song nhỏ gọn
 async function refreshTodayAndStock() {
   try {
     const today = todayString();
     
-    // Fetch today data - thử endpoint mới trước
-    let todayRes = await fetch(API_URL + '?action=today');
-    let todayData = todayRes.ok ? await todayRes.json() : null;
+    // Fetch song song
+    const [todayResult, stockResult] = await Promise.allSettled([
+      fetchEndpoint('today'),
+      fetchEndpoint('stock')
+    ]);
     
-    // Fallback: nếu endpoint 'today' không tồn tại hoặc không có sales, dùng 'live' và filter
-    if (!todayData || !todayData.sales) {
-      console.log('[DEBUG] action=today không hỗ trợ, fallback sang action=live');
-      const liveRes = await fetch(API_URL + '?action=live');
-      if (liveRes.ok) {
-        const liveData = await liveRes.json();
-        if (liveData.sales) {
-          todayData = { sales: liveData.sales.filter(r => r.ngay === today) };
-        }
-      }
-    }
-    
-    if (todayData && todayData.sales) {
+    if (todayResult.status === 'fulfilled' && todayResult.value.sales) {
       RAW_DATA = RAW_DATA.filter(r => r.ngay !== today);
-      const filtered = todayData.sales.filter(r => isAllowedCategory(r.nganhHang));
+      const filtered = todayResult.value.sales.filter(r => isAllowedCategory(r.nganhHang));
       RAW_DATA = RAW_DATA.concat(filtered);
+      cacheSet('today_' + today, todayResult.value.sales, 600);
     }
     
-    // Fetch fresh stock
-    const stockRes = await fetch(API_URL + '?action=stock');
-    if (stockRes.ok) {
-      const stockData = await stockRes.json();
-      if (stockData.stock) {
-        STOCK_DATA = stockData.stock.filter(s => isAllowedCategory(s.nganhCap1));
-        cacheSet('stock', STOCK_DATA, 1800);
-      }
+    if (stockResult.status === 'fulfilled' && stockResult.value.stock) {
+      const stockRaw = stockResult.value.stock;
+      STOCK_DATA = stockRaw.filter(s => isAllowedCategory(s.nganhCap1));
+      cacheSet('stock', stockRaw, 1800);
     }
     
     indexStock();
     if (typeof renderAll === 'function') applyFilters();
   } catch (err) {
-    console.warn('Refresh failed:', err);
+    console.warn('[REFRESH] Failed:', err);
   }
 }
 
@@ -1954,7 +1935,7 @@ function todayString() {
   return new Date().toISOString().slice(0, 10);
 }
 
-// Load thêm tháng cũ (lazy)
+// Load thêm tháng cũ (lazy) - cache vĩnh viễn vì data không đổi
 async function loadMonth(month) {
   if (LOADED_MONTHS.has(month)) return true;
   if (!META_INFO || !META_INFO.archiveMonths.includes(month)) return false;
@@ -1970,25 +1951,23 @@ async function loadMonth(month) {
   
   // Fetch từ server
   try {
-    setLoadingMessage(`Đang tải tháng ${month}...`);
+    setLoadingMessage(`Đang tải tháng ${month} (~${Math.round(60)} giây cho tháng có 60k dòng)...`);
     document.getElementById('loading').style.display = 'flex';
     
-    const res = await fetch(API_URL + '?action=month&month=' + encodeURIComponent(month));
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
+    const data = await fetchEndpoint('month', { month: month });
     
     const sales = data.sales || [];
     const filtered = sales.filter(r => isAllowedCategory(r.nganhHang));
     RAW_DATA = RAW_DATA.concat(filtered);
     LOADED_MONTHS.add(month);
     
-    // Cache vĩnh viễn (data tháng cũ không đổi) - cache cả data đã filter để lần sau nhanh hơn
+    // Cache vĩnh viễn (data tháng cũ không đổi)
     cacheSet('month_' + month, filtered, null);
     
+    console.log(`[MONTH] Loaded ${month}: ${filtered.length}/${sales.length} rows`);
     return true;
   } catch (err) {
-    console.error('Failed to load month', month, err);
+    console.error(`[MONTH] Failed to load ${month}:`, err);
     return false;
   } finally {
     document.getElementById('loading').style.display = 'none';
@@ -2002,23 +1981,52 @@ async function ensureMonthsLoaded(fromDate, toDate) {
   const fromMonth = fromDate.substring(0, 7);
   const toMonth = toDate.substring(0, 7);
   
-  const monthsNeeded = [];
+  const monthsCached = [];
+  const monthsToFetch = [];
   let cur = fromMonth;
   while (cur <= toMonth) {
     if (!LOADED_MONTHS.has(cur) && META_INFO.archiveMonths.includes(cur)) {
-      monthsNeeded.push(cur);
+      // Check cache first
+      if (cacheGet('month_' + cur)) {
+        monthsCached.push(cur);
+      } else {
+        monthsToFetch.push(cur);
+      }
     }
     cur = nextMonthStr(cur);
   }
   
-  if (monthsNeeded.length === 0) return;
-  
-  // Load các tháng cần thiết tuần tự
-  for (const month of monthsNeeded) {
+  // Restore từ cache instant
+  for (const month of monthsCached) {
     await loadMonth(month);
   }
   
-  // Update info bar
+  if (monthsToFetch.length === 0) {
+    updateInfoBar();
+    return;
+  }
+  
+  // Cảnh báo nếu cần fetch nhiều tháng (mỗi tháng ~30-60s)
+  if (monthsToFetch.length >= 2) {
+    const estimatedSec = monthsToFetch.length * 45;
+    const ok = confirm(
+      `Cần tải ${monthsToFetch.length} tháng (${monthsToFetch.join(', ')}) từ server.\n` +
+      `Ước tính: ~${estimatedSec} giây.\n\n` +
+      `Tiếp tục? (Lần sau sẽ instant vì đã cache)`
+    );
+    if (!ok) return;
+  }
+  
+  // Load song song để nhanh hơn (Apps Script handle multiple parallel requests OK)
+  setLoadingMessage(`Đang tải ${monthsToFetch.length} tháng song song...`);
+  document.getElementById('loading').style.display = 'flex';
+  
+  try {
+    await Promise.allSettled(monthsToFetch.map(month => loadMonth(month)));
+  } finally {
+    document.getElementById('loading').style.display = 'none';
+  }
+  
   updateInfoBar();
 }
 
@@ -2143,11 +2151,16 @@ function initFilters() {
   document.getElementById('filter-region').innerHTML = '<option value="">Tất cả khu vực</option>' + 
     regions.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
   
-  // Default date range
-  const dates = RAW_DATA.map(r => r.ngay).filter(Boolean).sort();
-  if (dates.length > 0) {
-    document.getElementById('filter-date-from').value = dates[0];
-    document.getElementById('filter-date-to').value = dates[dates.length-1];
+  // Default: chỉ HÔM NAY (file LIVE) - nhanh nhất
+  // User muốn xem khoảng dài hơn thì click các nút quick date (sẽ auto load tháng cũ)
+  const fromInput = document.getElementById('filter-date-from');
+  const toInput = document.getElementById('filter-date-to');
+  
+  // Chỉ set default nếu chưa có giá trị (lần đầu init)
+  if (!fromInput.value && !toInput.value) {
+    const today = todayString();
+    fromInput.value = today;
+    toInput.value = today;
   }
 }
 
