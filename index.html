@@ -299,7 +299,22 @@
     color: var(--ink);
     border-bottom-color: var(--terracotta);
   }
-  .tab-icon { font-size: 14px; }
+  .tab-icon { 
+    width: 16px; 
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tab-icon svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
   .tab-badge {
     background: var(--negative);
     color: white;
@@ -790,6 +805,362 @@
     color: var(--terracotta);
   }
   
+  /* ========== LIVE FEED ========== */
+  .live-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 18px;
+    padding: 16px 20px;
+    background: var(--bg-deep);
+    color: var(--bg);
+    border-left: 4px solid var(--terracotta);
+  }
+  .live-header-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .live-pulse {
+    width: 12px;
+    height: 12px;
+    background: #4ade80;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(74,222,128,0.7);
+    animation: livePulse 1.8s infinite;
+  }
+  @keyframes livePulse {
+    0% { box-shadow: 0 0 0 0 rgba(74,222,128,0.7); }
+    70% { box-shadow: 0 0 0 12px rgba(74,222,128,0); }
+    100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+  }
+  .live-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .live-control-btn {
+    background: rgba(255,255,255,0.1);
+    color: var(--bg);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .live-control-btn:hover { background: rgba(255,255,255,0.2); }
+  .live-control-btn.active { background: var(--terracotta); border-color: var(--terracotta); }
+  .live-control-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
+  
+  .live-select {
+    background: rgba(255,255,255,0.1);
+    color: var(--bg);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 10px;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .live-select option { background: var(--bg-deep); color: white; }
+  
+  /* Stats bar */
+  .live-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0;
+    margin-bottom: 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .live-stat {
+    padding: 14px 18px;
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .live-stat:last-child { border-right: none; }
+  .live-stat-label {
+    font-size: 10px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .live-stat-value {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .live-stat-meta {
+    font-size: 10px;
+    color: var(--ink-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
+  /* Top 5 hot bar */
+  .live-hot-bar {
+    background: linear-gradient(135deg, #fff5f0 0%, #fde8d9 100%);
+    border: 1px solid var(--terracotta-soft);
+    padding: 12px 18px;
+    margin-bottom: 18px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    overflow-x: auto;
+  }
+  .live-hot-label {
+    font-size: 10px;
+    color: var(--terracotta);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .live-hot-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    background: white;
+    border: 1px solid var(--terracotta-soft);
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .live-hot-item:hover { border-color: var(--terracotta); transform: translateY(-1px); }
+  .live-hot-item img {
+    width: 28px; height: 28px;
+    object-fit: cover;
+    background: var(--bg-elevated);
+  }
+  .live-hot-item-meta {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+  .live-hot-item-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .live-hot-item-stat {
+    font-size: 10px;
+    color: var(--terracotta);
+    font-weight: 600;
+  }
+  
+  /* Feed container */
+  .live-feed {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    max-height: calc(100vh - 380px);
+    min-height: 500px;
+    overflow-y: auto;
+  }
+  .live-feed::-webkit-scrollbar { width: 8px; }
+  .live-feed::-webkit-scrollbar-track { background: var(--bg-elevated); }
+  .live-feed::-webkit-scrollbar-thumb { background: var(--line-strong); }
+  
+  .live-item {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: 14px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    align-items: center;
+    transition: background 0.3s;
+    cursor: pointer;
+  }
+  .live-item:hover { background: var(--bg-elevated); }
+  
+  .live-item.is-new {
+    animation: livFlashIn 0.6s ease-out, livFadeBg 4s ease-out;
+  }
+  @keyframes livFlashIn {
+    0% { transform: translateY(-20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes livFadeBg {
+    0% { background: #fff7e6; }
+    100% { background: var(--bg-card); }
+  }
+  
+  .live-item.is-refund {
+    background: #fef2f2;
+  }
+  .live-item.is-refund:hover { background: #fee2e2; }
+  
+  .live-item-img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+  }
+  .live-item-img-placeholder {
+    width: 64px; height: 64px;
+    background: var(--bg-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-muted);
+    font-size: 9px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
+  .live-item-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .live-item-time-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .live-item-time {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  .live-item-store {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .live-item-time-ago {
+    color: var(--ink-muted);
+    font-size: 10px;
+  }
+  .live-item-time-ago.fresh {
+    color: var(--positive);
+    font-weight: 600;
+  }
+  
+  .live-item-product {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .live-item-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .live-item-qty {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--terracotta);
+  }
+  .live-item-qty.refund { color: var(--negative); }
+  
+  .live-item-meta {
+    display: flex;
+    gap: 14px;
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-family: 'JetBrains Mono', monospace;
+    flex-wrap: wrap;
+  }
+  .live-item-meta strong { color: var(--ink); font-weight: 600; }
+  
+  .live-item-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+  
+  /* Tags within live items */
+  .live-tag {
+    font-size: 9px;
+    padding: 2px 7px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .live-tag svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .tag-hot {
+    background: var(--terracotta);
+    color: white;
+  }
+  .tag-low-stock {
+    background: var(--negative);
+    color: white;
+  }
+  .tag-new-product {
+    background: var(--positive);
+    color: white;
+  }
+  .tag-refund {
+    background: var(--negative-soft);
+    color: var(--negative);
+    border: 1px solid var(--negative);
+  }
+  
+  /* Highlight banner above hot products */
+  .live-hot-banner {
+    background: var(--terracotta);
+    color: white;
+    padding: 4px 14px 4px 18px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .live-hot-banner svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+  
+  .live-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ink-muted);
+    font-style: italic;
+  }
+  
+  .live-status-bar {
+    padding: 8px 18px;
+    background: var(--bg-elevated);
+    border-top: 1px solid var(--line);
+    font-size: 11px;
+    color: var(--ink-muted);
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
   /* ========== INFO BAR ========== */
   .info-bar {
     background: var(--bg-deep);
@@ -812,7 +1183,6 @@
   
   <header class="header">
     <div class="header-left">
-      <span class="header-mark">P</span>
       <div>
         <h1 class="header-title">Theo dõi <span class="ampersand">&amp;</span> <span class="accent">Phân tích</span></h1>
         <div class="header-sub">Sản phẩm · Tồn kho · Khu vực</div>
@@ -872,8 +1242,10 @@
       <button class="quick-date-btn" data-range="7d">7 ngày</button>
       <button class="quick-date-btn" data-range="14d">14 ngày</button>
       <button class="quick-date-btn" data-range="30d">30 ngày</button>
+      <button class="quick-date-btn" data-range="90d">90 ngày</button>
       <button class="quick-date-btn" data-range="thisMonth">Tháng này</button>
       <button class="quick-date-btn" data-range="lastMonth">Tháng trước</button>
+      <button class="quick-date-btn" data-range="ytd">Đầu năm đến nay</button>
       <button class="quick-date-btn" data-range="all">Toàn bộ</button>
     </div>
   </div>
@@ -909,20 +1281,100 @@
   
   <!-- ============ TABS ============ -->
   <div class="tabs">
-    <button class="tab active" data-tab="hot"><span class="tab-icon">🔥</span> Bán chạy hôm nay</button>
-    <button class="tab" data-tab="catalogue"><span class="tab-icon">🖼️</span> Catalogue</button>
-    <button class="tab" data-tab="stock"><span class="tab-icon">📦</span> Tồn kho × Bán</button>
-    <button class="tab" data-tab="velocity"><span class="tab-icon">⚡</span> Tần suất bán</button>
-    <button class="tab" data-tab="region"><span class="tab-icon">🗺️</span> Khu vực</button>
-    <button class="tab" data-tab="attributes"><span class="tab-icon">🎨</span> Màu × Size</button>
-    <button class="tab" data-tab="transfer"><span class="tab-icon">🔄</span> Đề xuất luân chuyển</button>
-    <button class="tab" data-tab="lifecycle"><span class="tab-icon">📅</span> Vòng đời SP</button>
-    <button class="tab" data-tab="time"><span class="tab-icon">🕐</span> Theo thời gian</button>
-    <button class="tab" data-tab="raw"><span class="tab-icon">📋</span> Dữ liệu thô</button>
+    <button class="tab active" data-tab="live"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M8.5 8.5L12 5l3.5 3.5"/><path d="M5 12L8.5 8.5"/><path d="M19 12l-3.5-3.5"/><circle cx="12" cy="12" r="3"/><path d="M12 19v-3"/><path d="M5 12c0 3.866 3.134 7 7 7s7-3.134 7-7"/></svg></span> LIVE</button>
+    <button class="tab" data-tab="hot"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span> Bán chạy hôm nay</button>
+    <button class="tab" data-tab="catalogue"><span class="tab-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg></span> Catalogue</button>
+    <button class="tab" data-tab="stock"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span> Tồn kho × Bán</button>
+    <button class="tab" data-tab="velocity"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span> Tần suất bán</button>
+    <button class="tab" data-tab="region"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg></span> Khu vực</button>
+    <button class="tab" data-tab="attributes"><span class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg></span> Màu × Size</button>
+    <button class="tab" data-tab="transfer"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg></span> Đề xuất luân chuyển</button>
+    <button class="tab" data-tab="lifecycle"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg></span> Vòng đời SP</button>
+    <button class="tab" data-tab="time"><span class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span> Theo thời gian</button>
+    <button class="tab" data-tab="raw"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg></span> Dữ liệu thô</button>
+  </div>
+  
+  <!-- ============ SECTION: LIVE ============ -->
+  <div class="section active" id="section-live">
+    <div class="live-header">
+      <div class="live-header-title">
+        <span class="live-pulse"></span>
+        LIVE FEED
+      </div>
+      <div class="live-controls">
+        <select id="live-filter-store" class="live-select">
+          <option value="">Tất cả cửa hàng</option>
+        </select>
+        <select id="live-filter-cat" class="live-select">
+          <option value="">Tất cả ngành</option>
+        </select>
+        <button class="live-control-btn active" id="live-toggle-sound" onclick="toggleLiveSound()">
+          <svg viewBox="0 0 24 24" id="sound-icon-on" style="display:inline"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          <svg viewBox="0 0 24 24" id="sound-icon-off" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>
+          <span id="sound-label">SOUND</span>
+        </button>
+        <button class="live-control-btn active" id="live-toggle-pause" onclick="toggleLivePause()">
+          <svg viewBox="0 0 24 24" id="pause-icon-play"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <svg viewBox="0 0 24 24" id="pause-icon-pause" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          <span id="pause-label">LIVE</span>
+        </button>
+        <button class="live-control-btn" onclick="refreshLiveNow()">
+          <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
+          REFRESH
+        </button>
+      </div>
+    </div>
+    
+    <!-- Stats bar -->
+    <div class="live-stats" id="live-stats">
+      <div class="live-stat">
+        <div class="live-stat-label">Đơn hôm nay</div>
+        <div class="live-stat-value" id="live-stat-orders">—</div>
+        <div class="live-stat-meta">unique soDon</div>
+      </div>
+      <div class="live-stat">
+        <div class="live-stat-label">SP bán hôm nay</div>
+        <div class="live-stat-value" id="live-stat-units">—</div>
+        <div class="live-stat-meta" id="live-stat-units-meta">—</div>
+      </div>
+      <div class="live-stat">
+        <div class="live-stat-label">Đơn cuối</div>
+        <div class="live-stat-value" id="live-stat-last">—</div>
+        <div class="live-stat-meta" id="live-stat-last-meta">—</div>
+      </div>
+      <div class="live-stat">
+        <div class="live-stat-label">Tốc độ</div>
+        <div class="live-stat-value" id="live-stat-velocity">—</div>
+        <div class="live-stat-meta">đơn/giờ vừa qua</div>
+      </div>
+      <div class="live-stat">
+        <div class="live-stat-label">Cửa hàng đang bán</div>
+        <div class="live-stat-value" id="live-stat-stores">—</div>
+        <div class="live-stat-meta">có giao dịch hôm nay</div>
+      </div>
+    </div>
+    
+    <!-- Top 5 hot bar -->
+    <div class="live-hot-bar" id="live-hot-bar">
+      <div class="live-hot-label">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+        TOP 5 NÓNG NHẤT (1H QUA)
+      </div>
+      <div id="live-hot-items" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    </div>
+    
+    <!-- Feed -->
+    <div class="live-feed" id="live-feed">
+      <div class="live-empty">Chưa có giao dịch nào hôm nay</div>
+    </div>
+    <div class="live-status-bar">
+      <span id="live-status-info">—</span>
+      <span id="live-status-poll">Auto refresh 5 phút</span>
+    </div>
   </div>
   
   <!-- ============ SECTION: HOT ============ -->
-  <div class="section active" id="section-hot">
+  <div class="section" id="section-hot">
     <div class="insights-grid" id="hot-insights"></div>
     
     <div class="panel">
@@ -984,11 +1436,11 @@
       <div class="product-controls">
         <select id="stock-status-filter">
           <option value="all">Tất cả trạng thái</option>
-          <option value="critical">🔴 Cực kỳ thiếu (DoS &lt; 7)</option>
-          <option value="low">🟡 Sắp hết (DoS 7-14)</option>
-          <option value="ok">🟢 Đủ (DoS 14-60)</option>
-          <option value="excess">⚪ Tồn dư (DoS &gt; 60)</option>
-          <option value="nosale">⚫ Tồn nhưng chưa bán</option>
+          <option value="critical">● Cực kỳ thiếu (DoS &lt; 7)</option>
+          <option value="low">● Sắp hết (DoS 7-14)</option>
+          <option value="ok">● Đủ (DoS 14-60)</option>
+          <option value="excess">○ Tồn dư (DoS &gt; 60)</option>
+          <option value="nosale">○ Tồn nhưng chưa bán</option>
         </select>
         <div style="margin-left:auto" id="stock-count"></div>
       </div>
@@ -1029,10 +1481,10 @@
       <div class="product-controls">
         <select id="vel-class">
           <option value="all">Tất cả phân loại</option>
-          <option value="hot">🔥 Hot (≥80% ngày có bán)</option>
-          <option value="warm">🌤 Warm (40-80%)</option>
-          <option value="cold">❄️ Cold (10-40%)</option>
-          <option value="dead">💀 Dead (&lt;10%)</option>
+          <option value="hot">Hot (≥80% ngày có bán)</option>
+          <option value="warm">Warm (40-80%)</option>
+          <option value="cold">Cold (10-40%)</option>
+          <option value="dead">Dead (&lt;10%)</option>
         </select>
         <div style="margin-left:auto" id="vel-count"></div>
       </div>
@@ -1227,7 +1679,7 @@
 </div>
 <script>
 // ============ STATE ============
-const API_URL = 'https://script.google.com/macros/s/AKfycby8AlhMLN1vgcM2Ct1dw1krXb_NN1sKHrDbo3UhN_IKy4zMpi8P_BysOlp34Euo8_M/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwQuGv_4F-gvwpjC9a400LCQmVo7PnnRq31yZkSvpdAVABKPHoRBr5GLjsRNb9dD8x7/exec';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -1240,59 +1692,298 @@ let STOCK_BY_REGION = {};    // tổng tồn theo khu vực
 let STOCK_BY_STORE = {};     // {code: {storeCode: {tonHienTai, tonDuTinh, ...}}}
 let PRODUCT_AGG = [];        // sản phẩm tổng hợp đã có thông tin tồn
 
-let CURRENT_TAB = 'hot';
+let CURRENT_TAB = 'live';
 let CURRENT_PAGE = 1;
 const PAGE_SIZE = 50;
 let SORT_COL = 'ngay';
 let SORT_DIR = 'desc';
 let CHARTS = {};
 
-// ============ FETCH ============
+// ============ MULTI-FILE LAZY LOADING + CACHE ============
+let META_INFO = null;          // { archiveMonths, currentMonth, ... }
+let LOADED_MONTHS = new Set(); // những tháng đã load
+let LOAD_AUTO_REFRESH = null;  // timer
+
+const CACHE_PREFIX = 'ns_dash_';
+const CACHE_VERSION = 'v1';
+
+// LocalStorage cache helpers
+function cacheGet(key) {
+  try {
+    const raw = localStorage.getItem(CACHE_PREFIX + CACHE_VERSION + '_' + key);
+    if (!raw) return null;
+    const obj = JSON.parse(raw);
+    if (obj.expiry && Date.now() > obj.expiry) {
+      localStorage.removeItem(CACHE_PREFIX + CACHE_VERSION + '_' + key);
+      return null;
+    }
+    return obj.data;
+  } catch (e) { return null; }
+}
+function cacheSet(key, data, ttlSeconds) {
+  try {
+    const obj = { data, expiry: ttlSeconds ? Date.now() + ttlSeconds * 1000 : null };
+    localStorage.setItem(CACHE_PREFIX + CACHE_VERSION + '_' + key, JSON.stringify(obj));
+    return true;
+  } catch (e) {
+    // Quota exceeded - clear old caches
+    console.warn('Cache write failed:', e.message);
+    cacheClearOld();
+    return false;
+  }
+}
+function cacheClearOld() {
+  // Remove all our cache keys to free space
+  Object.keys(localStorage)
+    .filter(k => k.startsWith(CACHE_PREFIX))
+    .forEach(k => localStorage.removeItem(k));
+}
+
+// Main entry - load nhanh nhất có thể
 async function loadData() {
   document.getElementById('loading').style.display = 'flex';
   document.getElementById('error').style.display = 'none';
   
   try {
-    const res = await fetch(API_URL);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
+    setLoadingMessage('Đang tải...');
     
-    RAW_DATA = data.sales || [];
-    IMAGE_MAP = data.images || {};
-    STOCK_DATA = data.stock || [];
+    // Step 1: Try restore càng nhiều càng tốt từ cache trước khi gọi server
+    const cachedCmStable = cacheGet('cmStable');
+    const cachedImages = cacheGet('images');
+    const cachedStock = cacheGet('stock');
+    const cachedMeta = cacheGet('meta');
     
-    // Debug info nếu tồn kho không đọc được
-    if (STOCK_DATA.length === 0 && data.debug) {
-      const dbg = data.debug;
-      let msg = '⚠️ Không đọc được dữ liệu tồn kho. ';
-      if (dbg.sheetsFound && dbg.sheetsFound.length === 0) {
-        msg += 'Không tìm thấy sheet nào có tên chứa "TỒN KHO". ';
-      } else if (dbg.sheetsFound) {
-        msg += 'Đã tìm thấy: ' + dbg.sheetsFound.join(', ') + ' nhưng không đọc được dữ liệu. ';
+    let needFullFetch = true;
+    
+    // Nếu có cache cmStable hợp lệ (chưa qua ngày mới) → chỉ cần fetch today + stock
+    if (cachedCmStable && cachedCmStable._date === todayString() && cachedMeta) {
+      needFullFetch = false;
+      
+      META_INFO = cachedMeta;
+      IMAGE_MAP = cachedImages || {};
+      
+      // Restore cmStable
+      RAW_DATA = [...cachedCmStable.sales];
+      LOADED_MONTHS.clear();
+      LOADED_MONTHS.add(META_INFO.currentMonth);
+      
+      // Stock có cache nhưng cần refresh (data thay đổi)
+      if (cachedStock) {
+        STOCK_DATA = cachedStock;
       }
-      msg += 'Kiểm tra Console (F12) để xem chi tiết.';
-      console.warn('Stock debug:', dbg);
-      document.getElementById('error').style.display = 'block';
-      document.getElementById('error').textContent = msg;
+      
+      // Restore các tháng cũ từ cache
+      restoreFromCache();
+      
+      // Render với data từ cache trước cho mượt
+      indexStock();
+      initFilters();
+      applyFilters();
+      
+      // Background fetch today + fresh stock
+      setLoadingMessage('Đang cập nhật dữ liệu hôm nay...');
+      await refreshTodayAndStock();
+    }
+    
+    // Nếu chưa có cache hoặc cache hết hạn → fetch full
+    if (needFullFetch) {
+      setLoadingMessage('Đang tải dữ liệu lần đầu (sẽ nhanh hơn ở các lần sau)...');
+      
+      const res = await fetch(API_URL);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      
+      META_INFO = data.meta || null;
+      IMAGE_MAP = data.images || {};
+      STOCK_DATA = data.stock || [];
+      
+      const cmStable = data.cmStable || [];
+      const todayData = data.today || [];
+      RAW_DATA = [...cmStable, ...todayData];
+      
+      if (META_INFO) {
+        LOADED_MONTHS.clear();
+        LOADED_MONTHS.add(META_INFO.currentMonth);
+        
+        // Cache cmStable theo ngày (1 ngày qua → khác ngày → cache invalid)
+        cacheSet('cmStable', { 
+          sales: cmStable, 
+          _date: todayString() 
+        }, 86400 * 2); // 2 ngày để safety
+        
+        cacheSet('images', IMAGE_MAP, 86400);
+        cacheSet('stock', STOCK_DATA, 1800);
+        cacheSet('meta', META_INFO, 86400);
+      }
+      
+      // Restore archive months
+      if (META_INFO && META_INFO.archiveMonths) {
+        restoreFromCache();
+      }
+      
+      indexStock();
+      initFilters();
+      applyFilters();
     }
     
     document.getElementById('last-updated').textContent = 
       'Cập nhật ' + new Date().toLocaleTimeString('vi-VN');
     
     updateInfoBar();
-    indexStock();
-    initFilters();
-    applyFilters();
+    setupAutoRefresh();
     
   } catch (err) {
     document.getElementById('error').style.display = 'block';
     document.getElementById('error').textContent = 
-      'Lỗi tải dữ liệu: ' + err.message + '. Có thể URL Apps Script hết hạn hoặc sheet đổi tên.';
+      'Lỗi tải dữ liệu: ' + err.message + '. Kiểm tra URL Apps Script hoặc tên sheet.';
     console.error(err);
   } finally {
     document.getElementById('loading').style.display = 'none';
   }
+}
+
+// Refresh chỉ data hôm nay + stock - request rất nhỏ
+async function refreshTodayAndStock() {
+  try {
+    const today = todayString();
+    
+    // Fetch today data
+    const todayRes = await fetch(API_URL + '?action=today');
+    if (todayRes.ok) {
+      const todayData = await todayRes.json();
+      if (todayData.sales) {
+        // Loại bỏ data hôm nay cũ trong RAW_DATA, thay bằng mới
+        RAW_DATA = RAW_DATA.filter(r => r.ngay !== today);
+        RAW_DATA = RAW_DATA.concat(todayData.sales);
+      }
+    }
+    
+    // Fetch fresh stock
+    const stockRes = await fetch(API_URL + '?action=stock');
+    if (stockRes.ok) {
+      const stockData = await stockRes.json();
+      if (stockData.stock) {
+        STOCK_DATA = stockData.stock;
+        cacheSet('stock', STOCK_DATA, 1800);
+      }
+    }
+    
+    indexStock();
+    if (typeof renderAll === 'function') applyFilters();
+  } catch (err) {
+    console.warn('Refresh failed:', err);
+  }
+}
+
+function todayString() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// Load thêm tháng cũ (lazy)
+async function loadMonth(month) {
+  if (LOADED_MONTHS.has(month)) return true;
+  if (!META_INFO || !META_INFO.archiveMonths.includes(month)) return false;
+  
+  // Try cache first
+  const cached = cacheGet('month_' + month);
+  if (cached) {
+    RAW_DATA = RAW_DATA.concat(cached);
+    LOADED_MONTHS.add(month);
+    return true;
+  }
+  
+  // Fetch từ server
+  try {
+    setLoadingMessage(`Đang tải tháng ${month}...`);
+    document.getElementById('loading').style.display = 'flex';
+    
+    const res = await fetch(API_URL + '?action=month&month=' + encodeURIComponent(month));
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    
+    const sales = data.sales || [];
+    RAW_DATA = RAW_DATA.concat(sales);
+    LOADED_MONTHS.add(month);
+    
+    // Cache vĩnh viễn (data tháng cũ không đổi)
+    cacheSet('month_' + month, sales, null);
+    
+    return true;
+  } catch (err) {
+    console.error('Failed to load month', month, err);
+    return false;
+  } finally {
+    document.getElementById('loading').style.display = 'none';
+  }
+}
+
+// Đảm bảo các tháng trong khoảng đã được load
+async function ensureMonthsLoaded(fromDate, toDate) {
+  if (!META_INFO) return;
+  
+  const fromMonth = fromDate.substring(0, 7);
+  const toMonth = toDate.substring(0, 7);
+  
+  const monthsNeeded = [];
+  let cur = fromMonth;
+  while (cur <= toMonth) {
+    if (!LOADED_MONTHS.has(cur) && META_INFO.archiveMonths.includes(cur)) {
+      monthsNeeded.push(cur);
+    }
+    cur = nextMonthStr(cur);
+  }
+  
+  if (monthsNeeded.length === 0) return;
+  
+  // Load các tháng cần thiết tuần tự
+  for (const month of monthsNeeded) {
+    await loadMonth(month);
+  }
+  
+  // Update info bar
+  updateInfoBar();
+}
+
+function nextMonthStr(yyyyMM) {
+  const [y, m] = yyyyMM.split('-').map(Number);
+  if (m === 12) return (y + 1) + '-01';
+  return y + '-' + String(m + 1).padStart(2, '0');
+}
+
+// Restore tất cả tháng đã có cache
+function restoreFromCache() {
+  if (!META_INFO) return 0;
+  let count = 0;
+  META_INFO.archiveMonths.forEach(month => {
+    if (LOADED_MONTHS.has(month)) return;
+    const cached = cacheGet('month_' + month);
+    if (cached) {
+      RAW_DATA = RAW_DATA.concat(cached);
+      LOADED_MONTHS.add(month);
+      count++;
+    }
+  });
+  return count;
+}
+
+function setLoadingMessage(msg) {
+  const el = document.querySelector('#loading > div:last-child');
+  if (el) el.textContent = msg;
+}
+
+function setupAutoRefresh() {
+  if (LOAD_AUTO_REFRESH) clearInterval(LOAD_AUTO_REFRESH);
+  // Refresh chỉ data hôm nay + stock mỗi 5 phút (request siêu nhỏ)
+  LOAD_AUTO_REFRESH = setInterval(async () => {
+    if (LIVE_STATE && LIVE_STATE.paused) return; // honor pause state
+    await refreshTodayAndStock();
+    document.getElementById('last-updated').textContent = 
+      'Cập nhật ' + new Date().toLocaleTimeString('vi-VN');
+    // Auto re-render live tab to show new transactions
+    if (CURRENT_TAB === 'live') renderLive();
+  }, 5 * 60 * 1000);
 }
 
 function updateInfoBar() {
@@ -1301,13 +1992,19 @@ function updateInfoBar() {
   const stores = new Set(STOCK_DATA.map(r => r.maKho).filter(Boolean));
   const dates = [...new Set(RAW_DATA.map(r => r.ngay).filter(Boolean))].sort();
   
+  const loadedMonthsList = [...LOADED_MONTHS].sort();
+  const totalArchives = META_INFO?.archiveMonths?.length || 0;
+  const monthsBadge = META_INFO ? 
+    `<strong>${loadedMonthsList.length}/${totalArchives + 1}</strong> tháng` : '—';
+  
   document.getElementById('info-bar').innerHTML = `
     <div><span>Giao dịch:</span> <strong>${formatNumber(RAW_DATA.length)}</strong></div>
     <div><span>SP có hình:</span> <strong>${formatNumber(Object.keys(IMAGE_MAP).length)}</strong></div>
     <div><span>SP có tồn:</span> <strong>${formatNumber(stockSKUs.size)}</strong></div>
     <div><span>Tổng tồn:</span> <strong>${formatNumber(totalStock)} SP</strong></div>
     <div><span>Kho/CH:</span> <strong>${formatNumber(stores.size)}</strong></div>
-    <div><span>Khoảng dữ liệu:</span> <strong>${dates[0] || '—'} → ${dates[dates.length-1] || '—'}</strong></div>
+    <div><span>Đã load:</span> ${monthsBadge}</div>
+    <div><span>Khoảng:</span> <strong>${dates[0] || '—'} → ${dates[dates.length-1] || '—'}</strong></div>
   `;
 }
 
@@ -1377,13 +2074,18 @@ function initFilters() {
   }
 }
 
-function applyFilters() {
+async function applyFilters() {
   const dateFrom = document.getElementById('filter-date-from').value;
   const dateTo = document.getElementById('filter-date-to').value;
   const cat = document.getElementById('filter-category').value;
   const store = document.getElementById('filter-store').value;
   const region = document.getElementById('filter-region').value;
   const search = document.getElementById('filter-search').value.trim().toLowerCase();
+  
+  // Lazy load các tháng cần thiết nếu chưa có
+  if (dateFrom && dateTo && META_INFO) {
+    await ensureMonthsLoaded(dateFrom, dateTo);
+  }
   
   // Build set of stores in selected region
   let regionStores = null;
@@ -1397,9 +2099,7 @@ function applyFilters() {
     if (cat && r.nganhHang !== cat) return false;
     if (store && r.cuaHang !== store) return false;
     if (region && regionStores && !regionStores.has(r.cuaHang)) {
-      // Fallback: check if cuaHang contains region prefix (HCM, etc.)
       if (!r.cuaHang || !regionStores.has(r.cuaHang)) {
-        // Try matching by cuaHang name pattern
         const matchesRegion = STOCK_DATA.some(s => 
           s.khuVuc === region && s.khoHang === r.cuaHang
         );
@@ -1455,6 +2155,10 @@ document.querySelectorAll('.quick-date-btn').forEach(btn => {
       const f = new Date(today); f.setDate(f.getDate() - 29);
       from = fmt(f); to = fmt(today);
     }
+    else if (range === '90d') {
+      const f = new Date(today); f.setDate(f.getDate() - 89);
+      from = fmt(f); to = fmt(today);
+    }
     else if (range === 'thisMonth') {
       from = fmt(new Date(today.getFullYear(), today.getMonth(), 1));
       to = fmt(today);
@@ -1463,9 +2167,19 @@ document.querySelectorAll('.quick-date-btn').forEach(btn => {
       from = fmt(new Date(today.getFullYear(), today.getMonth() - 1, 1));
       to = fmt(new Date(today.getFullYear(), today.getMonth(), 0));
     }
+    else if (range === 'ytd') {
+      from = fmt(new Date(today.getFullYear(), 0, 1));
+      to = fmt(today);
+    }
     else if (range === 'all') {
-      const dates = RAW_DATA.map(r => r.ngay).filter(Boolean).sort();
-      from = dates[0] || ''; to = dates[dates.length-1] || '';
+      // Toàn bộ = đầu kho archive đến nay
+      if (META_INFO && META_INFO.archiveMonths.length > 0) {
+        from = META_INFO.archiveMonths[0] + '-01';
+      } else {
+        const dates = RAW_DATA.map(r => r.ngay).filter(Boolean).sort();
+        from = dates[0] || '';
+      }
+      to = fmt(today);
     }
     
     document.getElementById('filter-date-from').value = from || '';
@@ -1648,6 +2362,7 @@ function renderKPI() {
 // ============ RENDER ALL ============
 function renderAll() {
   renderKPI();
+  if (CURRENT_TAB === 'live') renderLive();
   if (CURRENT_TAB === 'hot') renderHot();
   if (CURRENT_TAB === 'catalogue') renderCatalogue();
   if (CURRENT_TAB === 'stock') renderStockAnalysis();
@@ -1659,6 +2374,443 @@ function renderAll() {
   if (CURRENT_TAB === 'time') renderTimeAnalysis();
   if (CURRENT_TAB === 'raw') renderRaw();
 }
+
+// ============================================================
+// LIVE FEED - Realtime sales activity stream
+// ============================================================
+let LIVE_STATE = {
+  soundEnabled: true,
+  paused: false,
+  knownIds: new Set(),     // các giao dịch đã hiển thị (key = ngay+gio+soDon+barcode)
+  lastRender: 0,
+  pollInterval: null,
+  storeFilter: '',
+  catFilter: ''
+};
+
+function liveItemKey(r) {
+  return (r.ngay || '') + '_' + (r.gio || '') + '_' + (r.soDon || '') + '_' + (r.barcode || '') + '_' + (r.maThamChieu || '');
+}
+
+// Initialize sound
+let LIVE_AUDIO = null;
+function initLiveAudio() {
+  if (LIVE_AUDIO) return;
+  // Tiếng "ding" mềm - generated bằng Web Audio API (nhỏ gọn, không cần file)
+  LIVE_AUDIO = {
+    ctx: null,
+    play(type) {
+      try {
+        if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        if (type === 'hot') {
+          osc.frequency.value = 880; // A5
+          gain.gain.value = 0.15;
+        } else if (type === 'alert') {
+          osc.frequency.value = 660; // E5 - lower for alert
+          gain.gain.value = 0.18;
+        } else if (type === 'refund') {
+          osc.frequency.value = 440; // A4
+          gain.gain.value = 0.12;
+        } else {
+          osc.frequency.value = 1320; // E6 - normal
+          gain.gain.value = 0.08;
+        }
+        
+        const now = this.ctx.currentTime;
+        gain.gain.setValueAtTime(gain.gain.value, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } catch (e) {}
+    }
+  };
+}
+
+function toggleLiveSound() {
+  LIVE_STATE.soundEnabled = !LIVE_STATE.soundEnabled;
+  const btn = document.getElementById('live-toggle-sound');
+  btn.classList.toggle('active', LIVE_STATE.soundEnabled);
+  document.getElementById('sound-icon-on').style.display = LIVE_STATE.soundEnabled ? 'inline' : 'none';
+  document.getElementById('sound-icon-off').style.display = LIVE_STATE.soundEnabled ? 'none' : 'inline';
+  document.getElementById('sound-label').textContent = LIVE_STATE.soundEnabled ? 'SOUND' : 'MUTED';
+  if (LIVE_STATE.soundEnabled) initLiveAudio();
+  localStorage.setItem('ns_live_sound', LIVE_STATE.soundEnabled ? '1' : '0');
+}
+
+function toggleLivePause() {
+  LIVE_STATE.paused = !LIVE_STATE.paused;
+  const btn = document.getElementById('live-toggle-pause');
+  btn.classList.toggle('active', !LIVE_STATE.paused);
+  document.getElementById('pause-icon-play').style.display = LIVE_STATE.paused ? 'inline' : 'none';
+  document.getElementById('pause-icon-pause').style.display = LIVE_STATE.paused ? 'none' : 'inline';
+  document.getElementById('pause-label').textContent = LIVE_STATE.paused ? 'PAUSED' : 'LIVE';
+  
+  if (LIVE_STATE.paused) {
+    if (LIVE_STATE.pollInterval) clearInterval(LIVE_STATE.pollInterval);
+  } else {
+    setupLivePolling();
+    refreshLiveNow();
+  }
+}
+
+async function refreshLiveNow() {
+  await refreshTodayAndStock();
+  document.getElementById('last-updated').textContent = 
+    'Cập nhật ' + new Date().toLocaleTimeString('vi-VN');
+  if (CURRENT_TAB === 'live') renderLive();
+}
+
+function setupLivePolling() {
+  if (LIVE_STATE.pollInterval) clearInterval(LIVE_STATE.pollInterval);
+  // Poll mỗi 5 phút khi không paused
+  LIVE_STATE.pollInterval = setInterval(async () => {
+    if (LIVE_STATE.paused) return;
+    if (CURRENT_TAB === 'live') {
+      await refreshLiveNow();
+    } else {
+      await refreshTodayAndStock();
+    }
+  }, 5 * 60 * 1000);
+  
+  document.getElementById('live-status-poll').textContent = 'Auto refresh 5 phút';
+}
+
+// Init filters cho live tab
+function initLiveFilters() {
+  if (!RAW_DATA) return;
+  
+  const today = todayString();
+  const todayRecords = RAW_DATA.filter(r => r.ngay === today);
+  
+  const stores = [...new Set(todayRecords.map(r => r.cuaHang).filter(Boolean))].sort();
+  const cats = [...new Set(RAW_DATA.map(r => r.nganhHang).filter(Boolean))].sort();
+  
+  const storeSel = document.getElementById('live-filter-store');
+  const currentStore = storeSel.value;
+  storeSel.innerHTML = '<option value="">Tất cả cửa hàng</option>' + 
+    stores.map(s => `<option value="${escapeAttr(s)}">${escapeHtml(s)}</option>`).join('');
+  storeSel.value = currentStore;
+  
+  const catSel = document.getElementById('live-filter-cat');
+  const currentCat = catSel.value;
+  catSel.innerHTML = '<option value="">Tất cả ngành</option>' + 
+    cats.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
+  catSel.value = currentCat;
+}
+
+// ============ MAIN RENDER ============
+function renderLive() {
+  const today = todayString();
+  
+  // Lấy data hôm nay từ RAW_DATA
+  let todayRecords = RAW_DATA.filter(r => r.ngay === today);
+  
+  // Apply filters
+  const storeFilter = document.getElementById('live-filter-store').value;
+  const catFilter = document.getElementById('live-filter-cat').value;
+  
+  let filtered = todayRecords;
+  if (storeFilter) filtered = filtered.filter(r => r.cuaHang === storeFilter);
+  if (catFilter) filtered = filtered.filter(r => r.nganhHang === catFilter);
+  
+  // Sort by time desc (mới nhất ở trên)
+  filtered.sort((a, b) => {
+    const ta = (a.ngay || '') + ' ' + (a.gio || '');
+    const tb = (b.ngay || '') + ' ' + (b.gio || '');
+    return tb.localeCompare(ta);
+  });
+  
+  // Stats
+  renderLiveStats(todayRecords);
+  
+  // Top 5 hot trong giờ qua
+  renderLiveHotBar(todayRecords);
+  
+  // Init filters once if needed
+  initLiveFilters();
+  
+  // Render feed - chỉ 100 mục gần nhất
+  const limit = 100;
+  const items = filtered.slice(0, limit);
+  
+  // Identify which items are NEW (chưa được hiển thị trước đó)
+  const newKeys = new Set();
+  items.forEach(r => {
+    const key = liveItemKey(r);
+    if (!LIVE_STATE.knownIds.has(key)) {
+      newKeys.add(key);
+      LIVE_STATE.knownIds.add(key);
+    }
+  });
+  
+  // Detect "hot products" - cùng 1 mã bán ≥3 lần trong 30 phút qua
+  const now = new Date();
+  const recentWindow = new Date(now.getTime() - 30 * 60 * 1000);
+  const recentByCode = {};
+  todayRecords.forEach(r => {
+    if (!r.gio) return;
+    const dt = parseDateTime(r.ngay, r.gio);
+    if (dt && dt >= recentWindow) {
+      recentByCode[r.maThamChieu] = (recentByCode[r.maThamChieu] || 0) + (r.soLuong || 0);
+    }
+  });
+  const hotCodes = new Set(
+    Object.entries(recentByCode).filter(([_, qty]) => qty >= 3).map(([code]) => code)
+  );
+  
+  // Compute today's totals per product (for showing "đã bán X SP toàn hệ thống")
+  const todayPerCode = {};
+  todayRecords.forEach(r => {
+    todayPerCode[r.maThamChieu] = (todayPerCode[r.maThamChieu] || 0) + (r.soLuong || 0);
+  });
+  
+  // Stock map for low-stock detection
+  const stockMap = STOCK_BY_CODE || {};
+  
+  // First sale today detection
+  const firstSaleByCode = {};
+  todayRecords.forEach(r => {
+    const t = (r.ngay || '') + ' ' + (r.gio || '');
+    if (!firstSaleByCode[r.maThamChieu] || t < firstSaleByCode[r.maThamChieu]) {
+      firstSaleByCode[r.maThamChieu] = t;
+    }
+  });
+  
+  const feedEl = document.getElementById('live-feed');
+  
+  if (items.length === 0) {
+    feedEl.innerHTML = '<div class="live-empty">Chưa có giao dịch nào hôm nay (' + today + ') khớp filter</div>';
+    document.getElementById('live-status-info').textContent = '0 giao dịch';
+    return;
+  }
+  
+  // Play sound nếu có new items + sound enabled
+  if (LIVE_STATE.soundEnabled && newKeys.size > 0 && LIVE_STATE.lastRender > 0) {
+    initLiveAudio();
+    // Find most "important" new item to determine sound
+    const newItems = items.filter(r => newKeys.has(liveItemKey(r)));
+    const hasRefund = newItems.some(r => (r.soLuong || 0) < 0);
+    const hasLowStock = newItems.some(r => {
+      const st = stockMap[r.maThamChieu];
+      return st && st.tonHienTai > 0 && st.tonHienTai <= 5;
+    });
+    const hasHot = newItems.some(r => hotCodes.has(r.maThamChieu));
+    
+    if (hasRefund) LIVE_AUDIO.play('refund');
+    else if (hasLowStock) LIVE_AUDIO.play('alert');
+    else if (hasHot) LIVE_AUDIO.play('hot');
+    else LIVE_AUDIO.play('normal');
+  }
+  
+  // Render items
+  feedEl.innerHTML = items.map((r, idx) => {
+    const key = liveItemKey(r);
+    const isNew = newKeys.has(key) && LIVE_STATE.lastRender > 0;
+    const isRefund = (r.soLuong || 0) < 0;
+    const isHot = hotCodes.has(r.maThamChieu);
+    const stock = stockMap[r.maThamChieu];
+    const isLowStock = stock && stock.tonHienTai > 0 && stock.tonHienTai <= 5;
+    const isFirstSale = firstSaleByCode[r.maThamChieu] === ((r.ngay || '') + ' ' + (r.gio || ''));
+    const todayQty = todayPerCode[r.maThamChieu] || 0;
+    
+    // Time ago
+    const dt = parseDateTime(r.ngay, r.gio);
+    let timeAgo = '';
+    let timeAgoClass = '';
+    if (dt) {
+      const diffMs = now - dt;
+      const mins = Math.floor(diffMs / 60000);
+      if (mins < 1) { timeAgo = 'vừa xong'; timeAgoClass = 'fresh'; }
+      else if (mins < 60) { timeAgo = mins + ' phút trước'; timeAgoClass = mins < 15 ? 'fresh' : ''; }
+      else if (mins < 1440) timeAgo = Math.floor(mins/60) + ' giờ trước';
+      else timeAgo = Math.floor(mins/1440) + ' ngày trước';
+    }
+    
+    const img = IMAGE_MAP[r.maThamChieu];
+    
+    let classes = 'live-item';
+    if (isNew) classes += ' is-new';
+    if (isRefund) classes += ' is-refund';
+    
+    const tags = [];
+    if (isHot) tags.push(`<span class="live-tag tag-hot"><svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>HOT</span>`);
+    if (isLowStock) tags.push(`<span class="live-tag tag-low-stock"><svg viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>SẮP HẾT</span>`);
+    if (isFirstSale && !isRefund) tags.push(`<span class="live-tag tag-new-product">LẦN ĐẦU</span>`);
+    if (isRefund) tags.push(`<span class="live-tag tag-refund">HOÀN/HỦY</span>`);
+    
+    let banner = '';
+    if (isHot) {
+      banner = `<div class="live-hot-banner">
+        <svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+        SP HOT - Đã bán ${recentByCode[r.maThamChieu]} lần trong 30 phút qua
+      </div>`;
+    }
+    
+    return `
+      ${banner}
+      <div class="${classes}" onclick="showProductDetail('${escapeAttr(r.maThamChieu)}')">
+        ${img ? 
+          `<img class="live-item-img" src="${escapeAttr(img)}" loading="lazy" onerror="this.outerHTML='<div class=live-item-img-placeholder>No image</div>'">` :
+          `<div class="live-item-img-placeholder">No image</div>`}
+        <div class="live-item-main">
+          <div class="live-item-time-row">
+            <span class="live-item-time">${escapeHtml(r.gio || '—')}</span>
+            <span>·</span>
+            <span class="live-item-store">${escapeHtml(r.cuaHang || '—')}</span>
+            ${timeAgo ? `<span class="live-item-time-ago ${timeAgoClass}">${timeAgo}</span>` : ''}
+          </div>
+          <div class="live-item-product">
+            <span class="live-item-code">${escapeHtml(r.maThamChieu)}</span>
+            <span class="live-item-qty ${isRefund ? 'refund' : ''}">${isRefund ? '' : '×'}${formatNumber(r.soLuong)}</span>
+            <span class="product-cat ${getCategoryClass(r.nganhHang)}" style="margin:0">${escapeHtml(r.nganhHang || '—')}</span>
+            ${tags.join(' ')}
+          </div>
+          <div class="live-item-meta">
+            <span><strong>${formatNumber(r.thanhTien)}đ</strong></span>
+            <span>Hôm nay: <strong>${formatNumber(todayQty)} SP</strong></span>
+            ${stock ? `<span>Tồn HT: <strong>${formatNumber(stock.tonHienTai)}</strong></span>` : ''}
+            <span>Đơn: <code>${escapeHtml(r.soDon || '—')}</code></span>
+          </div>
+        </div>
+        <div class="live-item-side">
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  // Status info
+  const total = todayRecords.length;
+  const showing = items.length;
+  let statusText = `Hiển thị ${showing}/${total} giao dịch`;
+  if (storeFilter || catFilter) statusText += ' (đã lọc)';
+  if (newKeys.size > 0 && LIVE_STATE.lastRender > 0) {
+    statusText += ` · ${newKeys.size} đơn mới`;
+  }
+  document.getElementById('live-status-info').textContent = statusText;
+  
+  LIVE_STATE.lastRender = Date.now();
+}
+
+function renderLiveStats(todayRecords) {
+  const orders = new Set(todayRecords.map(r => r.soDon).filter(Boolean));
+  const totalUnits = todayRecords.reduce((s, r) => s + (r.soLuong || 0), 0);
+  const positiveUnits = todayRecords.filter(r => (r.soLuong || 0) > 0).reduce((s, r) => s + r.soLuong, 0);
+  const refunds = todayRecords.filter(r => (r.soLuong || 0) < 0).length;
+  const stores = new Set(todayRecords.map(r => r.cuaHang).filter(Boolean));
+  
+  // Last order
+  const sortedByTime = todayRecords.slice().sort((a, b) => {
+    const ta = (a.ngay || '') + ' ' + (a.gio || '');
+    const tb = (b.ngay || '') + ' ' + (b.gio || '');
+    return tb.localeCompare(ta);
+  });
+  const lastRecord = sortedByTime[0];
+  
+  // Velocity in last hour
+  const now = new Date();
+  const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+  const lastHourCount = todayRecords.filter(r => {
+    const dt = parseDateTime(r.ngay, r.gio);
+    return dt && dt >= oneHourAgo;
+  }).length;
+  
+  document.getElementById('live-stat-orders').textContent = formatNumber(orders.size);
+  document.getElementById('live-stat-units').textContent = formatNumber(totalUnits);
+  document.getElementById('live-stat-units-meta').textContent = 
+    refunds > 0 ? `+${formatNumber(positiveUnits)} bán · -${refunds} hoàn` : `${formatNumber(positiveUnits)} đã bán`;
+  
+  if (lastRecord && lastRecord.gio) {
+    document.getElementById('live-stat-last').textContent = lastRecord.gio.substring(0, 5);
+    const dt = parseDateTime(lastRecord.ngay, lastRecord.gio);
+    if (dt) {
+      const mins = Math.floor((now - dt) / 60000);
+      let ago = mins < 1 ? 'vừa xong' : (mins < 60 ? mins + ' phút trước' : Math.floor(mins/60) + 'h trước');
+      document.getElementById('live-stat-last-meta').textContent = ago;
+    }
+  } else {
+    document.getElementById('live-stat-last').textContent = '—';
+    document.getElementById('live-stat-last-meta').textContent = 'chưa có';
+  }
+  
+  document.getElementById('live-stat-velocity').textContent = formatNumber(lastHourCount);
+  document.getElementById('live-stat-stores').textContent = formatNumber(stores.size);
+}
+
+function renderLiveHotBar(todayRecords) {
+  const now = new Date();
+  const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+  
+  // Tổng SL bán theo mã trong 1 giờ qua
+  const codeQty = {};
+  todayRecords.forEach(r => {
+    const dt = parseDateTime(r.ngay, r.gio);
+    if (dt && dt >= oneHourAgo && (r.soLuong || 0) > 0) {
+      codeQty[r.maThamChieu] = (codeQty[r.maThamChieu] || 0) + r.soLuong;
+    }
+  });
+  
+  const top5 = Object.entries(codeQty)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  
+  const container = document.getElementById('live-hot-items');
+  if (top5.length === 0) {
+    container.innerHTML = '<span style="color:var(--ink-muted);font-size:11px;font-style:italic">Chưa có SP nào bán trong giờ qua</span>';
+    return;
+  }
+  
+  container.innerHTML = top5.map(([code, qty]) => {
+    const img = IMAGE_MAP[code];
+    return `
+      <div class="live-hot-item" onclick="showProductDetail('${escapeAttr(code)}')">
+        ${img ? `<img src="${escapeAttr(img)}" loading="lazy">` : ''}
+        <div class="live-hot-item-meta">
+          <span class="live-hot-item-code">${escapeHtml(code)}</span>
+          <span class="live-hot-item-stat">×${formatNumber(qty)} (1h)</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function parseDateTime(ngay, gio) {
+  if (!ngay) return null;
+  const timeStr = gio || '00:00:00';
+  const dt = new Date(ngay + 'T' + timeStr + '+07:00');
+  return isNaN(dt) ? null : dt;
+}
+
+// Load sound preference
+(function loadSoundPreference() {
+  const saved = localStorage.getItem('ns_live_sound');
+  if (saved === '0') {
+    LIVE_STATE.soundEnabled = false;
+    // Will be applied when DOM ready
+    setTimeout(() => {
+      const btn = document.getElementById('live-toggle-sound');
+      if (btn) {
+        btn.classList.remove('active');
+        document.getElementById('sound-icon-on').style.display = 'none';
+        document.getElementById('sound-icon-off').style.display = 'inline';
+        document.getElementById('sound-label').textContent = 'MUTED';
+      }
+    }, 100);
+  }
+})();
+
+// Setup live filters - re-render when changed
+setTimeout(() => {
+  const sf = document.getElementById('live-filter-store');
+  const cf = document.getElementById('live-filter-cat');
+  if (sf) sf.addEventListener('change', renderLive);
+  if (cf) cf.addEventListener('change', renderLive);
+}, 200);
 
 // ============ HOT (best sellers) ============
 function renderHot() {
@@ -1681,7 +2833,7 @@ function renderHot() {
   if (sold.length > 0) {
     insights.push({
       type: 'success',
-      icon: '🏆',
+      icon: 'trophy',
       title: 'SP bán chạy nhất',
       meta: sold[0].code + (sold[0].subCategory ? ' · ' + sold[0].subCategory : ''),
       value: formatNumber(sold[0].qty) + ' SP'
@@ -1696,31 +2848,29 @@ function renderHot() {
   if (newToday.length > 0) {
     insights.push({
       type: 'success',
-      icon: '✨',
+      icon: 'sparkles',
       title: 'SP bán lần đầu',
       meta: 'trong khoảng đã lọc',
       value: newToday.length + ' mã'
     });
   }
   
-  // Out of stock from hot list
   const hotButOut = sold.filter(p => p.stockStatus === 'soldout' || p.stockStatus === 'critical');
   if (hotButOut.length > 0) {
     insights.push({
       type: 'alert',
-      icon: '⚠️',
+      icon: 'alertTriangle',
       title: 'SP hot sắp hết',
       meta: 'cần nhập hàng gấp',
       value: hotButOut.length + ' mã'
     });
   }
   
-  // Single store best sellers
   const singleStore = sold.filter(p => p.storeCount === 1 && p.qty >= 5);
   if (singleStore.length > 0) {
     insights.push({
       type: 'warn',
-      icon: '🎯',
+      icon: 'target',
       title: 'Bán mạnh 1 cửa hàng',
       meta: 'có thể nhân rộng sang CH khác',
       value: singleStore.length + ' mã'
@@ -1729,7 +2879,7 @@ function renderHot() {
   
   document.getElementById('hot-insights').innerHTML = insights.map(i => `
     <div class="insight-card ${i.type}">
-      <div class="insight-icon">${i.icon}</div>
+      <div class="insight-icon">${typeof i.icon === "string" && ICONS[i.icon] ? icon(i.icon, 22) : i.icon}</div>
       <div class="insight-title">${i.title}</div>
       <div class="insight-meta">${escapeHtml(i.meta)}</div>
       <div class="insight-value">${escapeHtml(i.value)}</div>
@@ -1793,10 +2943,10 @@ function renderProductCards(products, withRank) {
     // Velocity label
     let velText = '';
     if (p.qty > 0) {
-      if (p.velClass === 'hot') velText = `<span class="vel-hot">🔥 ${p.velocityPerDay.toFixed(1)}/ngày</span>`;
+      if (p.velClass === 'hot') velText = `<span class="vel-hot">${icon('flame', 12)} ${p.velocityPerDay.toFixed(1)}/ngày</span>`;
       else if (p.velClass === 'warm') velText = `<span class="vel-warm">${p.velocityPerDay.toFixed(1)}/ngày</span>`;
-      else if (p.velClass === 'cold') velText = `<span class="vel-cold">❄️ ${p.velocityPerDay.toFixed(2)}/ngày</span>`;
-      else velText = `<span class="vel-dead">💀 ${p.saleDayCount} ngày bán</span>`;
+      else if (p.velClass === 'cold') velText = `<span class="vel-cold">${icon('snowflake', 12)} ${p.velocityPerDay.toFixed(2)}/ngày</span>`;
+      else velText = `<span class="vel-dead">${p.saleDayCount} ngày bán</span>`;
     } else if (p.tonHienTai > 0) {
       velText = `<span class="vel-dead">Chưa bán</span>`;
     }
@@ -1854,25 +3004,25 @@ function renderStockAnalysis() {
   
   const insights = [
     {
-      type: 'alert', icon: '🔴',
+      type: 'alert', icon: 'alertCircle',
       title: 'Cực kỳ thiếu hàng',
       meta: 'sẽ hết trong < 7 ngày',
       value: critical.length + ' mã'
     },
     {
-      type: 'warn', icon: '🟡',
+      type: 'warn', icon: 'alertTriangle',
       title: 'Sắp hết hàng',
       meta: 'sẽ hết trong 7-14 ngày',
       value: low.length + ' mã'
     },
     {
-      type: '', icon: '⚪',
+      type: '', icon: 'package',
       title: 'Tồn dư',
       meta: 'còn bán được > 60 ngày',
       value: excess.length + ' mã'
     },
     {
-      type: '', icon: '⚫',
+      type: '', icon: 'pause',
       title: 'Có hàng nhưng không bán',
       meta: 'cần đẩy hàng / khuyến mãi',
       value: nosale.length + ' mã'
@@ -1881,7 +3031,7 @@ function renderStockAnalysis() {
   
   document.getElementById('stock-insights').innerHTML = insights.map(i => `
     <div class="insight-card ${i.type}">
-      <div class="insight-icon">${i.icon}</div>
+      <div class="insight-icon">${typeof i.icon === "string" && ICONS[i.icon] ? icon(i.icon, 22) : i.icon}</div>
       <div class="insight-title">${i.title}</div>
       <div class="insight-meta">${escapeHtml(i.meta)}</div>
       <div class="insight-value">${escapeHtml(i.value)}</div>
@@ -1902,12 +3052,12 @@ function renderStockAnalysis() {
                     p.daysOfStock < 1 ? '<1' : p.daysOfStock.toFixed(1);
     
     const statusBadge = {
-      critical: '<span style="color:var(--negative);font-weight:700">🔴 Cực thiếu</span>',
-      low: '<span style="color:var(--warn);font-weight:600">🟡 Sắp hết</span>',
-      ok: '<span style="color:var(--positive)">🟢 Đủ</span>',
-      excess: '<span style="color:var(--ink-muted)">⚪ Tồn dư</span>',
-      nosale: '<span style="color:var(--ink-muted)">⚫ Chưa bán</span>',
-      soldout: '<span style="color:var(--negative)">❌ Hết hàng</span>',
+      critical: `<span style="color:var(--negative);font-weight:700">${statusDot('var(--negative)')}Cực thiếu</span>`,
+      low: `<span style="color:var(--warn);font-weight:600">${statusDot('var(--warn)')}Sắp hết</span>`,
+      ok: `<span style="color:var(--positive)">${statusDot('var(--positive)')}Đủ</span>`,
+      excess: `<span style="color:var(--ink-muted)">${statusDot('var(--ink-muted)')}Tồn dư</span>`,
+      nosale: `<span style="color:var(--ink-muted)">${statusDot('#cccccc')}Chưa bán</span>`,
+      soldout: `<span style="color:var(--negative)">${statusDot('var(--negative)')}Hết hàng</span>`,
       nostock: '<span style="color:var(--ink-muted)">— Không tồn</span>'
     };
     
@@ -1946,7 +3096,7 @@ function renderVelocity() {
   CHARTS['chart-velocity-dist'] = new Chart(document.getElementById('chart-velocity-dist'), {
     type: 'bar',
     data: {
-      labels: ['🔥 Hot (≥80% ngày)', '🌤 Warm (40-80%)', '❄️ Cold (10-40%)', '💀 Dead (<10%)'],
+      labels: ['Hot (≥80% ngày)', 'Warm (40-80%)', 'Cold (10-40%)', 'Dead (<10%)'],
       datasets: [{
         data: [counts.hot, counts.warm, counts.cold, counts.dead],
         backgroundColor: ['#b8451a', '#b8860b', '#1f3a5f', '#8a8378'],
@@ -1965,10 +3115,10 @@ function renderVelocity() {
   
   tbody.innerHTML = products.slice(0, 200).map(p => {
     const classBadge = {
-      hot: '<span style="color:var(--terracotta);font-weight:700">🔥 Hot</span>',
-      warm: '<span style="color:var(--warn);font-weight:600">🌤 Warm</span>',
-      cold: '<span style="color:var(--accent)">❄️ Cold</span>',
-      dead: '<span style="color:var(--ink-muted)">💀 Dead</span>'
+      hot: `<span style="color:var(--terracotta);font-weight:700">${icon('flame', 12)} Hot</span>`,
+      warm: `<span style="color:var(--warn);font-weight:600">${icon('cloud', 12)} Warm</span>`,
+      cold: `<span style="color:var(--accent)">${icon('snowflake', 12)} Cold</span>`,
+      dead: `<span style="color:var(--ink-muted)">${icon('skull', 12)} Dead</span>`
     };
     
     return `
@@ -2330,7 +3480,7 @@ function renderTransfer() {
         <span style="font-family:'IBM Plex Sans';color:${s.toDos < 7 ? 'var(--negative)' : 'var(--warn)'};margin-top:2px;font-weight:600">⚠ Còn ${s.toDos < 1 ? '<1' : s.toDos.toFixed(0)} ngày bán</span>
       </div>
       <div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;text-align:center">
-        ${s.urgency === 3 ? '🔴 GẤP' : (s.urgency === 2 ? '🟡 NÊN' : '🟢 CÂN NHẮC')}
+        ${s.urgency === 3 ? statusDot('var(--negative)')+'GẤP' : (s.urgency === 2 ? statusDot('var(--warn)')+'NÊN' : statusDot('var(--positive)')+'CÂN NHẮC')}
       </div>
     </div>
   `).join('');
@@ -2737,6 +3887,33 @@ function getCategoryClass(cat) {
   if (c.includes('bảo hiểm') || c.includes('bao hiem')) return 'cat-bao-hiem';
   if (c.includes('nón vải') || c.includes('non vai')) return 'cat-non-vai';
   return 'cat-other';
+}
+
+// SVG icon library (Lucide-inspired stroke icons)
+const ICONS = {
+  trophy: '<svg viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>',
+  sparkles: '<svg viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>',
+  alertTriangle: '<svg viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  target: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+  alertCircle: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+  trendingDown: '<svg viewBox="0 0 24 24"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>',
+  trendingUp: '<svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>',
+  pause: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg>',
+  package: '<svg viewBox="0 0 24 24"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
+  flame: '<svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
+  cloud: '<svg viewBox="0 0 24 24"><path d="M17.5 19a4.5 4.5 0 1 0 0-9h-1.8A7 7 0 1 0 4 15.9"/></svg>',
+  snowflake: '<svg viewBox="0 0 24 24"><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4 4 4"/></svg>',
+  skull: '<svg viewBox="0 0 24 24"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></svg>'
+};
+
+function icon(name, size = 14) {
+  const svg = ICONS[name] || '';
+  return `<span style="display:inline-flex;align-items:center;justify-content:center;vertical-align:-2px"><svg viewBox="0 0 24 24" style="width:${size}px;height:${size}px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round">${svg.replace(/<svg[^>]*>|<\/svg>/g, '')}</svg></span>`;
+}
+
+// Status indicator dot (replacement for colored emoji circles)
+function statusDot(color) {
+  return `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:6px;vertical-align:middle"></span>`;
 }
 
 // ============ BIND CONTROLS ============
