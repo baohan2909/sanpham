@@ -1679,12 +1679,22 @@
 </div>
 <script>
 // ============ STATE ============
-const API_URL = 'https://script.google.com/macros/s/AKfycbwckkm6pKkxyX8JNHciSG0L6TbySgpMfs9jlETiObFl_YgwQpVpQCHPKaKVA_lDYduB/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwwtxHKrkokIVhOY-XDk10rUO0bA5abpLJoVN8k8m5D4Gtbnx-VIH9_H0j20SOmnS4Y/exec';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
 let STOCK_DATA = [];   // Stock rows from 2 sheets
 let FILTERED = [];     // Sales filtered
+
+// Chỉ phân tích các ngành hàng này (Phụ kiện và các ngành khác bị loại)
+const ALLOWED_CATEGORIES = ['Mũ bảo hiểm', 'Nón vải'];
+
+function isAllowedCategory(cat) {
+  if (!cat) return false;
+  const c = cat.trim().toLowerCase();
+  return c.includes('mũ bảo hiểm') || c.includes('mu bao hiem') || 
+         c.includes('nón vải') || c.includes('non vai');
+}
 
 // Aggregated lookups (computed from filtered)
 let STOCK_BY_CODE = {};      // tổng tồn theo mã SP
@@ -1762,14 +1772,14 @@ async function loadData() {
       META_INFO = cachedMeta;
       IMAGE_MAP = cachedImages || {};
       
-      // Restore cmStable
-      RAW_DATA = [...cachedCmStable.sales];
+      // Restore cmStable - filter Phụ kiện
+      RAW_DATA = cachedCmStable.sales.filter(r => isAllowedCategory(r.nganhHang));
       LOADED_MONTHS.clear();
       LOADED_MONTHS.add(META_INFO.currentMonth);
       
       // Stock có cache nhưng cần refresh (data thay đổi)
       if (cachedStock) {
-        STOCK_DATA = cachedStock;
+        STOCK_DATA = cachedStock.filter(s => isAllowedCategory(s.nganhCap1));
       }
       
       // Restore các tháng cũ từ cache
@@ -1805,6 +1815,11 @@ async function loadData() {
       IMAGE_MAP = data.images || {};
       STOCK_DATA = data.stock || [];
       
+      // Filter: chỉ giữ Mũ bảo hiểm và Nón vải, loại bỏ Phụ kiện và các ngành khác
+      const beforeStockCount = STOCK_DATA.length;
+      STOCK_DATA = STOCK_DATA.filter(s => isAllowedCategory(s.nganhCap1));
+      console.log(`[DEBUG] Stock filter: ${beforeStockCount} → ${STOCK_DATA.length} (loại Phụ kiện + ngành khác)`);
+      
       // FALLBACK: hỗ trợ cả response cũ (sales) và mới (cmStable + today)
       let cmStable = data.cmStable || [];
       let todayData = data.today || [];
@@ -1818,6 +1833,12 @@ async function loadData() {
         todayData = allSales.filter(r => r.ngay === today);
         cmStable = allSales.filter(r => r.ngay && r.ngay < today);
       }
+      
+      // Filter sales: chỉ giữ Mũ bảo hiểm và Nón vải
+      const beforeSalesCount = cmStable.length + todayData.length;
+      cmStable = cmStable.filter(r => isAllowedCategory(r.nganhHang));
+      todayData = todayData.filter(r => isAllowedCategory(r.nganhHang));
+      console.log(`[DEBUG] Sales filter: ${beforeSalesCount} → ${cmStable.length + todayData.length}`);
       
       RAW_DATA = [...cmStable, ...todayData];
       
@@ -1908,7 +1929,8 @@ async function refreshTodayAndStock() {
     
     if (todayData && todayData.sales) {
       RAW_DATA = RAW_DATA.filter(r => r.ngay !== today);
-      RAW_DATA = RAW_DATA.concat(todayData.sales);
+      const filtered = todayData.sales.filter(r => isAllowedCategory(r.nganhHang));
+      RAW_DATA = RAW_DATA.concat(filtered);
     }
     
     // Fetch fresh stock
@@ -1916,7 +1938,7 @@ async function refreshTodayAndStock() {
     if (stockRes.ok) {
       const stockData = await stockRes.json();
       if (stockData.stock) {
-        STOCK_DATA = stockData.stock;
+        STOCK_DATA = stockData.stock.filter(s => isAllowedCategory(s.nganhCap1));
         cacheSet('stock', STOCK_DATA, 1800);
       }
     }
@@ -1940,7 +1962,8 @@ async function loadMonth(month) {
   // Try cache first
   const cached = cacheGet('month_' + month);
   if (cached) {
-    RAW_DATA = RAW_DATA.concat(cached);
+    const filtered = cached.filter(r => isAllowedCategory(r.nganhHang));
+    RAW_DATA = RAW_DATA.concat(filtered);
     LOADED_MONTHS.add(month);
     return true;
   }
@@ -1956,11 +1979,12 @@ async function loadMonth(month) {
     if (data.error) throw new Error(data.error);
     
     const sales = data.sales || [];
-    RAW_DATA = RAW_DATA.concat(sales);
+    const filtered = sales.filter(r => isAllowedCategory(r.nganhHang));
+    RAW_DATA = RAW_DATA.concat(filtered);
     LOADED_MONTHS.add(month);
     
-    // Cache vĩnh viễn (data tháng cũ không đổi)
-    cacheSet('month_' + month, sales, null);
+    // Cache vĩnh viễn (data tháng cũ không đổi) - cache cả data đã filter để lần sau nhanh hơn
+    cacheSet('month_' + month, filtered, null);
     
     return true;
   } catch (err) {
@@ -2012,7 +2036,8 @@ function restoreFromCache() {
     if (LOADED_MONTHS.has(month)) return;
     const cached = cacheGet('month_' + month);
     if (cached) {
-      RAW_DATA = RAW_DATA.concat(cached);
+      const filtered = cached.filter(r => isAllowedCategory(r.nganhHang));
+      RAW_DATA = RAW_DATA.concat(filtered);
       LOADED_MONTHS.add(month);
       count++;
     }
