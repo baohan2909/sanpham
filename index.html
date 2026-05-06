@@ -1276,6 +1276,155 @@
     margin: 0;
   }
   
+  /* ========== TRANSFER OVERVIEW + SUB-TABS ========== */
+  .transfer-overview {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    margin-bottom: 16px;
+  }
+  .transfer-overview-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .transfer-overview-title {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .transfer-overview-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+  .transfer-stat {
+    padding: 16px 20px;
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .transfer-stat:last-child { border-right: none; }
+  .transfer-stat-label {
+    font-size: 10px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .transfer-stat-value {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .transfer-stat-meta {
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .transfer-stat.urgent .transfer-stat-value { color: var(--negative); }
+  .transfer-stat.balance .transfer-stat-value { color: var(--terracotta); }
+  
+  .transfer-insights {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .transfer-insight {
+    font-size: 12px;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .transfer-insight svg {
+    width: 14px; height: 14px;
+    flex-shrink: 0;
+    stroke: var(--warn);
+    fill: none;
+    stroke-width: 2;
+  }
+  .transfer-insight strong { color: var(--ink); font-weight: 700; }
+  
+  .sub-tabs {
+    display: flex;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+  .sub-tab {
+    flex: 1;
+    padding: 14px 20px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .sub-tab:hover { color: var(--ink); background: var(--bg-elevated); }
+  .sub-tab.active {
+    color: var(--ink);
+    border-bottom-color: var(--terracotta);
+    background: var(--bg-card);
+  }
+  .sub-tab-count {
+    background: var(--bg-elevated);
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--ink-soft);
+  }
+  .sub-tab.active .sub-tab-count {
+    background: var(--terracotta);
+    color: white;
+  }
+  
+  .sub-tab-filters {
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .sub-tab-filters .filter-select,
+  .sub-tab-filters .filter-input {
+    padding: 6px 10px;
+    border: 1px solid var(--line-strong);
+    background: white;
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--ink);
+    min-width: 160px;
+  }
+  .sub-tab-filters .filter-input { min-width: 180px; }
+  .sub-tab-meta {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
   /* ========== INFO BAR ========== */
   .info-bar {
     background: var(--bg-deep);
@@ -1700,11 +1849,41 @@
   
   <!-- ============ SECTION: TRANSFER ============ -->
   <div class="section" id="section-transfer">
-    <div class="panel">
-      <div class="panel-title">Đề xuất luân chuyển hàng</div>
-      <div class="panel-sub">Cùng 1 mã SP: cửa hàng dư hàng + tốc độ bán chậm → cửa hàng thiếu hàng + tốc độ bán nhanh</div>
-      <div id="transfer-list"></div>
+    <!-- Overview stats -->
+    <div id="transfer-overview"></div>
+    
+    <!-- Sub-tabs -->
+    <div class="sub-tabs">
+      <button class="sub-tab active" data-subtab="restock" onclick="switchSubTab('restock')">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Cần nhập hàng</span>
+        <span class="sub-tab-count" id="restock-count">0</span>
+      </button>
+      <button class="sub-tab" data-subtab="rebalance" onclick="switchSubTab('rebalance')">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>
+        <span>Luân chuyển nội bộ</span>
+        <span class="sub-tab-count" id="rebalance-count">0</span>
+      </button>
     </div>
+    
+    <!-- Filters -->
+    <div class="sub-tab-filters">
+      <select id="transfer-filter-cat" class="filter-select" onchange="renderTransfer()">
+        <option value="">Tất cả ngành</option>
+        <option value="Mũ bảo hiểm">Mũ bảo hiểm</option>
+        <option value="Nón vải">Nón vải</option>
+      </select>
+      <select id="transfer-filter-priority" class="filter-select" onchange="renderTransfer()">
+        <option value="">Tất cả mức ưu tiên</option>
+        <option value="urgent">URGENT (gấp nhất)</option>
+        <option value="high">HIGH</option>
+        <option value="medium">MEDIUM</option>
+      </select>
+      <input type="text" id="transfer-filter-search" class="filter-input" placeholder="Tìm mã SP..." oninput="renderTransfer()">
+      <span class="sub-tab-meta" id="transfer-list-meta"></span>
+    </div>
+    
+    <div id="transfer-list"></div>
   </div>
   
   <!-- ============ SECTION: LIFECYCLE ============ -->
@@ -3609,23 +3788,29 @@ function colorToHex(c) {
 </script>
 <script>
 // ============ TRANSFER SUGGESTIONS ============
-function renderTransfer() {
-  const container = document.getElementById('transfer-list');
-  
-  // ============ SECTION 1: SP CẦN NHẬP HÀNG GẤP ============
-  // SP đã bán nhưng tồn = 0 hoặc tồn dự tính rất ít
-  const needRestock = [];
+// ============================================================
+// TRANSFER TAB - Overview + 2 sub-tabs (Cần nhập / Luân chuyển)
+// ============================================================
+let TRANSFER_SUB_TAB = 'restock'; // restock | rebalance
+
+function switchSubTab(tab) {
+  TRANSFER_SUB_TAB = tab;
+  document.querySelectorAll('.sub-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.subtab === tab);
+  });
+  renderTransfer();
+}
+
+// Compute restock candidates - SP đã bán nhưng tồn cạn kiệt
+function computeRestockData() {
+  const list = [];
   
   PRODUCT_AGG.forEach(p => {
-    if (p.qty <= 0) return; // không bán → bỏ qua
-    if (p.numDays === 0) return;
+    if (p.qty <= 0 || p.numDays === 0) return;
     
     const velocity = p.qty / p.numDays;
+    let totalStock = 0, totalProjected = 0, storeCount = 0;
     
-    // Total stock toàn hệ thống của SP này
-    let totalStock = 0;
-    let totalProjected = 0;
-    let storeCount = 0;
     if (STOCK_BY_STORE[p.code]) {
       Object.values(STOCK_BY_STORE[p.code]).forEach(info => {
         totalStock += info.tonHienTai || 0;
@@ -3634,59 +3819,45 @@ function renderTransfer() {
       });
     }
     
-    // Điều kiện: tồn HT = 0 HOẶC tồn dự tính không đủ 7 ngày tới
     const daysOfStock = velocity > 0 ? totalProjected / velocity : 9999;
-    const isCritical = totalStock === 0 || daysOfStock < 7;
+    if (totalStock > 0 && daysOfStock >= 7) return;
     
-    if (!isCritical) return;
-    
-    // Phân loại 3 mức
     let priority;
-    if (velocity > 1) priority = 'urgent';        // > 1 SP/ngày
-    else if (velocity >= 0.3) priority = 'high';  // 0.3-1 SP/ngày
-    else priority = 'medium';                      // < 0.3 SP/ngày
+    if (velocity > 1) priority = 'urgent';
+    else if (velocity >= 0.3) priority = 'high';
+    else priority = 'medium';
     
-    // Đề xuất nhập = đủ cho 30 ngày
     const suggestQty = Math.max(
       Math.ceil(velocity * 30) - totalProjected,
-      Math.ceil(velocity * 7) // tối thiểu cover 7 ngày
+      Math.ceil(velocity * 7)
     );
     
-    // Last sale date
     const productSales = FILTERED.filter(r => r.maThamChieu === p.code);
     const lastSaleDate = productSales.length > 0
-      ? productSales.map(r => r.ngay).sort().pop()
-      : null;
+      ? productSales.map(r => r.ngay).sort().pop() : null;
     
-    needRestock.push({
-      code: p.code,
-      image: p.image,
-      category: p.category,
-      subCategory: p.subCategory,
-      qty: p.qty,
-      numDays: p.numDays,
-      velocity: velocity,
-      totalStock: totalStock,
-      totalProjected: totalProjected,
-      daysOfStock: daysOfStock,
-      storeCount: storeCount,
-      suggestQty: suggestQty,
-      priority: priority,
-      lastSaleDate: lastSaleDate
+    // Estimate cost (giá niêm yết từ stock)
+    let unitPrice = 0;
+    if (STOCK_BY_STORE[p.code]) {
+      const stockSample = Object.values(STOCK_BY_STORE[p.code])[0];
+      if (stockSample) unitPrice = stockSample.giaNiemYet || 0;
+    }
+    
+    list.push({
+      code: p.code, image: p.image, category: p.category, subCategory: p.subCategory,
+      qty: p.qty, numDays: p.numDays, velocity, totalStock, totalProjected,
+      daysOfStock, storeCount, suggestQty, priority, lastSaleDate,
+      unitPrice, totalCost: suggestQty * unitPrice
     });
   });
   
-  // Sort: urgent first, then by velocity desc
-  const priorityOrder = { urgent: 3, high: 2, medium: 1 };
-  needRestock.sort((a, b) => 
-    priorityOrder[b.priority] - priorityOrder[a.priority] || b.velocity - a.velocity
-  );
-  
-  const urgentCount = needRestock.filter(r => r.priority === 'urgent').length;
-  const highCount = needRestock.filter(r => r.priority === 'high').length;
-  const mediumCount = needRestock.filter(r => r.priority === 'medium').length;
-  
-  // ============ SECTION 2: ĐỀ XUẤT LUÂN CHUYỂN ============
+  const order = { urgent: 3, high: 2, medium: 1 };
+  list.sort((a, b) => order[b.priority] - order[a.priority] || b.velocity - a.velocity);
+  return list;
+}
+
+// Compute rebalance candidates - chuyển CH dư sang CH thiếu
+function computeRebalanceData() {
   const suggestions = [];
   
   PRODUCT_AGG.forEach(p => {
@@ -3725,14 +3896,16 @@ function renderTransfer() {
         );
         if (transferQty < 1) return;
         
+        let priority;
+        if (tgt.dos < 7) priority = 'urgent';
+        else if (tgt.dos < 14) priority = 'high';
+        else priority = 'medium';
+        
         suggestions.push({
-          code: p.code,
-          image: p.image,
-          category: p.category,
-          subCategory: p.subCategory,
+          code: p.code, image: p.image, category: p.category, subCategory: p.subCategory,
           fromStore: src.store, fromRegion: src.region, fromStock: src.stock, fromVel: src.velocity,
           toStore: tgt.store, toRegion: tgt.region, toStock: tgt.stock, toVel: tgt.velocity, toDos: tgt.dos,
-          qty: transferQty,
+          qty: transferQty, priority,
           urgency: tgt.dos < 7 ? 3 : (tgt.dos < 14 ? 2 : 1)
         });
       });
@@ -3740,34 +3913,129 @@ function renderTransfer() {
   });
   
   suggestions.sort((a, b) => b.urgency - a.urgency || b.qty - a.qty);
+  return suggestions;
+}
+
+function renderTransfer() {
+  const restockAll = computeRestockData();
+  const rebalanceAll = computeRebalanceData();
   
-  // ============ RENDER ============
-  let html = '';
+  // ============ OVERVIEW STATS ============
+  const restockUrgent = restockAll.filter(r => r.priority === 'urgent').length;
+  const rebalanceUrgent = rebalanceAll.filter(r => r.priority === 'urgent').length;
+  const totalRestockQty = restockAll.reduce((s, r) => s + r.suggestQty, 0);
+  const totalRestockCost = restockAll.reduce((s, r) => s + r.totalCost, 0);
+  const totalRebalanceQty = rebalanceAll.reduce((s, r) => s + r.qty, 0);
   
-  // Section 1: Cần nhập hàng gấp
-  if (needRestock.length > 0) {
-    html += `
-      <div style="background:linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-left:4px solid var(--negative); padding:16px 20px; margin-bottom:8px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-          <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--negative);fill:none;stroke-width:2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <h2 style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--negative);margin:0">CẦN NHẬP HÀNG GẤP</h2>
+  // Smart insights
+  const insights = [];
+  if (restockUrgent > 0) {
+    insights.push(`<strong>${restockUrgent}</strong> SP cấp bách — cần nhập gấp trong tuần để tránh mất doanh số`);
+  }
+  if (rebalanceUrgent > 0) {
+    insights.push(`<strong>${rebalanceUrgent}</strong> tình huống GẤP có thể luân chuyển ngay (không cần chờ nhập)`);
+  }
+  // Top 5 stores running out
+  const storeStockOut = {};
+  restockAll.forEach(r => {
+    if (STOCK_BY_STORE[r.code]) {
+      Object.values(STOCK_BY_STORE[r.code]).forEach(info => {
+        if ((info.tonHienTai || 0) === 0) {
+          storeStockOut[info.khoHang] = (storeStockOut[info.khoHang] || 0) + 1;
+        }
+      });
+    }
+  });
+  const topOutStores = Object.entries(storeStockOut)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  if (topOutStores.length > 0) {
+    insights.push(`5 CH thiếu hàng nhiều nhất: ${topOutStores.map(([s, n]) => `<strong>${escapeHtml(s)}</strong> (${n})`).join(', ')}`);
+  }
+  
+  const overviewHtml = `
+    <div class="transfer-overview">
+      <div class="transfer-overview-header">
+        <div class="transfer-overview-title">Tổng quan đề xuất hàng</div>
+        <button class="filter-btn" onclick="exportTransferCSV()" style="padding:6px 14px">
+          ↓ XUẤT EXCEL
+        </button>
+      </div>
+      <div class="transfer-overview-stats">
+        <div class="transfer-stat urgent">
+          <div class="transfer-stat-label">Cần nhập gấp</div>
+          <div class="transfer-stat-value">${formatNumber(restockAll.length)}</div>
+          <div class="transfer-stat-meta">URGENT: ${restockUrgent} mã</div>
         </div>
-        <div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px">
-          SP đã có doanh số nhưng tồn kho cạn kiệt — cần nhập từ nhà cung cấp (không thể luân chuyển nội bộ)
+        <div class="transfer-stat balance">
+          <div class="transfer-stat-label">Luân chuyển</div>
+          <div class="transfer-stat-value">${formatNumber(rebalanceAll.length)}</div>
+          <div class="transfer-stat-meta">${rebalanceUrgent} cặp gấp</div>
         </div>
-        <div style="display:flex;gap:14px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;font-weight:700">
-          <span>${statusDot('var(--negative)')}URGENT (>1/ngày): <strong>${urgentCount}</strong></span>
-          <span>${statusDot('var(--warn)')}HIGH (0.3-1/ngày): <strong>${highCount}</strong></span>
-          <span>${statusDot('var(--ink-muted)')}MEDIUM (<0.3/ngày): <strong>${mediumCount}</strong></span>
+        <div class="transfer-stat">
+          <div class="transfer-stat-label">Tổng SL nhập</div>
+          <div class="transfer-stat-value">${formatNumber(totalRestockQty)}</div>
+          <div class="transfer-stat-meta">~${formatNumber(Math.round(totalRestockCost/1000000))}tr ngân sách</div>
+        </div>
+        <div class="transfer-stat">
+          <div class="transfer-stat-label">SL luân chuyển</div>
+          <div class="transfer-stat-value">${formatNumber(totalRebalanceQty)}</div>
+          <div class="transfer-stat-meta">tiết kiệm chi phí nhập</div>
         </div>
       </div>
-    `;
+      ${insights.length > 0 ? `
+        <div class="transfer-insights">
+          ${insights.map(i => `
+            <div class="transfer-insight">
+              <svg viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg>
+              <span>${i}</span>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    </div>
+  `;
+  
+  document.getElementById('transfer-overview').innerHTML = overviewHtml;
+  document.getElementById('restock-count').textContent = formatNumber(restockAll.length);
+  document.getElementById('rebalance-count').textContent = formatNumber(rebalanceAll.length);
+  
+  // ============ APPLY FILTERS ============
+  const catFilter = document.getElementById('transfer-filter-cat').value;
+  const priorityFilter = document.getElementById('transfer-filter-priority').value;
+  const search = document.getElementById('transfer-filter-search').value.trim().toLowerCase();
+  
+  let restock = restockAll;
+  let rebalance = rebalanceAll;
+  
+  if (catFilter) {
+    restock = restock.filter(r => r.category === catFilter);
+    rebalance = rebalance.filter(r => r.category === catFilter);
+  }
+  if (priorityFilter) {
+    restock = restock.filter(r => r.priority === priorityFilter);
+    rebalance = rebalance.filter(r => r.priority === priorityFilter);
+  }
+  if (search) {
+    restock = restock.filter(r => r.code.toLowerCase().includes(search));
+    rebalance = rebalance.filter(r => r.code.toLowerCase().includes(search));
+  }
+  
+  // ============ RENDER SUB-TAB ============
+  const container = document.getElementById('transfer-list');
+  const meta = document.getElementById('transfer-list-meta');
+  
+  if (TRANSFER_SUB_TAB === 'restock') {
+    if (restock.length === 0) {
+      container.innerHTML = '<div class="empty-state">Không có SP nào cần nhập gấp khớp filter</div>';
+      meta.textContent = '';
+      return;
+    }
     
-    // Limit hiển thị top 50
-    const restockLimited = needRestock.slice(0, 50);
+    const limited = restock.slice(0, 100);
+    meta.textContent = `Hiển thị ${limited.length}/${restock.length} mã`;
     
-    html += '<div class="restock-list" style="margin-bottom:32px">';
-    html += restockLimited.map(r => {
+    container.innerHTML = limited.map(r => {
       const priorityColor = r.priority === 'urgent' ? 'var(--negative)' : 
                            r.priority === 'high' ? 'var(--warn)' : 'var(--ink-muted)';
       const priorityLabel = r.priority === 'urgent' ? 'URGENT' : 
@@ -3776,9 +4044,10 @@ function renderTransfer() {
         ? `<span style="color:var(--negative);font-weight:700">HẾT TỒN</span>` 
         : `Tồn HT: <strong>${formatNumber(r.totalStock)}</strong>`;
       const projectedText = r.totalProjected > 0
-        ? `Tồn dự tính: <strong>${formatNumber(r.totalProjected)}</strong> (~${r.daysOfStock < 1 ? '<1' : r.daysOfStock.toFixed(0)} ngày)`
-        : '';
+        ? `Tồn dự tính: <strong>${formatNumber(r.totalProjected)}</strong> (~${r.daysOfStock < 1 ? '<1' : r.daysOfStock.toFixed(0)} ngày)` : '';
       const lastSaleText = r.lastSaleDate ? `Bán cuối: ${r.lastSaleDate}` : '';
+      const costText = r.unitPrice > 0 
+        ? `~${formatNumber(Math.round(r.totalCost/1000))}k VNĐ` : '';
       
       return `
         <div class="restock-card" onclick="showProductDetail('${escapeAttr(r.code)}')" style="cursor:pointer;display:grid;grid-template-columns:80px 1fr auto auto;gap:16px;padding:14px 18px;background:white;border:1px solid var(--line);border-left:4px solid ${priorityColor};margin-bottom:8px;align-items:center">
@@ -3800,7 +4069,7 @@ function renderTransfer() {
           <div style="text-align:right;border-left:1px solid var(--line);padding-left:16px">
             <div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">Đề xuất nhập</div>
             <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:${priorityColor}">${formatNumber(r.suggestQty)}</div>
-            <div style="font-size:10px;color:var(--ink-muted)">đủ 30 ngày</div>
+            <div style="font-size:10px;color:var(--ink-muted)">đủ 30 ngày · ${costText}</div>
           </div>
           <div style="font-size:10px;color:var(--ink-muted);writing-mode:vertical-rl;text-orientation:mixed;letter-spacing:0.1em;text-transform:uppercase">
             ${r.storeCount} CH có tồn
@@ -3808,33 +4077,18 @@ function renderTransfer() {
         </div>
       `;
     }).join('');
-    html += '</div>';
-    
-    if (needRestock.length > 50) {
-      html += `<div style="text-align:center;color:var(--ink-muted);font-style:italic;font-size:12px;margin-bottom:24px">Hiển thị 50/${needRestock.length} mã. Sort theo độ ưu tiên giảm dần.</div>`;
-    }
-  }
-  
-  // Section 2: Đề xuất luân chuyển
-  html += `
-    <div style="background:linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-left:4px solid var(--terracotta); padding:16px 20px; margin-bottom:8px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--terracotta);fill:none;stroke-width:2"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>
-        <h2 style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--terracotta);margin:0">ĐỀ XUẤT LUÂN CHUYỂN NỘI BỘ</h2>
-      </div>
-      <div style="font-size:13px;color:var(--ink-soft)">
-        Có CH dư tồn nhưng không bán + có CH bán chạy nhưng sắp hết — chuyển từ CH dư sang CH cần
-      </div>
-    </div>
-  `;
-  
-  if (suggestions.length === 0) {
-    html += '<div class="empty-state">Toàn bộ kho đang cân đối — không phát hiện tình huống cần luân chuyển</div>';
   } else {
-    const limited = suggestions.slice(0, 50);
-    html += `<div class="panel-sub" style="margin-bottom:16px">Phát hiện <strong>${suggestions.length}</strong> tình huống. Hiển thị top ${limited.length}.</div>`;
+    // REBALANCE sub-tab
+    if (rebalance.length === 0) {
+      container.innerHTML = '<div class="empty-state">Toàn bộ kho cân đối — không có gợi ý luân chuyển</div>';
+      meta.textContent = '';
+      return;
+    }
     
-    html += limited.map(s => `
+    const limited = rebalance.slice(0, 100);
+    meta.textContent = `Hiển thị ${limited.length}/${rebalance.length} cặp`;
+    
+    container.innerHTML = limited.map(s => `
       <div class="transfer-card" onclick="showProductDetail('${escapeAttr(s.code)}')" style="cursor:pointer">
         <div>${imgCell(s.image, s.code)}</div>
         <div class="transfer-store">
@@ -3854,8 +4108,48 @@ function renderTransfer() {
       </div>
     `).join('');
   }
+}
+
+// ============ EXPORT TRANSFER PLAN TO CSV ============
+function exportTransferCSV() {
+  const restock = computeRestockData();
+  const rebalance = computeRebalanceData();
   
-  container.innerHTML = html;
+  let csv = '\uFEFF'; // BOM for Excel UTF-8
+  
+  if (TRANSFER_SUB_TAB === 'restock') {
+    csv += 'KẾ HOẠCH NHẬP HÀNG\n';
+    csv += 'STT,Mã SP,Ngành hàng,Đã bán (30 ngày),Tốc độ (SP/ngày),Tồn HT,Tồn dự tính,Số ngày bán còn,Đề xuất nhập,Giá niêm yết,Ngân sách dự kiến,Ưu tiên,Bán cuối\n';
+    restock.forEach((r, i) => {
+      csv += [
+        i+1, '"'+r.code+'"', '"'+(r.subCategory || r.category || '')+'"',
+        r.qty, r.velocity.toFixed(2), r.totalStock, r.totalProjected,
+        r.daysOfStock < 9999 ? r.daysOfStock.toFixed(0) : 'N/A',
+        r.suggestQty, r.unitPrice, r.totalCost,
+        r.priority.toUpperCase(), '"'+(r.lastSaleDate || '')+'"'
+      ].join(',') + '\n';
+    });
+  } else {
+    csv += 'KẾ HOẠCH LUÂN CHUYỂN HÀNG\n';
+    csv += 'STT,Mã SP,Ngành hàng,Từ CH,Khu vực,Tồn từ,Tốc độ từ,Sang CH,Khu vực,Tồn đến,Tốc độ đến,Số ngày bán còn,Số lượng chuyển,Ưu tiên\n';
+    rebalance.forEach((s, i) => {
+      csv += [
+        i+1, '"'+s.code+'"', '"'+(s.subCategory || s.category || '')+'"',
+        '"'+s.fromStore+'"', '"'+s.fromRegion+'"', s.fromStock, s.fromVel.toFixed(2),
+        '"'+s.toStore+'"', '"'+s.toRegion+'"', s.toStock, s.toVel.toFixed(2),
+        s.toDos < 9999 ? s.toDos.toFixed(0) : 'N/A',
+        s.qty, s.priority.toUpperCase()
+      ].join(',') + '\n';
+    });
+  }
+  
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ke-hoach-${TRANSFER_SUB_TAB === 'restock' ? 'nhap-hang' : 'luan-chuyen'}-${todayString()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ============ LIFECYCLE ============
