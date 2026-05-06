@@ -545,18 +545,82 @@
   }
   tbody tr:hover { background: var(--bg-elevated); }
   .num { font-family: 'JetBrains Mono', monospace; text-align: right; font-weight: 500; }
+  .table-img-cell {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
   .table-img {
-    width: 44px; height: 44px;
+    width: 72px; height: 72px;
     object-fit: cover;
     background: var(--bg-elevated);
-    transition: transform 0.3s;
     cursor: zoom-in;
+    border: 1px solid var(--line);
+    display: block;
   }
-  .table-img:hover {
-    transform: scale(2.5);
-    z-index: 50;
+  
+  /* Hover preview popup - không bị che bởi cột bên trái */
+  .img-zoom-wrap {
     position: relative;
-    box-shadow: var(--shadow-zoom);
+    display: inline-block;
+  }
+  .img-zoom-wrap .zoom-preview {
+    display: none;
+    position: absolute;
+    left: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 320px;
+    height: 320px;
+    background: white;
+    border: 2px solid var(--line-strong);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    z-index: 1000;
+    pointer-events: none;
+  }
+  .img-zoom-wrap .zoom-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: var(--bg-elevated);
+  }
+  .img-zoom-wrap:hover .zoom-preview {
+    display: block;
+    animation: zoomIn 0.15s ease-out;
+  }
+  @keyframes zoomIn {
+    from { opacity: 0; transform: translateY(-50%) scale(0.95); }
+    to { opacity: 1; transform: translateY(-50%) scale(1); }
+  }
+  
+  /* Khi gần mép phải màn hình, preview hiện sang trái */
+  .img-zoom-wrap.zoom-left .zoom-preview {
+    left: auto;
+    right: calc(100% + 12px);
+  }
+  
+  .magnifier-btn {
+    width: 28px;
+    height: 28px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line-strong);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .magnifier-btn:hover { background: var(--ink); border-color: var(--ink); }
+  .magnifier-btn:hover svg { stroke: white; }
+  .magnifier-btn svg {
+    width: 14px; height: 14px;
+    stroke: var(--ink-soft);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
   
   /* ========== PAGINATION ========== */
@@ -1161,6 +1225,57 @@
     font-family: 'JetBrains Mono', monospace;
   }
   
+  .live-view-toggle {
+    display: inline-flex;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .live-view-toggle .live-control-btn {
+    border: none;
+    border-right: 1px solid rgba(255,255,255,0.2);
+  }
+  .live-view-toggle .live-control-btn:last-child { border-right: none; }
+  
+  /* Grid view for live feed */
+  .live-feed.grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    padding: 14px;
+    max-height: calc(100vh - 380px);
+    min-height: 500px;
+    overflow-y: auto;
+  }
+  .live-feed.grid-view .live-item {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: none;
+    border: 1px solid var(--line);
+    padding: 0;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .live-feed.grid-view .live-item:hover {
+    border-color: var(--ink);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+  .live-feed.grid-view .live-item-img,
+  .live-feed.grid-view .live-item-img-placeholder {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    border: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .live-feed.grid-view .live-item-main {
+    padding: 10px 12px;
+    gap: 6px;
+  }
+  .live-feed.grid-view .live-item-side { display: none; }
+  .live-feed.grid-view .live-hot-banner {
+    margin: 0;
+  }
+  
   /* ========== INFO BAR ========== */
   .info-bar {
     background: var(--bg-deep);
@@ -1282,16 +1397,15 @@
   <!-- ============ TABS ============ -->
   <div class="tabs">
     <button class="tab active" data-tab="live"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M8.5 8.5L12 5l3.5 3.5"/><path d="M5 12L8.5 8.5"/><path d="M19 12l-3.5-3.5"/><circle cx="12" cy="12" r="3"/><path d="M12 19v-3"/><path d="M5 12c0 3.866 3.134 7 7 7s7-3.134 7-7"/></svg></span> LIVE</button>
-    <button class="tab" data-tab="hot"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span> Bán chạy hôm nay</button>
+    <button class="tab" data-tab="hot"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span> Bán chạy</button>
     <button class="tab" data-tab="catalogue"><span class="tab-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg></span> Catalogue</button>
-    <button class="tab" data-tab="stock"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span> Tồn kho × Bán</button>
-    <button class="tab" data-tab="velocity"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span> Tần suất bán</button>
+    <button class="tab" data-tab="stock"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span> Tồn kho</button>
+    <button class="tab" data-tab="velocity"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span> Tần suất</button>
     <button class="tab" data-tab="region"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg></span> Khu vực</button>
     <button class="tab" data-tab="attributes"><span class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg></span> Màu × Size</button>
-    <button class="tab" data-tab="transfer"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg></span> Đề xuất luân chuyển</button>
-    <button class="tab" data-tab="lifecycle"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg></span> Vòng đời SP</button>
-    <button class="tab" data-tab="time"><span class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span> Theo thời gian</button>
-    <button class="tab" data-tab="raw"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg></span> Dữ liệu thô</button>
+    <button class="tab" data-tab="transfer"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg></span> Đề xuất hàng</button>
+    <button class="tab" data-tab="lifecycle"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg></span> Vòng đời</button>
+    <button class="tab" data-tab="raw"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg></span> Raw data</button>
   </div>
   
   <!-- ============ SECTION: LIVE ============ -->
@@ -1308,6 +1422,16 @@
         <select id="live-filter-cat" class="live-select">
           <option value="">Tất cả ngành</option>
         </select>
+        <div class="live-view-toggle">
+          <button class="live-control-btn active" id="live-view-list" onclick="setLiveView('list')" title="List view">
+            <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            LIST
+          </button>
+          <button class="live-control-btn" id="live-view-grid" onclick="setLiveView('grid')" title="Grid view">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            GRID
+          </button>
+        </div>
         <button class="live-control-btn active" id="live-toggle-sound" onclick="toggleLiveSound()">
           <svg viewBox="0 0 24 24" id="sound-icon-on" style="display:inline"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
           <svg viewBox="0 0 24 24" id="sound-icon-off" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>
@@ -1358,7 +1482,7 @@
     <div class="live-hot-bar" id="live-hot-bar">
       <div class="live-hot-label">
         <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
-        TOP 5 NÓNG NHẤT (1H QUA)
+        TOP 5 HOT NHẤT (1H QUA)
       </div>
       <div id="live-hot-items" style="display:flex;gap:8px;flex-wrap:wrap"></div>
     </div>
@@ -1595,27 +1719,6 @@
         <div class="panel-title">SP "ngủ đông"</div>
         <div class="panel-sub">Có tồn nhưng &gt;30 ngày không bán</div>
         <div class="product-grid" id="dormant-products"></div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- ============ SECTION: TIME ============ -->
-  <div class="section" id="section-time">
-    <div class="charts-grid">
-      <div class="panel" style="grid-column: 1 / -1">
-        <div class="panel-title">Số lượng SP bán theo ngày</div>
-        <div class="panel-sub">Xu hướng số lượng giao dịch theo thời gian</div>
-        <div class="chart-wrapper"><canvas id="chart-daily-qty"></canvas></div>
-      </div>
-      <div class="panel">
-        <div class="panel-title">Heatmap: Ngày trong tuần × Giờ</div>
-        <div class="panel-sub">Mật độ giao dịch theo khung giờ</div>
-        <div id="heatmap-container" style="overflow-x:auto"></div>
-      </div>
-      <div class="panel">
-        <div class="panel-title">Phân bổ theo giờ</div>
-        <div class="panel-sub">Khung giờ vàng trong ngày</div>
-        <div class="chart-wrapper"><canvas id="chart-hourly"></canvas></div>
       </div>
     </div>
   </div>
@@ -2461,7 +2564,6 @@ function renderAll() {
   if (CURRENT_TAB === 'attributes') renderAttributes();
   if (CURRENT_TAB === 'transfer') renderTransfer();
   if (CURRENT_TAB === 'lifecycle') renderLifecycle();
-  if (CURRENT_TAB === 'time') renderTimeAnalysis();
   if (CURRENT_TAB === 'raw') renderRaw();
 }
 
@@ -2471,6 +2573,7 @@ function renderAll() {
 let LIVE_STATE = {
   soundEnabled: true,
   paused: false,
+  viewMode: localStorage.getItem('ns_live_view') || 'list',
   knownIds: new Set(),     // các giao dịch đã hiển thị (key = ngay+gio+soDon+barcode)
   lastRender: 0,
   pollInterval: null,
@@ -2520,6 +2623,18 @@ function initLiveAudio() {
       } catch (e) {}
     }
   };
+}
+
+function setLiveView(mode) {
+  LIVE_STATE.viewMode = mode;
+  const feedEl = document.getElementById('live-feed');
+  feedEl.classList.toggle('grid-view', mode === 'grid');
+  
+  document.getElementById('live-view-list').classList.toggle('active', mode === 'list');
+  document.getElementById('live-view-grid').classList.toggle('active', mode === 'grid');
+  
+  localStorage.setItem('ns_live_view', mode);
+  if (CURRENT_TAB === 'live') renderLive();
 }
 
 function toggleLiveSound() {
@@ -2673,6 +2788,9 @@ function renderLive() {
   });
   
   const feedEl = document.getElementById('live-feed');
+  
+  // Apply view mode
+  feedEl.classList.toggle('grid-view', LIVE_STATE.viewMode === 'grid');
   
   if (items.length === 0) {
     feedEl.innerHTML = '<div class="live-empty">Chưa có giao dịch nào hôm nay (' + today + ') khớp filter</div>';
@@ -2900,6 +3018,15 @@ setTimeout(() => {
   const cf = document.getElementById('live-filter-cat');
   if (sf) sf.addEventListener('change', renderLive);
   if (cf) cf.addEventListener('change', renderLive);
+  
+  // Init view mode buttons
+  const viewMode = LIVE_STATE.viewMode;
+  const listBtn = document.getElementById('live-view-list');
+  const gridBtn = document.getElementById('live-view-grid');
+  if (listBtn && gridBtn) {
+    listBtn.classList.toggle('active', viewMode === 'list');
+    gridBtn.classList.toggle('active', viewMode === 'grid');
+  }
 }, 200);
 
 // ============ HOT (best sellers) ============
@@ -3153,7 +3280,7 @@ function renderStockAnalysis() {
     
     return `
       <tr style="cursor:pointer" onclick="showProductDetail('${escapeAttr(p.code)}')">
-        <td>${p.image ? `<img class="table-img" src="${escapeAttr(p.image)}" loading="lazy" onerror="this.style.display='none'">` : '—'}</td>
+        <td>${imgCell(p.image, p.code)}</td>
         <td><code>${escapeHtml(p.code)}</code></td>
         <td><span class="product-cat ${getCategoryClass(p.category)}">${escapeHtml(p.category || '—')}</span></td>
         <td class="num">${formatNumber(p.qty)}</td>
@@ -3213,7 +3340,7 @@ function renderVelocity() {
     
     return `
       <tr style="cursor:pointer" onclick="showProductDetail('${escapeAttr(p.code)}')">
-        <td>${p.image ? `<img class="table-img" src="${escapeAttr(p.image)}" loading="lazy" onerror="this.style.display='none'">` : '—'}</td>
+        <td>${imgCell(p.image, p.code)}</td>
         <td><code>${escapeHtml(p.code)}</code></td>
         <td class="num"><strong>${formatNumber(p.qty)}</strong></td>
         <td class="num">${p.saleDayCount}</td>
@@ -3483,23 +3610,97 @@ function colorToHex(c) {
 <script>
 // ============ TRANSFER SUGGESTIONS ============
 function renderTransfer() {
-  // For each product, find stores with surplus + stores running out
+  const container = document.getElementById('transfer-list');
+  
+  // ============ SECTION 1: SP CẦN NHẬP HÀNG GẤP ============
+  // SP đã bán nhưng tồn = 0 hoặc tồn dự tính rất ít
+  const needRestock = [];
+  
+  PRODUCT_AGG.forEach(p => {
+    if (p.qty <= 0) return; // không bán → bỏ qua
+    if (p.numDays === 0) return;
+    
+    const velocity = p.qty / p.numDays;
+    
+    // Total stock toàn hệ thống của SP này
+    let totalStock = 0;
+    let totalProjected = 0;
+    let storeCount = 0;
+    if (STOCK_BY_STORE[p.code]) {
+      Object.values(STOCK_BY_STORE[p.code]).forEach(info => {
+        totalStock += info.tonHienTai || 0;
+        totalProjected += info.tonDuTinh || 0;
+        if (info.tonHienTai > 0) storeCount++;
+      });
+    }
+    
+    // Điều kiện: tồn HT = 0 HOẶC tồn dự tính không đủ 7 ngày tới
+    const daysOfStock = velocity > 0 ? totalProjected / velocity : 9999;
+    const isCritical = totalStock === 0 || daysOfStock < 7;
+    
+    if (!isCritical) return;
+    
+    // Phân loại 3 mức
+    let priority;
+    if (velocity > 1) priority = 'urgent';        // > 1 SP/ngày
+    else if (velocity >= 0.3) priority = 'high';  // 0.3-1 SP/ngày
+    else priority = 'medium';                      // < 0.3 SP/ngày
+    
+    // Đề xuất nhập = đủ cho 30 ngày
+    const suggestQty = Math.max(
+      Math.ceil(velocity * 30) - totalProjected,
+      Math.ceil(velocity * 7) // tối thiểu cover 7 ngày
+    );
+    
+    // Last sale date
+    const productSales = FILTERED.filter(r => r.maThamChieu === p.code);
+    const lastSaleDate = productSales.length > 0
+      ? productSales.map(r => r.ngay).sort().pop()
+      : null;
+    
+    needRestock.push({
+      code: p.code,
+      image: p.image,
+      category: p.category,
+      subCategory: p.subCategory,
+      qty: p.qty,
+      numDays: p.numDays,
+      velocity: velocity,
+      totalStock: totalStock,
+      totalProjected: totalProjected,
+      daysOfStock: daysOfStock,
+      storeCount: storeCount,
+      suggestQty: suggestQty,
+      priority: priority,
+      lastSaleDate: lastSaleDate
+    });
+  });
+  
+  // Sort: urgent first, then by velocity desc
+  const priorityOrder = { urgent: 3, high: 2, medium: 1 };
+  needRestock.sort((a, b) => 
+    priorityOrder[b.priority] - priorityOrder[a.priority] || b.velocity - a.velocity
+  );
+  
+  const urgentCount = needRestock.filter(r => r.priority === 'urgent').length;
+  const highCount = needRestock.filter(r => r.priority === 'high').length;
+  const mediumCount = needRestock.filter(r => r.priority === 'medium').length;
+  
+  // ============ SECTION 2: ĐỀ XUẤT LUÂN CHUYỂN ============
   const suggestions = [];
   
   PRODUCT_AGG.forEach(p => {
-    if (p.qty === 0) return; // not selling
+    if (p.qty === 0) return;
     if (!STOCK_BY_STORE[p.code]) return;
     
     const stores = Object.entries(STOCK_BY_STORE[p.code]);
     if (stores.length < 2) return;
     
-    // Track sales per store for this product
     const salesByStore = {};
     FILTERED.filter(r => r.maThamChieu === p.code).forEach(r => {
       salesByStore[r.cuaHang] = (salesByStore[r.cuaHang] || 0) + (r.soLuong || 0);
     });
     
-    // For each store: stock + sales
     const storeData = stores.map(([key, info]) => {
       const sales = salesByStore[info.khoHang] || 0;
       const velocity = p.numDays > 0 ? sales / p.numDays : 0;
@@ -3510,7 +3711,6 @@ function renderTransfer() {
       };
     });
     
-    // Find pairs: source = high stock + low velocity, target = low stock + high velocity
     const sources = storeData.filter(s => s.stock >= 5 && (s.velocity < 0.3 || s.dos > 60));
     const targets = storeData.filter(s => s.stock <= 2 && s.velocity > 0.3);
     
@@ -3520,8 +3720,8 @@ function renderTransfer() {
       targets.forEach(tgt => {
         if (src.store === tgt.store) return;
         const transferQty = Math.min(
-          Math.floor(src.stock / 2), // không chuyển hết
-          Math.ceil(tgt.velocity * 14) - tgt.stock // đủ cho 14 ngày
+          Math.floor(src.stock / 2),
+          Math.ceil(tgt.velocity * 14) - tgt.stock
         );
         if (transferQty < 1) return;
         
@@ -3539,41 +3739,123 @@ function renderTransfer() {
     });
   });
   
-  // Sort by urgency, then by qty
   suggestions.sort((a, b) => b.urgency - a.urgency || b.qty - a.qty);
   
-  const container = document.getElementById('transfer-list');
-  if (suggestions.length === 0) {
-    container.innerHTML = '<div class="empty-state">Chưa phát hiện tình huống cần luân chuyển hàng — toàn bộ kho đang cân đối tốt</div>';
-    return;
+  // ============ RENDER ============
+  let html = '';
+  
+  // Section 1: Cần nhập hàng gấp
+  if (needRestock.length > 0) {
+    html += `
+      <div style="background:linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-left:4px solid var(--negative); padding:16px 20px; margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--negative);fill:none;stroke-width:2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <h2 style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--negative);margin:0">CẦN NHẬP HÀNG GẤP</h2>
+        </div>
+        <div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px">
+          SP đã có doanh số nhưng tồn kho cạn kiệt — cần nhập từ nhà cung cấp (không thể luân chuyển nội bộ)
+        </div>
+        <div style="display:flex;gap:14px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;font-weight:700">
+          <span>${statusDot('var(--negative)')}URGENT (>1/ngày): <strong>${urgentCount}</strong></span>
+          <span>${statusDot('var(--warn)')}HIGH (0.3-1/ngày): <strong>${highCount}</strong></span>
+          <span>${statusDot('var(--ink-muted)')}MEDIUM (<0.3/ngày): <strong>${mediumCount}</strong></span>
+        </div>
+      </div>
+    `;
+    
+    // Limit hiển thị top 50
+    const restockLimited = needRestock.slice(0, 50);
+    
+    html += '<div class="restock-list" style="margin-bottom:32px">';
+    html += restockLimited.map(r => {
+      const priorityColor = r.priority === 'urgent' ? 'var(--negative)' : 
+                           r.priority === 'high' ? 'var(--warn)' : 'var(--ink-muted)';
+      const priorityLabel = r.priority === 'urgent' ? 'URGENT' : 
+                           r.priority === 'high' ? 'HIGH' : 'MEDIUM';
+      const stockText = r.totalStock === 0 
+        ? `<span style="color:var(--negative);font-weight:700">HẾT TỒN</span>` 
+        : `Tồn HT: <strong>${formatNumber(r.totalStock)}</strong>`;
+      const projectedText = r.totalProjected > 0
+        ? `Tồn dự tính: <strong>${formatNumber(r.totalProjected)}</strong> (~${r.daysOfStock < 1 ? '<1' : r.daysOfStock.toFixed(0)} ngày)`
+        : '';
+      const lastSaleText = r.lastSaleDate ? `Bán cuối: ${r.lastSaleDate}` : '';
+      
+      return `
+        <div class="restock-card" onclick="showProductDetail('${escapeAttr(r.code)}')" style="cursor:pointer;display:grid;grid-template-columns:80px 1fr auto auto;gap:16px;padding:14px 18px;background:white;border:1px solid var(--line);border-left:4px solid ${priorityColor};margin-bottom:8px;align-items:center">
+          <div>${imgCell(r.image, r.code)}</div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <code style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700">${escapeHtml(r.code)}</code>
+              <span class="product-cat ${getCategoryClass(r.category)}" style="margin:0">${escapeHtml(r.subCategory || r.category || '—')}</span>
+              <span style="font-size:9px;padding:2px 7px;background:${priorityColor};color:white;font-weight:700;letter-spacing:0.06em">${priorityLabel}</span>
+            </div>
+            <div style="font-size:12px;color:var(--ink-soft);font-family:'JetBrains Mono',monospace">
+              Đã bán: <strong>${formatNumber(r.qty)} SP</strong> trong ${r.numDays} ngày · 
+              Tốc độ: <strong>${r.velocity.toFixed(2)}/ngày</strong>
+            </div>
+            <div style="font-size:12px;color:var(--ink-muted);font-family:'JetBrains Mono',monospace">
+              ${stockText} · ${projectedText} ${lastSaleText ? '· ' + lastSaleText : ''}
+            </div>
+          </div>
+          <div style="text-align:right;border-left:1px solid var(--line);padding-left:16px">
+            <div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">Đề xuất nhập</div>
+            <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:${priorityColor}">${formatNumber(r.suggestQty)}</div>
+            <div style="font-size:10px;color:var(--ink-muted)">đủ 30 ngày</div>
+          </div>
+          <div style="font-size:10px;color:var(--ink-muted);writing-mode:vertical-rl;text-orientation:mixed;letter-spacing:0.1em;text-transform:uppercase">
+            ${r.storeCount} CH có tồn
+          </div>
+        </div>
+      `;
+    }).join('');
+    html += '</div>';
+    
+    if (needRestock.length > 50) {
+      html += `<div style="text-align:center;color:var(--ink-muted);font-style:italic;font-size:12px;margin-bottom:24px">Hiển thị 50/${needRestock.length} mã. Sort theo độ ưu tiên giảm dần.</div>`;
+    }
   }
   
-  // Limit to top 50
-  const limited = suggestions.slice(0, 50);
-  
-  let summary = `<div class="panel-sub" style="margin-bottom:16px">Phát hiện <strong>${suggestions.length}</strong> tình huống cần xem xét. Hiển thị top ${limited.length}.</div>`;
-  
-  container.innerHTML = summary + limited.map(s => `
-    <div class="transfer-card" onclick="showProductDetail('${escapeAttr(s.code)}')" style="cursor:pointer">
-      <div>
-        ${s.image ? `<img src="${escapeAttr(s.image)}" style="width:54px;height:54px;object-fit:cover">` : '<div style="width:54px;height:54px;background:var(--bg-elevated)"></div>'}
+  // Section 2: Đề xuất luân chuyển
+  html += `
+    <div style="background:linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-left:4px solid var(--terracotta); padding:16px 20px; margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--terracotta);fill:none;stroke-width:2"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>
+        <h2 style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--terracotta);margin:0">ĐỀ XUẤT LUÂN CHUYỂN NỘI BỘ</h2>
       </div>
-      <div class="transfer-store">
-        <strong>FROM: ${escapeHtml(s.fromStore)}</strong>
-        <span>${escapeHtml(s.fromRegion)} · Tồn ${s.fromStock} · ${s.fromVel.toFixed(2)}/ngày</span>
-        <span style="font-family:'IBM Plex Sans';color:var(--ink-soft);margin-top:2px"><code>${escapeHtml(s.code)}</code> · ${escapeHtml(s.subCategory || s.category)}</span>
-      </div>
-      <div class="transfer-arrow">→ <span class="transfer-qty">${s.qty}</span></div>
-      <div class="transfer-store">
-        <strong>TO: ${escapeHtml(s.toStore)}</strong>
-        <span>${escapeHtml(s.toRegion)} · Tồn ${s.toStock} · ${s.toVel.toFixed(2)}/ngày</span>
-        <span style="font-family:'IBM Plex Sans';color:${s.toDos < 7 ? 'var(--negative)' : 'var(--warn)'};margin-top:2px;font-weight:600">⚠ Còn ${s.toDos < 1 ? '<1' : s.toDos.toFixed(0)} ngày bán</span>
-      </div>
-      <div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;text-align:center">
-        ${s.urgency === 3 ? statusDot('var(--negative)')+'GẤP' : (s.urgency === 2 ? statusDot('var(--warn)')+'NÊN' : statusDot('var(--positive)')+'CÂN NHẮC')}
+      <div style="font-size:13px;color:var(--ink-soft)">
+        Có CH dư tồn nhưng không bán + có CH bán chạy nhưng sắp hết — chuyển từ CH dư sang CH cần
       </div>
     </div>
-  `).join('');
+  `;
+  
+  if (suggestions.length === 0) {
+    html += '<div class="empty-state">Toàn bộ kho đang cân đối — không phát hiện tình huống cần luân chuyển</div>';
+  } else {
+    const limited = suggestions.slice(0, 50);
+    html += `<div class="panel-sub" style="margin-bottom:16px">Phát hiện <strong>${suggestions.length}</strong> tình huống. Hiển thị top ${limited.length}.</div>`;
+    
+    html += limited.map(s => `
+      <div class="transfer-card" onclick="showProductDetail('${escapeAttr(s.code)}')" style="cursor:pointer">
+        <div>${imgCell(s.image, s.code)}</div>
+        <div class="transfer-store">
+          <strong>FROM: ${escapeHtml(s.fromStore)}</strong>
+          <span>${escapeHtml(s.fromRegion)} · Tồn ${s.fromStock} · ${s.fromVel.toFixed(2)}/ngày</span>
+          <span style="font-family:'IBM Plex Sans';color:var(--ink-soft);margin-top:2px"><code>${escapeHtml(s.code)}</code> · ${escapeHtml(s.subCategory || s.category)}</span>
+        </div>
+        <div class="transfer-arrow">→ <span class="transfer-qty">${s.qty}</span></div>
+        <div class="transfer-store">
+          <strong>TO: ${escapeHtml(s.toStore)}</strong>
+          <span>${escapeHtml(s.toRegion)} · Tồn ${s.toStock} · ${s.toVel.toFixed(2)}/ngày</span>
+          <span style="font-family:'IBM Plex Sans';color:${s.toDos < 7 ? 'var(--negative)' : 'var(--warn)'};margin-top:2px;font-weight:600">⚠ Còn ${s.toDos < 1 ? '<1' : s.toDos.toFixed(0)} ngày bán</span>
+        </div>
+        <div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;text-align:center">
+          ${s.urgency === 3 ? statusDot('var(--negative)')+'GẤP' : (s.urgency === 2 ? statusDot('var(--warn)')+'NÊN' : statusDot('var(--positive)')+'CÂN NHẮC')}
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  container.innerHTML = html;
 }
 
 // ============ LIFECYCLE ============
@@ -3707,7 +3989,7 @@ function renderRaw() {
         <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${formatDateShort(r.ngay)}</td>
         <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${escapeHtml(r.gio)}</td>
         <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${escapeHtml(r.soDon)}</td>
-        <td>${IMAGE_MAP[r.maThamChieu] ? `<img class="table-img" src="${escapeAttr(IMAGE_MAP[r.maThamChieu])}" loading="lazy" onerror="this.style.display='none'">` : '—'}</td>
+        <td>${imgCell(IMAGE_MAP[r.maThamChieu], r.maThamChieu)}</td>
         <td><code style="cursor:pointer;color:var(--accent)" onclick="showProductDetail('${escapeAttr(r.maThamChieu)}')">${escapeHtml(r.maThamChieu)}</code></td>
         <td><span class="product-cat ${getCategoryClass(r.nganhHang)}">${escapeHtml(r.nganhHang || '—')}</span></td>
         <td>${escapeHtml(r.cuaHang)}</td>
@@ -3886,6 +4168,33 @@ function openLightbox(url) {
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('active');
 }
+
+// Helper: render image cell with hover preview + magnifier button
+// Used in tables across multiple tabs
+function imgCell(imageUrl, productCode) {
+  if (!imageUrl) return '<div style="width:72px;height:72px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;color:var(--ink-muted);font-size:9px">No img</div>';
+  
+  const escUrl = escapeAttr(imageUrl);
+  const escCode = productCode ? escapeAttr(productCode) : '';
+  
+  return `
+    <div class="img-zoom-wrap">
+      <img class="table-img" src="${escUrl}" loading="lazy" 
+           onclick="event.stopPropagation();openLightbox('${escUrl}')"
+           onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\\'width:72px;height:72px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;color:var(--ink-muted);font-size:9px\\'>Lỗi tải</div>'">
+      <div class="zoom-preview"><img src="${escUrl}" alt=""></div>
+    </div>
+  `;
+}
+
+// Auto-flip zoom preview to left side if near right edge of viewport
+document.addEventListener('mouseover', (e) => {
+  const wrap = e.target.closest('.img-zoom-wrap');
+  if (!wrap) return;
+  const rect = wrap.getBoundingClientRect();
+  const willOverflow = rect.right + 332 > window.innerWidth;
+  wrap.classList.toggle('zoom-left', willOverflow);
+});
 
 // ============ EXPORT CSV ============
 function exportCSV() {
