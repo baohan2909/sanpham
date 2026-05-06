@@ -3043,7 +3043,7 @@ function renderLive() {
       ${banner}
       <div class="${classes}" onclick="showProductDetail('${escapeAttr(r.maThamChieu)}')">
         ${img ? 
-          `<img class="live-item-img" src="${escapeAttr(img)}" loading="lazy" onerror="this.outerHTML='<div class=live-item-img-placeholder>No image</div>'">` :
+          `<img class="live-item-img" src="${escapeAttr(img)}" loading="lazy" onerror="handleImgError(this)">` :
           `<div class="live-item-img-placeholder">No image</div>`}
         <div class="live-item-main">
           <div class="live-item-time-row">
@@ -3353,7 +3353,7 @@ function renderProductCards(products, withRank) {
           ${showRank ? `<div class="product-rank ${rankCls}">${i+1}</div>` : ''}
           ${stockBadgeHtml}
           ${p.image ? 
-            `<img src="${escapeAttr(p.image)}" loading="lazy" alt="${escapeAttr(p.code)}" onerror="this.parentElement.innerHTML='<div class=\\'product-img-placeholder\\'>Không tải được hình</div>'">` :
+            `<img src="${escapeAttr(p.image)}" loading="lazy" alt="${escapeAttr(p.code)}" onerror="handleProductImgError(this)">` :
             `<div class="product-img-placeholder">Chưa có hình</div>`}
         </div>
         <div class="product-info">
@@ -4466,19 +4466,46 @@ function closeLightbox() {
 // Helper: render image cell with hover preview + magnifier button
 // Used in tables across multiple tabs
 function imgCell(imageUrl, productCode) {
-  if (!imageUrl) return '<div style="width:72px;height:72px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;color:var(--ink-muted);font-size:9px">No img</div>';
+  if (!imageUrl) return noImgPlaceholder('No img');
   
   const escUrl = escapeAttr(imageUrl);
-  const escCode = productCode ? escapeAttr(productCode) : '';
   
   return `
     <div class="img-zoom-wrap">
       <img class="table-img" src="${escUrl}" loading="lazy" 
            onclick="event.stopPropagation();openLightbox('${escUrl}')"
-           onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\\'width:72px;height:72px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;color:var(--ink-muted);font-size:9px\\'>Lỗi tải</div>'">
-      <div class="zoom-preview"><img src="${escUrl}" alt=""></div>
+           onerror="handleImgError(this)">
+      <div class="zoom-preview"><img src="${escUrl}" alt="" onerror="this.style.display='none'"></div>
     </div>
   `;
+}
+
+function noImgPlaceholder(text) {
+  return `<div style="width:72px;height:72px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;color:var(--ink-muted);font-size:9px;border:1px solid var(--line)">${text || 'No img'}</div>`;
+}
+
+function handleImgError(imgEl) {
+  if (!imgEl) return;
+  const wrap = imgEl.closest('.img-zoom-wrap');
+  if (wrap) {
+    wrap.outerHTML = noImgPlaceholder('Lỗi tải');
+  } else if (imgEl.classList.contains('live-item-img')) {
+    // Live feed image
+    const placeholder = document.createElement('div');
+    placeholder.className = 'live-item-img-placeholder';
+    placeholder.textContent = 'No image';
+    imgEl.replaceWith(placeholder);
+  } else {
+    imgEl.style.display = 'none';
+  }
+}
+
+function handleProductImgError(imgEl) {
+  if (!imgEl || !imgEl.parentElement) return;
+  const placeholder = document.createElement('div');
+  placeholder.className = 'product-img-placeholder';
+  placeholder.textContent = 'Không tải được hình';
+  imgEl.replaceWith(placeholder);
 }
 
 // Auto-flip zoom preview to left side if near right edge of viewport
