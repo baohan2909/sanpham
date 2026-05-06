@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
 <title>Theo dõi & Phân tích Sản phẩm</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4484,13 +4485,50 @@ function noImgPlaceholder(text) {
   return `<div style="width:72px;height:72px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;color:var(--ink-muted);font-size:9px;border:1px solid var(--line)">${text || 'No img'}</div>`;
 }
 
+// ============ IMAGE LOADING WITH SMART FALLBACK ============
+// nonson.vn có hotlink protection → cần fallback chain:
+// 1. Direct (với meta no-referrer) → nhanh nhất, hầu hết work
+// 2. weserv.nl proxy → CDN free, có cache, resize được thumbnail
+// 3. Placeholder "Lỗi tải"
+
+function proxyImageUrl(originalUrl, size = 240) {
+  // weserv.nl yêu cầu URL không có protocol prefix
+  const urlNoProto = originalUrl.replace(/^https?:\/\//, '');
+  // Resize thumbnail 240px để load nhanh hơn 5-10x
+  return `https://wsrv.nl/?url=${encodeURIComponent(urlNoProto)}&w=${size}&h=${size}&fit=cover&we`;
+}
+
+// Giữ track ảnh nào đã thử fallback (tránh infinite loop)
+const IMG_FALLBACK_TRIED = new WeakSet();
+
 function handleImgError(imgEl) {
   if (!imgEl) return;
+  
+  // Nếu đã thử proxy rồi → bỏ cuộc, hiện placeholder
+  if (IMG_FALLBACK_TRIED.has(imgEl)) {
+    showImgFailed(imgEl);
+    return;
+  }
+  
+  // Lưu URL gốc trước khi đổi src
+  const originalSrc = imgEl.dataset.originalSrc || imgEl.src;
+  if (!imgEl.dataset.originalSrc) {
+    imgEl.dataset.originalSrc = originalSrc;
+  }
+  
+  IMG_FALLBACK_TRIED.add(imgEl);
+  
+  // Try fallback: weserv.nl proxy
+  const proxiedUrl = proxyImageUrl(originalSrc, 240);
+  console.log('[IMG] Direct failed, trying proxy:', originalSrc.substring(0, 60));
+  imgEl.src = proxiedUrl;
+}
+
+function showImgFailed(imgEl) {
   const wrap = imgEl.closest('.img-zoom-wrap');
   if (wrap) {
     wrap.outerHTML = noImgPlaceholder('Lỗi tải');
   } else if (imgEl.classList.contains('live-item-img')) {
-    // Live feed image
     const placeholder = document.createElement('div');
     placeholder.className = 'live-item-img-placeholder';
     placeholder.textContent = 'No image';
@@ -4502,6 +4540,17 @@ function handleImgError(imgEl) {
 
 function handleProductImgError(imgEl) {
   if (!imgEl || !imgEl.parentElement) return;
+  
+  // Try proxy first
+  if (!IMG_FALLBACK_TRIED.has(imgEl)) {
+    const originalSrc = imgEl.dataset.originalSrc || imgEl.src;
+    imgEl.dataset.originalSrc = originalSrc;
+    IMG_FALLBACK_TRIED.add(imgEl);
+    imgEl.src = proxyImageUrl(originalSrc, 320); // Product card 320px
+    return;
+  }
+  
+  // Both failed → placeholder
   const placeholder = document.createElement('div');
   placeholder.className = 'product-img-placeholder';
   placeholder.textContent = 'Không tải được hình';
