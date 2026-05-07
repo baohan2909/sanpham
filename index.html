@@ -2323,24 +2323,18 @@
   <div class="login-box">
     <div class="login-logo">
       <h1>Theo dõi <span class="accent">&amp; Phân tích</span></h1>
-      <p>Hệ thống Nón Sơn · Đăng nhập</p>
+      <p>Đăng nhập</p>
     </div>
     <div class="login-error" id="login-error"></div>
     <div class="login-form-group">
       <label>Tài khoản</label>
-      <input type="text" class="login-input" id="login-username" placeholder="Mã CH (vd: CH001) hoặc tài khoản quản lý" autocomplete="username">
+      <input type="text" class="login-input" id="login-username" placeholder="Nhập mã CH hoặc tài khoản quản lý" autocomplete="username" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
     </div>
     <div class="login-form-group">
       <label>Mật khẩu</label>
       <input type="password" class="login-input" id="login-password" placeholder="Mật khẩu" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button class="login-btn" id="login-submit" onclick="doLogin()">ĐĂNG NHẬP</button>
-    <div class="login-info">
-      <strong>Hướng dẫn:</strong><br>
-      • Nhân viên CH: tài khoản = mã CH (cột D), mật khẩu mặc định <code>NS280396</code> nếu chưa đổi<br>
-      • Quản lý: tài khoản = email/account đã cấp<br>
-      • Liên hệ admin nếu quên mật khẩu
-    </div>
   </div>
 </div>
 
@@ -6787,7 +6781,7 @@ async function loadStoresLatLng() {
         return;
       }
     }
-    const res = await fetch(`${APPS_SCRIPT_URL}?action=stores`);
+    const res = await fetch(`${API_URL}?action=stores`);
     const data = await res.json();
     if (data.stores) {
       STORES_DATA = data.stores;
@@ -6810,7 +6804,7 @@ function rebuildStoreLatLngIndex() {
 }
 
 async function doLogin() {
-  const username = document.getElementById('login-username').value.trim();
+  const username = document.getElementById('login-username').value.trim().toUpperCase();
   const password = document.getElementById('login-password').value;
   const errorEl = document.getElementById('login-error');
   const btnEl = document.getElementById('login-submit');
@@ -6827,7 +6821,7 @@ async function doLogin() {
   btnEl.textContent = 'ĐANG ĐĂNG NHẬP...';
   
   try {
-    const url = `${APPS_SCRIPT_URL}?action=login&user=${encodeURIComponent(username)}&pass=${encodeURIComponent(password)}`;
+    const url = `${API_URL}?action=login&user=${encodeURIComponent(username)}&pass=${encodeURIComponent(password)}`;
     const res = await fetch(url);
     const data = await res.json();
     
@@ -6874,7 +6868,7 @@ async function checkAuth() {
   
   try {
     // Verify với backend
-    const url = `${APPS_SCRIPT_URL}?action=verify&token=${encodeURIComponent(savedToken)}`;
+    const url = `${API_URL}?action=verify&token=${encodeURIComponent(savedToken)}`;
     const res = await fetch(url);
     const data = await res.json();
     
