@@ -5829,48 +5829,18 @@ function showProductDetail(code) {
     <div class="modal-section-title">Phân bố tồn kho theo CH/Khu vực</div>
     <table style="width:100%;font-size:13px;border-collapse:collapse">
       <thead><tr style="border-bottom:1px solid var(--line)">
-        <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--ink-muted);text-transform:uppercase">Mã kho</th>
-        <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--ink-muted);text-transform:uppercase">Loại</th>
         <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--ink-muted);text-transform:uppercase">Kho</th>
         <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--ink-muted);text-transform:uppercase">Khu vực</th>
         <th style="text-align:right;padding:6px 8px;font-size:10px;color:var(--ink-muted);text-transform:uppercase">Tồn HT</th>
         <th style="text-align:right;padding:6px 8px;font-size:10px;color:var(--ink-muted);text-transform:uppercase">Tồn DT</th>
       </tr></thead>
       <tbody>
-        ${stockStores.sort((a,b) => b.tonHienTai - a.tonHienTai).map(s => {
-          const isCH = s.maKho && String(s.maKho).toUpperCase().startsWith('CH');
-          const badge = isCH 
-            ? '<span style="background:var(--positive-soft);color:var(--positive);padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600">CỬA HÀNG</span>'
-            : '<span style="background:var(--olive-soft);color:var(--olive);padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600">KHO</span>';
-          return `
+        ${stockStores.sort((a,b) => b.tonHienTai - a.tonHienTai).map(s => `
           <tr style="border-bottom:1px solid var(--line)">
-            <td style="padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:11px"><strong>${escapeHtml(s.maKho || '—')}</strong></td>
-            <td style="padding:6px 8px">${badge}</td>
             <td style="padding:6px 8px">${escapeHtml(s.khoHang)}</td>
             <td style="padding:6px 8px;color:var(--ink-muted)">${escapeHtml(s.khuVuc)}</td>
             <td class="num" style="padding:6px 8px;${s.tonHienTai === 0 ? 'color:var(--negative)' : ''}">${formatNumber(s.tonHienTai)}</td>
             <td class="num" style="padding:6px 8px">${formatNumber(s.tonDuTinh)}</td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table>` : ''}
-
-    ${(window.STOCK_DETAIL_BY_CODE && window.STOCK_DETAIL_BY_CODE[code] && window.STOCK_DETAIL_BY_CODE[code].length > 0) ? `
-    <div class="modal-section-title">Chi tiết theo mã barcode (${window.STOCK_DETAIL_BY_CODE[code].length} dòng)</div>
-    <table style="width:100%;font-size:13px;border-collapse:collapse">
-      <thead><tr style="border-bottom:1px solid var(--line)">
-        <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--ink-muted);text-transform:uppercase">Barcode</th>
-        <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--ink-muted);text-transform:uppercase">SKU</th>
-        <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--ink-muted);text-transform:uppercase">Mã kho</th>
-        <th style="text-align:right;padding:6px 8px;font-size:10px;color:var(--ink-muted);text-transform:uppercase">Tồn</th>
-      </tr></thead>
-      <tbody>
-        ${window.STOCK_DETAIL_BY_CODE[code].slice().sort((a,b) => (b.tonHienTai||0) - (a.tonHienTai||0)).map(s => `
-          <tr style="border-bottom:1px solid var(--line)">
-            <td style="padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:11px">${escapeHtml(s.barcode || '—')}</td>
-            <td style="padding:6px 8px;font-size:11px">${escapeHtml(s.sku || '—')}</td>
-            <td style="padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:11px">${escapeHtml(s.maKho || '—')}</td>
-            <td class="num" style="padding:6px 8px;${(s.tonHienTai||0) === 0 ? 'color:var(--negative)' : ''}">${formatNumber(s.tonHienTai || 0)}</td>
           </tr>
         `).join('')}
       </tbody>
