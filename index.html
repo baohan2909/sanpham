@@ -1456,7 +1456,7 @@
    =========================================================== */
 
 /* DEFAULT: Modern Premium (gradient mesh + glass) - applied via [data-theme="modern"] or no attribute */
-body[data-theme="modern"], body:not([data-theme]) {
+body[data-theme="modern"] {
   --bg: #f5f7fc;
   --bg-card: #ffffff;
   --bg-elevated: #eef1f8;
@@ -1482,7 +1482,7 @@ body[data-theme="modern"], body:not([data-theme]) {
   --shadow-lg: 0 8px 24px rgba(15,23,42,.08), 0 24px 60px rgba(79,70,229,.12);
   --shadow-zoom: 0 24px 60px rgba(15,23,42,.25);
 }
-body[data-theme="modern"], body:not([data-theme]) {
+body[data-theme="modern"] {
   background-image:
     radial-gradient(ellipse at 0% 0%, rgba(79,70,229,0.08) 0%, transparent 50%),
     radial-gradient(ellipse at 100% 0%, rgba(236,72,153,0.06) 0%, transparent 50%),
@@ -1693,14 +1693,11 @@ body[data-theme="aurora"] .product-card {
    MODERN PREMIUM ENHANCEMENTS (default theme)
    =========================================================== */
 
-body:not([data-theme]),
 body[data-theme="modern"] {
   font-feature-settings: 'cv11', 'ss01';
 }
 
-body:not([data-theme]) .panel,
 body[data-theme="modern"] .panel,
-body:not([data-theme]) .filters,
 body[data-theme="modern"] .filters {
   backdrop-filter: blur(12px) saturate(1.05);
   -webkit-backdrop-filter: blur(12px) saturate(1.05);
@@ -1708,7 +1705,6 @@ body[data-theme="modern"] .filters {
   border: 1px solid rgba(255,255,255,.5);
 }
 
-body:not([data-theme]) .kpi-card,
 body[data-theme="modern"] .kpi-card {
   background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.7));
   backdrop-filter: blur(8px);
@@ -1717,19 +1713,16 @@ body[data-theme="modern"] .kpi-card {
   box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 1px 2px rgba(15,23,42,.06), 0 8px 24px rgba(15,23,42,.04);
   transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease;
 }
-body:not([data-theme]) .kpi-card:hover,
 body[data-theme="modern"] .kpi-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 4px 12px rgba(15,23,42,.08), 0 16px 40px rgba(79,70,229,.10);
 }
 
-body:not([data-theme]) .product-card,
 body[data-theme="modern"] .product-card {
   background: linear-gradient(180deg, #ffffff, #fafbff);
   border: 1px solid var(--line);
   transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease, border-color .35s ease;
 }
-body:not([data-theme]) .product-card:hover,
 body[data-theme="modern"] .product-card:hover {
   border-color: var(--accent);
   box-shadow: 0 12px 32px rgba(79,70,229,.12), 0 32px 80px rgba(79,70,229,.08);
@@ -1828,7 +1821,11 @@ td.num, .product-stat strong { font-variant-numeric: tabular-nums; }
    =========================================================== */
 .login-overlay {
   position: fixed; inset: 0;
-  background: linear-gradient(135deg, #0a0e1a 0%, #1a1d35 50%, #2c1450 100%);
+  background: #f7f4ed;
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(184,69,26,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 100%, rgba(31,58,95,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 0% 100%, rgba(107,110,58,0.06) 0%, transparent 45%);
   z-index: 100000;
   display: flex; align-items: center; justify-content: center;
   padding: 20px;
@@ -1837,67 +1834,111 @@ td.num, .product-stat strong { font-variant-numeric: tabular-nums; }
   content: '';
   position: absolute; inset: 0;
   background:
-    radial-gradient(circle at 20% 30%, rgba(99,102,241,0.30) 0%, transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(236,72,153,0.25) 0%, transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(139,92,246,0.20) 0%, transparent 50%);
+    radial-gradient(circle at 70% 20%, rgba(184,69,26,0.08) 0%, transparent 35%),
+    radial-gradient(circle at 30% 80%, rgba(31,58,95,0.06) 0%, transparent 40%);
   pointer-events: none;
+}
+.login-brand {
+  position: relative; z-index: 2;
+  text-align: center;
+  margin-bottom: 32px;
+}
+.login-brand-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 32px;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: #1c1815;
+}
+.login-brand-title .ampersand {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  color: #b8451a;
+  font-style: italic;
+  margin: 0 4px;
+  font-size: 1.1em;
+}
+.login-brand-title .accent {
+  font-weight: 500;
+  color: #b8451a;
+}
+.login-brand-sub {
+  font-size: 11px;
+  color: #8a8378;
+  margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
 }
 .login-card {
   position: relative; z-index: 1;
-  background: rgba(255,255,255,.06);
-  backdrop-filter: blur(40px) saturate(1.4);
-  -webkit-backdrop-filter: blur(40px) saturate(1.4);
-  border: 1px solid rgba(255,255,255,.18);
-  border-radius: 20px;
-  padding: 40px 36px;
-  width: 100%; max-width: 400px;
-  box-shadow: 0 24px 80px rgba(0,0,0,.5);
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border: 1px solid #e3dccb;
+  border-radius: 16px;
+  padding: 32px 32px 28px;
+  width: 100%; max-width: 380px;
+  box-shadow: 0 1px 2px rgba(28,24,21,.04), 0 12px 40px rgba(28,24,21,.08), 0 32px 80px rgba(184,69,26,.06);
 }
 .login-title {
   font-family: 'Fraunces', serif;
-  font-size: 32px; font-weight: 600;
-  color: white; letter-spacing: -0.02em;
-  margin-bottom: 6px; text-align: center;
+  font-size: 22px; font-weight: 600;
+  color: #1c1815; letter-spacing: -0.02em;
+  margin-bottom: 4px; text-align: center;
 }
 .login-sub {
-  text-align: center; color: rgba(255,255,255,.6);
-  font-size: 13px; margin-bottom: 28px;
+  text-align: center; color: #8a8378;
+  font-size: 11px; margin-bottom: 22px;
   font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 0.05em; text-transform: uppercase;
+  letter-spacing: 0.08em; text-transform: uppercase;
 }
 .login-input {
-  width: 100%; padding: 13px 14px;
-  margin-bottom: 12px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.18);
-  border-radius: 10px;
-  color: white;
-  font-family: inherit; font-size: 14px;
+  width: 100%; padding: 12px 14px;
+  margin-bottom: 10px;
+  background: #ffffff;
+  border: 1px solid #c9bfa7;
+  border-radius: 8px;
+  color: #1c1815;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-size: 14px;
   transition: all .2s ease;
 }
-.login-input::placeholder { color: rgba(255,255,255,.5); }
+.login-input::placeholder { color: #8a8378; }
 .login-input:focus {
   outline: none;
-  background: rgba(255,255,255,.14);
-  border-color: rgba(99,102,241,.6);
-  box-shadow: 0 0 0 3px rgba(99,102,241,.20);
+  background: #ffffff;
+  border-color: #b8451a;
+  box-shadow: 0 0 0 3px rgba(184,69,26,.12);
 }
-#login-user { text-transform: uppercase; }
+#login-user { text-transform: uppercase; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; }
 .login-btn {
   width: 100%; padding: 13px;
-  background: linear-gradient(135deg, #6366f1, #ec4899);
-  border: none; border-radius: 10px;
-  color: white; font-weight: 600; font-size: 14px;
+  margin-top: 4px;
+  background: #1c1815;
+  border: none; border-radius: 8px;
+  color: #f7f4ed; font-weight: 600; font-size: 13px;
   cursor: pointer;
-  text-transform: uppercase; letter-spacing: 0.08em;
+  text-transform: uppercase; letter-spacing: 0.10em;
   transition: all .2s ease;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
 }
-.login-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(99,102,241,.4); }
-.login-btn:disabled { opacity: .6; cursor: not-allowed; }
+.login-btn:hover { background: #b8451a; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(184,69,26,.25); }
+.login-btn:disabled {
+  opacity: .6; cursor: not-allowed;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  letter-spacing: 0.05em;
+}
 .login-error {
-  background: rgba(239,68,68,.15);
-  border: 1px solid rgba(239,68,68,.35);
-  color: #fca5a5;
+  background: #fadddd;
+  border: 1px solid rgba(164,22,26,0.30);
+  color: #7a0c0c;
+  padding: 9px 12px; border-radius: 8px;
+  font-size: 12px; text-align: center;
+  margin-top: 10px; display: none;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+}
   padding: 10px; border-radius: 8px;
   font-size: 12px; text-align: center;
   margin-top: 12px; display: none;
@@ -2429,13 +2470,19 @@ html { scroll-behavior: smooth; }
 <body>
 <!-- LOGIN OVERLAY -->
 <div id="login-overlay" class="login-overlay">
-  <div class="login-card">
-    <div class="login-title">Theo dõi & Phân tích</div>
-    <div class="login-sub">Đăng nhập</div>
-    <input type="text" id="login-user" class="login-input" placeholder="Tài khoản" autocomplete="off" spellcheck="false" oninput="this.value=this.value.toUpperCase()">
-    <input type="password" id="login-pass" class="login-input" placeholder="Mật khẩu" autocomplete="off">
-    <button id="login-btn" class="login-btn" onclick="doLogin()">ĐĂNG NHẬP</button>
-    <div id="login-error" class="login-error"></div>
+  <div style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:420px">
+    <div class="login-brand">
+      <h1 class="login-brand-title">Theo dõi <span class="ampersand">&amp;</span> <span class="accent">Phân tích</span></h1>
+      <div class="login-brand-sub">Sản phẩm · Tồn kho</div>
+    </div>
+    <div class="login-card">
+      <div class="login-title">Đăng nhập</div>
+      <div class="login-sub">Vui lòng nhập tài khoản</div>
+      <input type="text" id="login-user" class="login-input" placeholder="Tài khoản" autocomplete="off" spellcheck="false" oninput="this.value=this.value.toUpperCase()">
+      <input type="password" id="login-pass" class="login-input" placeholder="Mật khẩu" autocomplete="off">
+      <button id="login-btn" class="login-btn" onclick="doLogin()">ĐĂNG NHẬP</button>
+      <div id="login-error" class="login-error"></div>
+    </div>
   </div>
 </div>
 
@@ -2495,7 +2542,7 @@ html { scroll-behavior: smooth; }
     <div class="header-left">
       <div>
         <h1 class="header-title">Theo dõi <span class="ampersand">&amp;</span> <span class="accent">Phân tích</span></h1>
-        <div class="header-sub">Sản phẩm · Tồn kho · Khu vực</div>
+        <div class="header-sub">Sản phẩm · Tồn kho</div>
       </div>
     </div>
     <div class="header-meta">
@@ -2531,21 +2578,27 @@ html { scroll-behavior: smooth; }
       </div>
       <div class="filter-group">
         <label class="filter-label">Ngành hàng</label>
-        <select id="filter-category" class="filter-select">
-          <option value="">Tất cả</option>
-        </select>
+        <input type="text" id="filter-category" class="filter-input" list="dl-categories" placeholder="Tất cả ngành" autocomplete="off">
+        <datalist id="dl-categories"></datalist>
       </div>
       <div class="filter-group">
         <label class="filter-label">Khu vực</label>
-        <select id="filter-region" class="filter-select">
-          <option value="">Tất cả khu vực</option>
+        <input type="text" id="filter-region" class="filter-input" list="dl-regions" placeholder="Tất cả khu vực" autocomplete="off">
+        <datalist id="dl-regions"></datalist>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Loại điểm bán</label>
+        <select id="filter-storetype" class="filter-select">
+          <option value="">Tất cả</option>
+          <option value="CH">Cửa hàng (CH)</option>
+          <option value="DOISALE">Đội sale</option>
+          <option value="DB">Điểm bán</option>
         </select>
       </div>
       <div class="filter-group">
         <label class="filter-label">Cửa hàng</label>
-        <select id="filter-store" class="filter-select">
-          <option value="">Tất cả cửa hàng</option>
-        </select>
+        <input type="text" id="filter-store" class="filter-input" list="dl-stores" placeholder="Tất cả cửa hàng" autocomplete="off">
+        <datalist id="dl-stores"></datalist>
       </div>
       <div class="filter-group">
         <label class="filter-label">Tìm Mã / Barcode</label>
@@ -2768,7 +2821,7 @@ html { scroll-behavior: smooth; }
     
     <div class="panel">
       <div class="panel-title">Phân tích tồn kho × tốc độ bán</div>
-      <div class="panel-sub">Days of Stock = Tồn ÷ tốc độ bán TB/ngày · cảnh báo các SP sắp hết hàng</div>
+      <div class="panel-sub">Số ngày bán còn (Tồn ÷ tốc độ bán TB/ngày) — cảnh báo các SP sắp hết hàng</div>
       <div class="product-controls">
         <select id="stock-status-filter">
           <option value="all">Tất cả trạng thái</option>
@@ -2791,7 +2844,7 @@ html { scroll-behavior: smooth; }
               <th class="num">Tốc độ/ngày</th>
               <th class="num">Tồn hiện tại</th>
               <th class="num">Tồn dự tính</th>
-              <th class="num">Days of Stock</th>
+              <th class="num">Số ngày còn</th>
               <th>Trạng thái</th>
             </tr>
           </thead>
@@ -2938,20 +2991,40 @@ html { scroll-behavior: smooth; }
       </select>
       <select id="transfer-filter-priority" class="filter-select" onchange="renderTransfer()">
         <option value="">Tất cả mức ưu tiên</option>
-        <option value="urgent">URGENT (gấp nhất)</option>
+        <option value="emergency">🚨 KHẨN CẤP</option>
+        <option value="urgent">URGENT (gấp)</option>
         <option value="high">HIGH</option>
         <option value="medium">MEDIUM</option>
       </select>
       <select id="transfer-filter-region" class="filter-select" onchange="renderTransfer()">
         <option value="">Tất cả khu vực</option>
       </select>
-      <input type="text" id="transfer-filter-search" class="filter-input" placeholder="Tìm mã SP..." oninput="renderTransfer()">
+      <select id="transfer-filter-store" class="filter-select" onchange="renderTransfer()">
+        <option value="">Tất cả cửa hàng</option>
+      </select>
+      <select id="transfer-filter-storetype" class="filter-select" onchange="renderTransfer()">
+        <option value="">Tất cả loại điểm</option>
+        <option value="CH">Cửa hàng (CH)</option>
+        <option value="DOISALE">Đội sale (DOISALE)</option>
+        <option value="DB">Điểm bán (DB)</option>
+        <option value="WAREHOUSE">Kho (TP/SA)</option>
+      </select>
+      <input type="text" id="transfer-filter-search" class="filter-input" placeholder="Tìm mã SP..." oninput="renderTransfer()" style="min-width:140px">
+      <input type="number" id="transfer-filter-price-min" class="filter-input" placeholder="Giá từ" oninput="renderTransfer()" style="min-width:90px">
+      <input type="number" id="transfer-filter-price-max" class="filter-input" placeholder="đến" oninput="renderTransfer()" style="min-width:90px">
       <select id="transfer-sort" class="filter-select" onchange="renderTransfer()">
-        <option value="urgency">Sắp xếp: Ưu tiên</option>
+        <option value="emergency-first">⚡ KHẨN CẤP trước</option>
+        <option value="urgency">Mức ưu tiên</option>
         <option value="qty-desc">SL nhiều nhất</option>
         <option value="qty-asc">SL ít nhất</option>
+        <option value="stock-asc">Tồn ít nhất</option>
+        <option value="stock-desc">Tồn nhiều nhất</option>
+        <option value="price-desc">Giá cao nhất</option>
+        <option value="price-asc">Giá thấp nhất</option>
         <option value="dist-asc">Gần nhất (km)</option>
         <option value="dist-desc">Xa nhất (km)</option>
+        <option value="region">Theo khu vực</option>
+        <option value="store">Theo cửa hàng đích</option>
         <option value="code">Mã SP A→Z</option>
       </select>
       <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
@@ -3547,17 +3620,21 @@ function indexStock() {
 
 // ============ FILTERS ============
 function initFilters() {
+  // Helper populate datalist (input + datalist combo)
+  const fillDataList = (datalistId, items) => {
+    const dl = document.getElementById(datalistId);
+    if (!dl) return;
+    dl.innerHTML = items.map(v => `<option value="${escapeAttr(v)}"></option>`).join('');
+  };
+
   const cats = [...new Set(RAW_DATA.map(r => r.nganhHang).filter(Boolean))].sort();
-  document.getElementById('filter-category').innerHTML = '<option value="">Tất cả ngành</option>' + 
-    cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-  
+  fillDataList('dl-categories', cats);
+
   const stores = [...new Set(RAW_DATA.map(r => r.cuaHang).filter(Boolean))].sort();
-  document.getElementById('filter-store').innerHTML = '<option value="">Tất cả CH</option>' + 
-    stores.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
-  
+  fillDataList('dl-stores', stores);
+
   const regions = [...new Set(STOCK_DATA.map(r => r.khuVuc).filter(Boolean))].sort();
-  document.getElementById('filter-region').innerHTML = '<option value="">Tất cả khu vực</option>' + 
-    regions.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
+  fillDataList('dl-regions', regions);
   
   // Default: chỉ HÔM NAY (file LIVE) - nhanh nhất
   // User muốn xem khoảng dài hơn thì click các nút quick date (sẽ auto load tháng cũ)
@@ -3578,6 +3655,8 @@ async function applyFilters() {
   const cat = document.getElementById('filter-category').value;
   const store = document.getElementById('filter-store').value;
   const region = document.getElementById('filter-region').value;
+  const storeTypeEl = document.getElementById('filter-storetype');
+  const storeType = storeTypeEl ? storeTypeEl.value : '';
   const search = document.getElementById('filter-search').value.trim().toLowerCase();
   
   // Lazy load các tháng cần thiết nếu chưa có
@@ -3589,6 +3668,23 @@ async function applyFilters() {
   let regionStores = null;
   if (region) {
     regionStores = new Set(STOCK_DATA.filter(s => s.khuVuc === region).map(s => s.khoHang));
+  }
+
+  // Build set of stores matching storeType (qua maKho)
+  // CH/DOISALE/DB: lookup mã kho bắt đầu với prefix
+  let storeTypeStores = null;
+  if (storeType) {
+    storeTypeStores = new Set();
+    STOCK_DATA.forEach(s => {
+      const u = String(s.maKho || '').toUpperCase();
+      if (storeType === 'CH' && u.startsWith('CH')) storeTypeStores.add(s.khoHang);
+      else if (storeType === 'DOISALE' && u.startsWith('DOISALE')) storeTypeStores.add(s.khoHang);
+      else if (storeType === 'DB' && u.startsWith('DB')) storeTypeStores.add(s.khoHang);
+    });
+    // Also accept tenDoi (cột K) cho DOISALE
+    if (storeType === 'DOISALE') {
+      RAW_DATA.forEach(r => { if (r.tenDoi) storeTypeStores.add(r.tenDoi); });
+    }
   }
   
   FILTERED = RAW_DATA.filter(r => {
@@ -3603,6 +3699,9 @@ async function applyFilters() {
         );
         if (!matchesRegion) return false;
       }
+    }
+    if (storeTypeStores) {
+      if (!r.cuaHang || !storeTypeStores.has(r.cuaHang)) return false;
     }
     if (search) {
       const blob = (r.maThamChieu + ' ' + r.barcode + ' ' + r.soDon).toLowerCase();
@@ -3620,6 +3719,8 @@ function clearFilters() {
   document.getElementById('filter-category').value = '';
   document.getElementById('filter-store').value = '';
   document.getElementById('filter-region').value = '';
+  const stEl = document.getElementById('filter-storetype');
+  if (stEl) stEl.value = '';
   document.getElementById('filter-search').value = '';
   document.querySelectorAll('.quick-date-btn').forEach(b => b.classList.remove('active'));
   initFilters();
@@ -3686,8 +3787,17 @@ document.querySelectorAll('.quick-date-btn').forEach(btn => {
   });
 });
 
-['filter-date-from', 'filter-date-to', 'filter-category', 'filter-store', 'filter-region'].forEach(id => {
-  document.getElementById(id).addEventListener('change', applyFilters);
+['filter-date-from', 'filter-date-to', 'filter-storetype'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', applyFilters);
+});
+// Combobox filters: change for select-completion + debounced input for typing
+['filter-category', 'filter-store', 'filter-region'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let t;
+  el.addEventListener('input', () => { clearTimeout(t); t = setTimeout(applyFilters, 300); });
+  el.addEventListener('change', applyFilters);
 });
 let searchTimeout;
 document.getElementById('filter-search').addEventListener('input', () => {
@@ -3827,7 +3937,19 @@ function renderKPI() {
   const products = PRODUCT_AGG.filter(p => p.qty > 0);
   const totalQty = products.reduce((s, p) => s + p.qty, 0);
   const hotProducts = PRODUCT_AGG.filter(p => p.qty >= 10).length;
-  const totalStock = STOCK_DATA.reduce((s, r) => s + r.tonHienTai, 0);
+
+  // Tách 2 chỉ số: tồn ở điểm bán (CH/DOISALE/DB) + tồn ở kho (TP/SA)
+  let stockSell = 0, stockWarehouse = 0;
+  STOCK_DATA.forEach(r => {
+    const u = String(r.maKho || '').toUpperCase();
+    if (u.startsWith('CH') || u.startsWith('DOISALE') || u.startsWith('DB')) {
+      stockSell += r.tonHienTai || 0;
+    } else if (u.startsWith('TP') || u.startsWith('SA')) {
+      stockWarehouse += r.tonHienTai || 0;
+    }
+  });
+  const totalStock = stockSell + stockWarehouse;
+
   const lowStock = PRODUCT_AGG.filter(p => 
     p.stockStatus === 'critical' || p.stockStatus === 'low'
   ).length;
@@ -3868,7 +3990,9 @@ function renderKPI() {
     }
   } catch (e) {}
   document.getElementById('kpi-units-meta').innerHTML = unitsMetaText;
-  document.getElementById('kpi-stock-meta').textContent = `${Object.keys(STOCK_BY_CODE).length} mã có tồn`;
+  // Tách rõ tồn điểm bán vs tồn kho thành phẩm/sale
+  document.getElementById('kpi-stock-meta').innerHTML = 
+    `<span title="Tồn ở CH + Đội sale + Điểm bán">Bán: <strong>${formatNumber(stockSell)}</strong></span> · <span title="Tồn ở Kho TP/SA">Kho: <strong>${formatNumber(stockWarehouse)}</strong></span>`;
   
   // Update tab badges
   document.querySelectorAll('.tab-badge').forEach(b => b.remove());
@@ -4919,38 +5043,22 @@ function renderRegion() {
 
 // ============ ATTRIBUTES (color × size) ============
 function renderAttributes() {
-  // Parse code: e.g. NS008BTG-XM181-L
-  // - First part before first dash: model (NS008BTG)
-  // - Middle: color code (XM, DN, TR, ...)
-  // - Last: size (S, M, L, XL, XXL)
+  // Parse code theo NGÀNH HÀNG:
+  // - Mũ bảo hiểm: NS008BTG-TR130-L → middle = TR130 → màu = TR (chữ cái đầu segment), size = L
+  //   Hoặc NS008ATG-XM181-L → màu = XM
+  // - Nón vải:     XH001-72F-TR1  → segment cuối = TR1 → màu = TR
+  //                XH001-72F-DN   → segment cuối = DN → màu = DN
   
   const colorCounts = {};
   const sizeCounts = {};
   const colorSizeMatrix = {};
-  
+
+  // Dùng helper extractColorAndSize (định nghĩa toàn cục để tái sử dụng)
   FILTERED.forEach(r => {
-    const code = r.maThamChieu;
-    if (!code) return;
-    
-    // Try to extract size from end: ends with -S, -M, -L, -XL, -XXL, -XXXL
-    let size = 'OTHER';
-    const sizeMatch = code.match(/-(XS|S|M|L|XL|XXL|XXXL|FREESIZE)$/i);
-    if (sizeMatch) size = sizeMatch[1].toUpperCase();
-    
-    // Color: look for 2-letter code in middle segment
-    // E.g. NS008BTG-XM181-L → middle = XM181 → color = XM
-    let color = 'OTHER';
-    const parts = code.split('-');
-    if (parts.length >= 2) {
-      const middle = parts[parts.length - 2] || parts[1];
-      const colorMatch = middle.match(/^([A-Z]{2,3})/);
-      if (colorMatch) color = colorMatch[1];
-    }
-    
+    const { color, size } = extractColorAndSize(r.maThamChieu, r.nganhHang);
     const qty = r.soLuong || 0;
     colorCounts[color] = (colorCounts[color] || 0) + qty;
     sizeCounts[size] = (sizeCounts[size] || 0) + qty;
-    
     if (!colorSizeMatrix[color]) colorSizeMatrix[color] = {};
     colorSizeMatrix[color][size] = (colorSizeMatrix[color][size] || 0) + qty;
   });
@@ -5029,6 +5137,57 @@ function decodeColor(c) {
   };
   return map[k] || '';
 }
+
+// Helper extract màu + size theo ngành hàng (rule khác nhau)
+// Mũ bảo hiểm: NS008BTG-TR130-L → màu ở SEGMENT GIỮA (prefix chữ cái), size ở cuối
+// Nón vải:     XH001-72F-TR1   → màu ở SEGMENT CUỐI (prefix chữ cái), size = OTHER
+//              XH001-72F-DN    → màu = DN
+// Đ được normalize sang D (ĐN → DN, ĐO → DO)
+function extractColorAndSize(code, nganhHang) {
+  if (!code) return { color: 'OTHER', size: 'OTHER' };
+
+  const isHelmet = nganhHang && /Mũ\s*b[aả]o\s*hi[eể]m/i.test(nganhHang);
+  const norm = String(code).toUpperCase().replace(/Đ/g, 'D');
+  const parts = norm.split('-').filter(Boolean);
+
+  let color = 'OTHER';
+  let size = 'OTHER';
+
+  // Lấy prefix chữ cái từ một segment (loại bỏ digit)
+  const colorOf = seg => {
+    if (!seg) return null;
+    const m = seg.match(/^([A-Z]{2,3})/);
+    return m ? m[1] : null;
+  };
+
+  if (isHelmet) {
+    // Size ở cuối: -S, -M, -L, -XL, -XXL, -XXXL, -FREESIZE
+    const sizeMatch = norm.match(/-(XS|S|M|L|XL|XXL|XXXL|FREESIZE)$/i);
+    if (sizeMatch) size = sizeMatch[1].toUpperCase();
+
+    // Màu: segment ngay trước size (segment thứ 2 từ cuối, hoặc segment cuối nếu không có size)
+    const colorSeg = (sizeMatch && parts.length >= 2)
+      ? parts[parts.length - 2]
+      : parts[parts.length - 1];
+    color = colorOf(colorSeg) || 'OTHER';
+  } else {
+    // Nón vải: màu ở segment cuối. Nếu segment cuối toàn digit thì lấy segment trước
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const seg = parts[i];
+      if (!seg) continue;
+      // Bỏ qua segment toàn digit (vd: "500", "72")
+      if (/^\d+$/.test(seg)) continue;
+      const c = colorOf(seg);
+      if (c) {
+        color = c;
+        break;
+      }
+    }
+    size = 'OTHER';
+  }
+
+  return { color, size };
+}
 function colorToHex(c) {
   if (!c) return '#888';
   const k = String(c).toUpperCase().replace(/Đ/g, 'D');
@@ -5068,6 +5227,28 @@ function switchSubTab(tab) {
 }
 
 // Compute restock candidates - SP đã bán nhưng tồn cạn kiệt
+// Emergency codes: SP đã bán trong khoảng FILTERED nhưng tổng tồn hệ thống = 0
+function getEmergencyCodes() {
+  const codes = new Set();
+  if (typeof FILTERED === 'undefined' || !Array.isArray(FILTERED)) return codes;
+  if (typeof STOCK_BY_CODE === 'undefined') return codes;
+
+  const periodCodeQty = {};
+  FILTERED.forEach(r => {
+    if ((r.soLuong || 0) > 0) {
+      periodCodeQty[r.maThamChieu] = (periodCodeQty[r.maThamChieu] || 0) + r.soLuong;
+    }
+  });
+  Object.keys(periodCodeQty).forEach(code => {
+    const stock = STOCK_BY_CODE[code];
+    const totalStock = stock ? (stock.tonHienTai || 0) : 0;
+    if (periodCodeQty[code] > 0 && totalStock === 0) {
+      codes.add(code);
+    }
+  });
+  return codes;
+}
+
 function computeRestockData() {
   const list = [];
   
@@ -5122,63 +5303,164 @@ function computeRestockData() {
   return list;
 }
 
-// Compute rebalance candidates - chuyển CH dư sang CH thiếu
+// Compute rebalance candidates - ưu tiên: TP/SA trước, sau đó CH gần nhất
+// Cho mỗi target thiếu hàng, hiện 2 gợi ý song song nếu có:
+//   1. Từ kho TP/SA (luôn ưu tiên)
+//   2. Từ CH gần nhất có dư
 function computeRebalanceData() {
   const suggestions = [];
-  
+
+  // Helper xác định loại điểm
+  const typeOf = code => {
+    if (!code) return '';
+    const u = String(code).toUpperCase();
+    if (u.startsWith('TP') || u.startsWith('SA')) return 'WAREHOUSE';
+    if (u.startsWith('CH')) return 'CH';
+    if (u.startsWith('DOISALE')) return 'DOISALE';
+    if (u.startsWith('DB')) return 'DB';
+    return 'OTHER';
+  };
+
+  // Helper: distance giữa 2 điểm dùng STORE_LATLNG
+  const distBetween = (a, b) => {
+    if (typeof STORE_LATLNG === 'undefined') return null;
+    const A = STORE_LATLNG[a]; const B = STORE_LATLNG[b];
+    if (!A || !B) return null;
+    return haversineKm(A.lat, A.lng, B.lat, B.lng);
+  };
+
   PRODUCT_AGG.forEach(p => {
     if (p.qty === 0) return;
     if (!STOCK_BY_STORE[p.code]) return;
-    
+
     const stores = Object.entries(STOCK_BY_STORE[p.code]);
     if (stores.length < 2) return;
-    
+
+    // Sales theo cửa hàng (cuaHang trong RAW_DATA = mã CH thường)
     const salesByStore = {};
     FILTERED.filter(r => r.maThamChieu === p.code).forEach(r => {
       salesByStore[r.cuaHang] = (salesByStore[r.cuaHang] || 0) + (r.soLuong || 0);
     });
-    
+
     const storeData = stores.map(([key, info]) => {
-      const sales = salesByStore[info.khoHang] || 0;
+      // Match sales theo maKho (key) hoặc khoHang (text)
+      const sales = (salesByStore[info.maKho] || salesByStore[info.khoHang] || 0);
       const velocity = p.numDays > 0 ? sales / p.numDays : 0;
       const dos = velocity > 0 ? info.tonHienTai / velocity : (info.tonHienTai > 0 ? 9999 : 0);
       return {
-        key, store: info.khoHang, region: info.khuVuc,
+        key, store: info.maKho || info.khoHang, storeName: info.khoHang,
+        region: info.khuVuc, type: typeOf(info.maKho || ''),
         stock: info.tonHienTai, sales, velocity, dos
       };
     });
-    
-    const sources = storeData.filter(s => s.stock >= 5 && (s.velocity < 0.3 || s.dos > 60));
-    const targets = storeData.filter(s => s.stock <= 2 && s.velocity > 0.3);
-    
-    if (sources.length === 0 || targets.length === 0) return;
-    
-    sources.forEach(src => {
-      targets.forEach(tgt => {
-        if (src.store === tgt.store) return;
-        const transferQty = Math.min(
-          Math.floor(src.stock / 2),
-          Math.ceil(tgt.velocity * 14) - tgt.stock
-        );
-        if (transferQty < 1) return;
-        
-        let priority;
-        if (tgt.dos < 7) priority = 'urgent';
-        else if (tgt.dos < 14) priority = 'high';
-        else priority = 'medium';
-        
-        suggestions.push({
-          code: p.code, image: p.image, category: p.category, subCategory: p.subCategory,
-          fromStore: src.store, fromRegion: src.region, fromStock: src.stock, fromVel: src.velocity,
-          toStore: tgt.store, toRegion: tgt.region, toStock: tgt.stock, toVel: tgt.velocity, toDos: tgt.dos,
-          qty: transferQty, priority,
-          urgency: tgt.dos < 7 ? 3 : (tgt.dos < 14 ? 2 : 1)
-        });
-      });
+
+    // Targets: SP có velocity > 0 và tồn thấp (≤ 2) hoặc đã hết
+    // Bao gồm cả emergency: có sales nhưng tồn=0
+    const targets = storeData.filter(s =>
+      s.type !== 'WAREHOUSE' &&  // không gợi ý chuyển TỚI kho
+      ((s.stock <= 2 && s.velocity > 0.3) || (s.stock === 0 && s.sales > 0))
+    );
+    if (targets.length === 0) return;
+
+    // Sources: có dư hàng
+    // Tách 2 nhóm: warehouses (TP/SA) và CH dư (CH/DOISALE/DB stock cao + velocity thấp)
+    const warehouses = storeData.filter(s =>
+      s.type === 'WAREHOUSE' && s.stock >= 1
+    );
+    const overstock = storeData.filter(s =>
+      s.type !== 'WAREHOUSE' && s.stock >= 5 && (s.velocity < 0.3 || s.dos > 60)
+    );
+
+    if (warehouses.length === 0 && overstock.length === 0) return;
+
+    targets.forEach(tgt => {
+      // Tính transferQty cần
+      const needed = Math.max(
+        Math.ceil(tgt.velocity * 14) - tgt.stock,
+        tgt.sales > 0 && tgt.stock === 0 ? Math.ceil(tgt.sales * 0.5) : 0,  // emergency: tối thiểu 50% lượng đã bán
+        1
+      );
+
+      let priority;
+      const isEmergency = tgt.stock === 0 && tgt.sales > 0;
+      if (isEmergency) priority = 'urgent';
+      else if (tgt.dos < 7) priority = 'urgent';
+      else if (tgt.dos < 14) priority = 'high';
+      else priority = 'medium';
+
+      const baseSuggestion = {
+        code: p.code, image: p.image, category: p.category, subCategory: p.subCategory,
+        toStore: tgt.store, toRegion: tgt.region, toStock: tgt.stock,
+        toVel: tgt.velocity, toDos: tgt.dos, toSales: tgt.sales,
+        priority, isEmergency,
+        urgency: isEmergency ? 4 : (tgt.dos < 7 ? 3 : (tgt.dos < 14 ? 2 : 1))
+      };
+
+      // ============ Suggestion #1: từ kho TP/SA (ƯU TIÊN) ============
+      if (warehouses.length > 0) {
+        // Chọn warehouse có nhiều stock nhất
+        const bestWh = warehouses.slice().sort((a, b) => b.stock - a.stock)[0];
+        const transferQty = Math.min(Math.floor(bestWh.stock / 2) || bestWh.stock, needed);
+        if (transferQty >= 1) {
+          suggestions.push({
+            ...baseSuggestion,
+            fromStore: bestWh.store, fromRegion: bestWh.region,
+            fromStock: bestWh.stock, fromVel: bestWh.velocity,
+            fromType: 'WAREHOUSE',
+            qty: transferQty,
+            sourceLabel: '🏭 Kho TP/SA',
+            sourcePriority: 1,
+            distKm: distBetween(bestWh.store, tgt.store)
+          });
+        }
+      }
+
+      // ============ Suggestion #2: từ CH gần nhất có dư ============
+      if (overstock.length > 0) {
+        // Tính khoảng cách rồi chọn gần nhất có đủ hàng
+        const overWithDist = overstock
+          .filter(s => s.store !== tgt.store)
+          .map(s => ({ ...s, dist: distBetween(s.store, tgt.store) }))
+          // Ưu tiên có distance, không có thì cuối
+          .sort((a, b) => {
+            // 1. Cùng khu vực ưu tiên
+            const sameA = a.region === tgt.region ? 0 : 1;
+            const sameB = b.region === tgt.region ? 0 : 1;
+            if (sameA !== sameB) return sameA - sameB;
+            // 2. Khoảng cách nhỏ nhất
+            const da = a.dist === null ? 99999 : a.dist;
+            const db = b.dist === null ? 99999 : b.dist;
+            if (Math.abs(da - db) > 0.5) return da - db;
+            // 3. Tồn nhiều nhất
+            return b.stock - a.stock;
+          });
+
+        const bestCh = overWithDist[0];
+        if (bestCh) {
+          const transferQty = Math.min(Math.floor(bestCh.stock / 2), needed);
+          if (transferQty >= 1) {
+            suggestions.push({
+              ...baseSuggestion,
+              fromStore: bestCh.store, fromRegion: bestCh.region,
+              fromStock: bestCh.stock, fromVel: bestCh.velocity,
+              fromType: bestCh.type,
+              qty: transferQty,
+              sourceLabel: bestCh.region === tgt.region ? '📍 CH gần (cùng KV)' : '🏪 CH gần nhất',
+              sourcePriority: 2,
+              distKm: bestCh.dist
+            });
+          }
+        }
+      }
     });
   });
-  
-  suggestions.sort((a, b) => b.urgency - a.urgency || b.qty - a.qty);
+
+  // Sort: urgency desc → emergency first → sourcePriority (TP/SA trước CH)
+  suggestions.sort((a, b) => {
+    if ((b.urgency || 0) !== (a.urgency || 0)) return (b.urgency || 0) - (a.urgency || 0);
+    if ((a.sourcePriority || 99) !== (b.sourcePriority || 99)) return a.sourcePriority - b.sourcePriority;
+    return b.qty - a.qty;
+  });
   return suggestions;
 }
 
@@ -5277,7 +5559,15 @@ function renderTransfer() {
   const search = document.getElementById('transfer-filter-search').value.trim().toLowerCase();
   const regionFilterEl = document.getElementById('transfer-filter-region');
   const regionFilter = regionFilterEl ? regionFilterEl.value : '';
-  const sortMode = document.getElementById('transfer-sort')?.value || 'urgency';
+  const storeFilterEl = document.getElementById('transfer-filter-store');
+  const storeFilter = storeFilterEl ? storeFilterEl.value : '';
+  const storeTypeEl = document.getElementById('transfer-filter-storetype');
+  const storeTypeFilter = storeTypeEl ? storeTypeEl.value : '';
+  const priceMinEl = document.getElementById('transfer-filter-price-min');
+  const priceMaxEl = document.getElementById('transfer-filter-price-max');
+  const priceMin = (priceMinEl && priceMinEl.value) ? parseFloat(priceMinEl.value) : null;
+  const priceMax = (priceMaxEl && priceMaxEl.value) ? parseFloat(priceMaxEl.value) : null;
+  const sortMode = document.getElementById('transfer-sort')?.value || 'emergency-first';
 
   // Populate region filter once if empty
   if (regionFilterEl && regionFilterEl.options.length <= 1 && typeof STOCK_DATA !== 'undefined') {
@@ -5288,17 +5578,58 @@ function renderTransfer() {
       regionFilterEl.appendChild(opt);
     });
   }
+  // Populate store filter once
+  if (storeFilterEl && storeFilterEl.options.length <= 1) {
+    const stores = new Set();
+    rebalanceAll.forEach(r => { if (r.fromStore) stores.add(r.fromStore); if (r.toStore) stores.add(r.toStore); });
+    if (typeof STOCK_DATA !== 'undefined') {
+      STOCK_DATA.forEach(s => { if (s.maKho) stores.add(s.maKho); });
+    }
+    [...stores].sort().forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s; opt.textContent = s;
+      storeFilterEl.appendChild(opt);
+    });
+  }
+
+  // Helper: classify store type by maKho prefix
+  const storeTypeOf = code => {
+    if (!code) return '';
+    const u = String(code).toUpperCase();
+    if (u.startsWith('CH')) return 'CH';
+    if (u.startsWith('DOISALE')) return 'DOISALE';
+    if (u.startsWith('DB')) return 'DB';
+    if (u.startsWith('TP') || u.startsWith('SA')) return 'WAREHOUSE';
+    return 'OTHER';
+  };
+
+  // Get price for a code
+  const priceOf = code => {
+    const p = (PRODUCT_AGG || []).find(x => x.code === code);
+    if (p && p.giaNiemYet) return p.giaNiemYet;
+    if (typeof STOCK_BY_CODE !== 'undefined' && STOCK_BY_CODE[code] && STOCK_BY_CODE[code].giaNiemYet) {
+      return STOCK_BY_CODE[code].giaNiemYet;
+    }
+    return 0;
+  };
 
   let restock = restockAll;
   let rebalance = rebalanceAll;
-  
+
   if (catFilter) {
     restock = restock.filter(r => r.category === catFilter);
     rebalance = rebalance.filter(r => r.category === catFilter);
   }
   if (priorityFilter) {
-    restock = restock.filter(r => r.priority === priorityFilter);
-    rebalance = rebalance.filter(r => r.priority === priorityFilter);
+    if (priorityFilter === 'emergency') {
+      // Emergency = SP đã bán trong khoảng nhưng tổng tồn = 0 (computed below)
+      const emergencyCodes = getEmergencyCodes();
+      restock = restock.filter(r => emergencyCodes.has(r.code));
+      rebalance = rebalance.filter(r => emergencyCodes.has(r.code));
+    } else {
+      restock = restock.filter(r => r.priority === priorityFilter);
+      rebalance = rebalance.filter(r => r.priority === priorityFilter);
+    }
   }
   if (search) {
     restock = restock.filter(r => r.code.toLowerCase().includes(search));
@@ -5306,6 +5637,22 @@ function renderTransfer() {
   }
   if (regionFilter) {
     rebalance = rebalance.filter(r => r.fromRegion === regionFilter || r.toRegion === regionFilter);
+  }
+  if (storeFilter) {
+    rebalance = rebalance.filter(r => r.fromStore === storeFilter || r.toStore === storeFilter);
+  }
+  if (storeTypeFilter) {
+    rebalance = rebalance.filter(r =>
+      storeTypeOf(r.fromStore) === storeTypeFilter || storeTypeOf(r.toStore) === storeTypeFilter
+    );
+  }
+  if (priceMin !== null) {
+    restock = restock.filter(r => priceOf(r.code) >= priceMin);
+    rebalance = rebalance.filter(r => priceOf(r.code) >= priceMin);
+  }
+  if (priceMax !== null) {
+    restock = restock.filter(r => priceOf(r.code) <= priceMax);
+    rebalance = rebalance.filter(r => priceOf(r.code) <= priceMax);
   }
 
   // Apply sort
@@ -5316,10 +5663,36 @@ function renderTransfer() {
     if (f && t) return haversineKm(f.lat, f.lng, t.lat, t.lng);
     return null;
   };
-  if (sortMode === 'qty-desc') rebalance.sort((a,b) => b.qty - a.qty);
+
+  // Mark emergency for sort use (SP đã bán + tổng tồn = 0)
+  const emergencyCodes = getEmergencyCodes();
+  const isEmergency = item => emergencyCodes.has(item.code);
+
+  if (sortMode === 'emergency-first') {
+    // Emergency → urgent → others, then by qty
+    rebalance.sort((a,b) => {
+      const ea = isEmergency(a) ? 0 : 1;
+      const eb = isEmergency(b) ? 0 : 1;
+      if (ea !== eb) return ea - eb;
+      return (b.urgency || 0) - (a.urgency || 0) || b.qty - a.qty;
+    });
+    restock.sort((a,b) => {
+      const ea = isEmergency(a) ? 0 : 1;
+      const eb = isEmergency(b) ? 0 : 1;
+      if (ea !== eb) return ea - eb;
+      return (a.daysOfStock || 999) - (b.daysOfStock || 999);
+    });
+  }
+  else if (sortMode === 'qty-desc') rebalance.sort((a,b) => b.qty - a.qty);
   else if (sortMode === 'qty-asc') rebalance.sort((a,b) => a.qty - b.qty);
+  else if (sortMode === 'stock-asc') rebalance.sort((a,b) => (a.toStock || 0) - (b.toStock || 0));
+  else if (sortMode === 'stock-desc') rebalance.sort((a,b) => (b.toStock || 0) - (a.toStock || 0));
+  else if (sortMode === 'price-desc') rebalance.sort((a,b) => priceOf(b.code) - priceOf(a.code));
+  else if (sortMode === 'price-asc') rebalance.sort((a,b) => priceOf(a.code) - priceOf(b.code));
   else if (sortMode === 'dist-asc') rebalance.sort((a,b) => (distOf(a) || 99999) - (distOf(b) || 99999));
   else if (sortMode === 'dist-desc') rebalance.sort((a,b) => (distOf(b) || 0) - (distOf(a) || 0));
+  else if (sortMode === 'region') rebalance.sort((a,b) => (a.toRegion || '').localeCompare(b.toRegion || ''));
+  else if (sortMode === 'store') rebalance.sort((a,b) => (a.toStore || '').localeCompare(b.toStore || ''));
   else if (sortMode === 'code') rebalance.sort((a,b) => a.code.localeCompare(b.code));
   // urgency: keep original sort
   
@@ -5480,32 +5853,57 @@ function renderTransfer() {
 }
 
 function renderRebalanceCard(s) {
-  // Compute distance if both have lat/lng
+  // Distance: prefer pre-computed s.distKm, fallback to STORE_LATLNG lookup
   let distHtml = '';
-  if (typeof STORE_LATLNG !== 'undefined') {
-    const fromLL = STORE_LATLNG[s.fromStore] || STORE_LATLNG[(s.fromStore || '').toUpperCase()];
-    const toLL = STORE_LATLNG[s.toStore] || STORE_LATLNG[(s.toStore || '').toUpperCase()];
-    if (fromLL && toLL) {
-      const km = haversineKm(fromLL.lat, fromLL.lng, toLL.lat, toLL.lng);
-      distHtml = `<span class="dist-pill">${km.toFixed(1)} km</span>`;
-    }
+  let km = (typeof s.distKm === 'number' && !isNaN(s.distKm)) ? s.distKm : null;
+  if (km === null && typeof STORE_LATLNG !== 'undefined') {
+    const fromLL = STORE_LATLNG[s.fromStore];
+    const toLL = STORE_LATLNG[s.toStore];
+    if (fromLL && toLL) km = haversineKm(fromLL.lat, fromLL.lng, toLL.lat, toLL.lng);
   }
+  if (km !== null && !isNaN(km)) {
+    distHtml = `<span class="dist-pill">${km.toFixed(1)} km</span>`;
+  }
+
+  // Source badge: 🏭 kho TP/SA hoặc 🏪 CH gần
+  const sourceBadge = s.sourceLabel
+    ? `<span style="display:inline-block;background:${s.sourcePriority === 1 ? 'var(--accent-soft)' : 'var(--olive-soft)'};color:${s.sourcePriority === 1 ? 'var(--accent)' : 'var(--olive)'};padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;margin-bottom:3px">${escapeHtml(s.sourceLabel)}</span>`
+    : '';
+
+  // Emergency / priority badge
+  let priorityHtml;
+  if (s.isEmergency) {
+    priorityHtml = `<span style="background:var(--negative);color:white;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.06em">🚨 KHẨN CẤP</span>`;
+  } else if (s.urgency === 3) {
+    priorityHtml = statusDot('var(--negative)') + 'GẤP';
+  } else if (s.urgency === 2) {
+    priorityHtml = statusDot('var(--warn)') + 'NÊN';
+  } else {
+    priorityHtml = statusDot('var(--positive)') + 'CÂN NHẮC';
+  }
+
+  // Emergency context: hiển thị "đã bán X / tồn 0"
+  const emergencyContext = s.isEmergency
+    ? `<span style="color:var(--negative);font-weight:700;margin-top:2px">🚨 Đã bán ${s.toSales || 0} · Tồn 0</span>`
+    : `<span style="font-family:'IBM Plex Sans';color:${s.toDos < 7 ? 'var(--negative)' : 'var(--warn)'};margin-top:2px;font-weight:600">⚠ Còn ${s.toDos < 1 ? '<1' : s.toDos.toFixed(0)} ngày bán</span>`;
+
   return `
     <div class="transfer-card" onclick="showProductDetail('${escapeAttr(s.code)}')" style="cursor:pointer">
       <div>${imgCell(s.image, s.code)}</div>
       <div class="transfer-store">
+        ${sourceBadge}
         <strong>FROM: ${escapeHtml(s.fromStore)}</strong>
-        <span>${escapeHtml(s.fromRegion)} · Tồn ${s.fromStock} · ${s.fromVel.toFixed(2)}/ngày</span>
-        <span style="font-family:'IBM Plex Sans';color:var(--ink-soft);margin-top:2px"><code>${escapeHtml(s.code)}</code> · ${escapeHtml(s.subCategory || s.category)}</span>
+        <span>${escapeHtml(s.fromRegion || '—')} · Tồn ${s.fromStock} · ${(s.fromVel || 0).toFixed(2)}/ngày</span>
+        <span style="font-family:'IBM Plex Sans';color:var(--ink-soft);margin-top:2px"><code>${escapeHtml(s.code)}</code> · ${escapeHtml(s.subCategory || s.category || '')}</span>
       </div>
       <div class="transfer-arrow">→ <span class="transfer-qty">${s.qty}</span> ${distHtml}</div>
       <div class="transfer-store">
         <strong>TO: ${escapeHtml(s.toStore)}</strong>
-        <span>${escapeHtml(s.toRegion)} · Tồn ${s.toStock} · ${s.toVel.toFixed(2)}/ngày</span>
-        <span style="font-family:'IBM Plex Sans';color:${s.toDos < 7 ? 'var(--negative)' : 'var(--warn)'};margin-top:2px;font-weight:600">⚠ Còn ${s.toDos < 1 ? '<1' : s.toDos.toFixed(0)} ngày bán</span>
+        <span>${escapeHtml(s.toRegion || '—')} · Tồn ${s.toStock} · ${(s.toVel || 0).toFixed(2)}/ngày</span>
+        ${emergencyContext}
       </div>
       <div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;text-align:center">
-        ${s.urgency === 3 ? statusDot('var(--negative)')+'GẤP' : (s.urgency === 2 ? statusDot('var(--warn)')+'NÊN' : statusDot('var(--positive)')+'CÂN NHẮC')}
+        ${priorityHtml}
       </div>
     </div>
   `;
@@ -5796,7 +6194,7 @@ function showProductDetail(code) {
           <div class="modal-stat-val">${formatNumber(p?.tonDuTinh || 0)}</div>
         </div>
         <div class="modal-stat ${stockAlert}">
-          <div class="modal-stat-label">Days of Stock</div>
+          <div class="modal-stat-label">Số ngày bán còn</div>
           <div class="modal-stat-val">${dosText}</div>
         </div>
         <div class="modal-stat">
@@ -6218,7 +6616,7 @@ document.addEventListener('click', (e) => {
 });
 
 function initThemeFromStorage() {
-  const saved = localStorage.getItem('ns_theme') || 'modern';
+  const saved = localStorage.getItem('ns_theme') || 'editorial';
   if (saved === 'custom') {
     try {
       const c = JSON.parse(localStorage.getItem('ns_custom_theme') || '{}');
@@ -6231,9 +6629,9 @@ function initThemeFromStorage() {
       }
     } catch (e) {}
   }
-  document.body.setAttribute('data-theme', VALID_THEMES.includes(saved) ? saved : 'modern');
+  document.body.setAttribute('data-theme', VALID_THEMES.includes(saved) ? saved : 'editorial');
   document.querySelectorAll('.theme-option').forEach(b => {
-    b.classList.toggle('active', b.dataset.theme === (VALID_THEMES.includes(saved) ? saved : 'modern'));
+    b.classList.toggle('active', b.dataset.theme === (VALID_THEMES.includes(saved) ? saved : 'editorial'));
   });
   updateThemeMetaColor();
 }
@@ -6241,7 +6639,7 @@ function initThemeFromStorage() {
 // Apply theme IMMEDIATELY before DOM ready (avoid flash)
 (function earlyTheme() {
   try {
-    const saved = localStorage.getItem('ns_theme') || 'modern';
+    const saved = localStorage.getItem('ns_theme') || 'editorial';
     if (saved && VALID_THEMES.includes(saved)) {
       document.body.setAttribute('data-theme', saved);
     } else if (saved === 'custom') {
@@ -6317,7 +6715,8 @@ async function doLogin() {
   }
 
   btn.disabled = true;
-  btn.textContent = 'ĐANG XÁC THỰC...';
+  btn.style.letterSpacing = '0.05em';
+  btn.textContent = 'Đang xác thực...';
 
   try {
     const data = await fetchEndpoint('login', { user: user, pass: pass });
@@ -6336,6 +6735,7 @@ async function doLogin() {
     errEl.classList.add('active');
   } finally {
     btn.disabled = false;
+    btn.style.letterSpacing = '';
     btn.textContent = 'ĐĂNG NHẬP';
   }
 }
