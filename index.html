@@ -455,7 +455,7 @@
   
   .product-stock-badge {
     position: absolute;
-    top: 8px; right: 8px;
+    bottom: 8px; right: 8px;
     padding: 3px 8px;
     font-size: 10px;
     font-family: 'JetBrains Mono', monospace;
@@ -463,6 +463,7 @@
     background: rgba(255,255,255,0.95);
     color: var(--ink);
     backdrop-filter: blur(4px);
+    border-radius: 4px;
     z-index: 2;
   }
   .stock-low { background: var(--negative-soft) !important; color: var(--negative) !important; }
@@ -1921,27 +1922,27 @@ td.num, .product-stat strong { font-variant-numeric: tabular-nums; }
 .user-badge:hover { background: var(--accent-soft); border-color: var(--accent); }
 
 /* ===========================================================
-   SALE TAG (xuyên suốt)
+   SALE TAG (xuyên suốt - phân loại SP có giá sale > 0)
    =========================================================== */
 .sale-tag {
   position: absolute;
   top: 0; left: 0;
   background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
-  font-size: 10px; font-weight: 800;
-  padding: 3px 8px;
-  border-radius: 0 0 8px 0;
-  letter-spacing: 0.08em;
+  font-size: 9px; font-weight: 800;
+  padding: 3px 7px;
+  border-radius: 0 0 6px 0;
+  letter-spacing: 0.10em;
   z-index: 5;
   font-family: 'JetBrains Mono', monospace;
-  box-shadow: 0 2px 6px rgba(220,38,38,.3);
-  text-shadow: 0 1px 2px rgba(0,0,0,.2);
+  box-shadow: 0 2px 4px rgba(220,38,38,.25);
   pointer-events: none;
+  line-height: 1;
 }
-/* Trong product card có rank → SALE tag ở góc phải */
-.product-img .sale-tag.right {
+/* Khi product card có rank, sale-tag chuyển sang góc phải-trên */
+.sale-tag.right {
   left: auto; right: 0;
-  border-radius: 0 0 0 8px;
+  border-radius: 0 0 0 6px;
 }
 
 /* ===========================================================
@@ -2176,16 +2177,17 @@ td.num, .product-stat strong { font-variant-numeric: tabular-nums; }
 
 /* Compare star button on product cards */
 .compare-star {
-  position: absolute; top: 6px; right: 6px;
+  position: absolute; bottom: 8px; left: 8px;
   z-index: 6; width: 28px; height: 28px;
-  background: rgba(255,255,255,.9);
+  background: rgba(255,255,255,.92);
   border: 1px solid var(--line);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; font-size: 14px; color: var(--ink-muted);
   transition: all .2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
 }
-.compare-star:hover { transform: scale(1.1); color: var(--terracotta); }
+.compare-star:hover { transform: scale(1.12); color: var(--terracotta); }
 .compare-star.active { background: var(--terracotta); color: white; border-color: var(--terracotta); }
 
 /* ===========================================================
@@ -3037,7 +3039,7 @@ html { scroll-behavior: smooth; }
 </div>
 <script>
 // ============ STATE ============
-const API_URL = 'https://script.google.com/macros/s/AKfycbxWMxKQV4dNzDAzJD5JujnyycryjtyOmWS-DBw5JVyaPUbcvdmK1jKCX8U1-V9XT9J3/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycby21CXkS2_oVe-Uw48qDzb__I-r7DwMgA0zM6feuna3H7hVq7tgpw03BsbsTE3QwF7K/exec';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -4012,10 +4014,39 @@ function toggleLivePause() {
 }
 
 async function refreshLiveNow() {
-  await refreshTodayAndStock();
-  document.getElementById('last-updated').textContent = 
-    'Cập nhật ' + new Date().toLocaleTimeString('vi-VN');
-  if (CURRENT_TAB === 'live') renderLive();
+  // Visual feedback: tìm nút refresh trong live controls và disable + spin
+  const liveBtns = document.querySelectorAll('.live-controls .live-control-btn');
+  let btn = null;
+  liveBtns.forEach(b => {
+    const t = (b.textContent || '').trim().toUpperCase();
+    if (t.startsWith('REFRESH')) btn = b;
+  });
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    const svg = btn.querySelector('svg');
+    if (svg) svg.style.animation = 'spin 0.8s linear infinite';
+  }
+
+  try {
+    await refreshTodayAndStock();
+    // Rebuild SALE codes (data hôm nay có thể có sale mới)
+    if (typeof buildSaleCodes === 'function') buildSaleCodes();
+    document.getElementById('last-updated').textContent =
+      'Cập nhật ' + new Date().toLocaleTimeString('vi-VN');
+    if (CURRENT_TAB === 'live') renderLive();
+    if (typeof showToast === 'function') showToast('Đã làm mới live feed', 'success', 2000);
+  } catch (e) {
+    if (typeof showToast === 'function') showToast('Lỗi tải dữ liệu: ' + e.message, 'error');
+    console.error('refreshLiveNow error', e);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.style.opacity = '';
+      const svg = btn.querySelector('svg');
+      if (svg) svg.style.animation = '';
+    }
+  }
 }
 
 function setupLivePolling() {
@@ -4565,11 +4596,11 @@ function renderProductCards(products, withRank) {
 
     return `
       <div class="product-card" data-code="${escapeAttr(p.code)}" onclick="showProductDetail('${escapeAttr(p.code)}')">
-        <button class="compare-star ${inCompare ? 'active' : ''}" onclick="event.stopPropagation();toggleCompare('${escapeAttr(p.code)}')" title="Thêm vào so sánh">★</button>
         <div class="product-img">
-          ${isSale ? `<span class="sale-tag ${showRank ? 'right' : ''}">SALE</span>` : ''}
           ${showRank ? `<div class="product-rank ${rankCls}">${i+1}</div>` : ''}
+          ${isSale ? `<span class="sale-tag right">SALE</span>` : ''}
           ${stockBadgeHtml}
+          <button class="compare-star ${inCompare ? 'active' : ''}" onclick="event.stopPropagation();toggleCompare('${escapeAttr(p.code)}')" title="Thêm vào so sánh">★</button>
           ${p.image ? 
             `<img src="${escapeAttr(p.image)}" loading="lazy" alt="${escapeAttr(p.code)}" onerror="handleProductImgError(this)">` :
             `<div class="product-img-placeholder">Chưa có hình</div>`}
@@ -5357,7 +5388,7 @@ function renderTransfer() {
     }
 
     // ============ KHẨN CẤP DETECTION ============
-    // SP có sales nhưng tổng tồn hệ thống = 0 → emergency
+    // SP đã bán trong thời gian chọn (FILTERED) nhưng tổng tồn hệ thống = 0
     const codeStockTotal = {};
     if (typeof STOCK_BY_CODE !== 'undefined') {
       Object.entries(STOCK_BY_CODE).forEach(([code, info]) => {
@@ -5366,18 +5397,19 @@ function renderTransfer() {
     }
 
     const emergencyList = [];
-    const todayCodeQty = {};
-    const today = todayString();
-    if (typeof RAW_DATA !== 'undefined') {
-      RAW_DATA.filter(r => r.ngay === today).forEach(r => {
-        todayCodeQty[r.maThamChieu] = (todayCodeQty[r.maThamChieu] || 0) + (r.soLuong || 0);
+    const periodCodeQty = {};
+    if (typeof FILTERED !== 'undefined' && Array.isArray(FILTERED)) {
+      FILTERED.forEach(r => {
+        if ((r.soLuong || 0) > 0) {
+          periodCodeQty[r.maThamChieu] = (periodCodeQty[r.maThamChieu] || 0) + r.soLuong;
+        }
       });
     }
-    Object.keys(todayCodeQty).forEach(code => {
-      if (todayCodeQty[code] > 0 && (codeStockTotal[code] || 0) === 0) {
+    Object.keys(periodCodeQty).forEach(code => {
+      if (periodCodeQty[code] > 0 && (codeStockTotal[code] || 0) === 0) {
         const p = (PRODUCT_AGG || []).find(x => x.code === code);
         emergencyList.push({
-          code, qty: todayCodeQty[code],
+          code, qty: periodCodeQty[code],
           category: p ? (p.subCategory || p.category) : '',
           image: p ? p.image : null
         });
@@ -5391,7 +5423,7 @@ function renderTransfer() {
         <div class="rebalance-emergency">
           <div class="rebalance-emergency-head">
             <span class="badge">KHẨN CẤP</span>
-            <span>${emergencyList.length} SP đang hết tồn toàn hệ thống nhưng vẫn có giao dịch hôm nay</span>
+            <span>${emergencyList.length} SP đã bán trong khoảng đã lọc nhưng <strong>hết tồn toàn hệ thống</strong> — cần sản xuất gấp</span>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;font-size:12px">
             ${top10.map(e => `
@@ -5399,7 +5431,7 @@ function renderTransfer() {
                 ${e.image ? `<img src="${escapeAttr(e.image)}" style="width:32px;height:32px;border-radius:4px;object-fit:cover">` : '<div style="width:32px;height:32px;background:var(--bg-elevated);border-radius:4px"></div>'}
                 <div style="flex:1;min-width:0">
                   <div style="font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11px">${escapeHtml(e.code)}</div>
-                  <div style="color:var(--ink-muted);font-size:10px">Bán hôm nay: ${e.qty} · Tồn: 0</div>
+                  <div style="color:var(--ink-muted);font-size:10px">Đã bán: ${e.qty} · Tồn: 0</div>
                 </div>
               </div>
             `).join('')}
@@ -5823,8 +5855,8 @@ function showProductDetail(code) {
       </tbody>
     </table>` : ''}
 
-    ${(window.STOCK_DETAIL_BY_CODE && window.STOCK_DETAIL_BY_CODE[code] && window.STOCK_DETAIL_BY_CODE[code].length > 1) ? `
-    <div class="modal-section-title">Chi tiết theo mã barcode</div>
+    ${(window.STOCK_DETAIL_BY_CODE && window.STOCK_DETAIL_BY_CODE[code] && window.STOCK_DETAIL_BY_CODE[code].length > 0) ? `
+    <div class="modal-section-title">Chi tiết theo mã barcode (${window.STOCK_DETAIL_BY_CODE[code].length} dòng)</div>
     <table style="width:100%;font-size:13px;border-collapse:collapse">
       <thead><tr style="border-bottom:1px solid var(--line)">
         <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--ink-muted);text-transform:uppercase">Barcode</th>
