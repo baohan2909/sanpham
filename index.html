@@ -527,6 +527,33 @@
   .vel-warm { color: var(--warn); }
   .vel-cold { color: var(--ink-muted); }
   .vel-dead { color: var(--negative); }
+
+  /* Product price line - compact, no wrap */
+  .product-price {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-top: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .product-price .price-now {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .product-price .price-old {
+    color: var(--ink-muted);
+    text-decoration: line-through;
+    font-size: 10px;
+    font-weight: 500;
+  }
+  .product-price .price-sale {
+    color: var(--negative);
+    font-weight: 700;
+  }
   
   /* ========== TABLES ========== */
   .table-wrapper { overflow-x: auto; background: var(--bg-card); }
@@ -1992,21 +2019,61 @@ td.num, .product-stat strong { font-variant-numeric: tabular-nums; }
 .live-item-img-wrap {
   position: relative;
   flex-shrink: 0;
-  overflow: hidden;
   border-radius: 8px;
   background: var(--bg-elevated);
 }
+/* List mode: nhỏ + hover zoom (KHÔNG overflow:hidden để zoom-preview hiện ra) */
 .live-feed:not(.grid-view) .live-item-img-wrap {
   width: 64px; height: 64px;
+  overflow: visible;
 }
+.live-feed:not(.grid-view) .live-item-img-wrap .live-item-img,
+.live-feed:not(.grid-view) .live-item-img-wrap .live-item-img-placeholder {
+  border-radius: 8px;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+/* Grid mode: full size, không cần hover zoom (đã to sẵn) */
 .live-feed.grid-view .live-item-img-wrap {
   width: 100%;
   aspect-ratio: 1;
+  overflow: hidden;
 }
-.live-item-img-wrap .live-item-img,
-.live-item-img-wrap .live-item-img-placeholder {
+.live-feed.grid-view .live-item-img-wrap .live-item-img,
+.live-feed.grid-view .live-item-img-wrap .live-item-img-placeholder {
   width: 100%; height: 100%;
   object-fit: cover;
+}
+
+/* Hover zoom preview cho live-item-img-wrap (chỉ list mode) */
+.live-feed:not(.grid-view) .live-item-img-wrap .zoom-preview {
+  display: none;
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 320px;
+  height: 320px;
+  background: white;
+  border: 2px solid var(--line-strong);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+  z-index: 1000;
+  pointer-events: none;
+  border-radius: 6px;
+}
+.live-feed:not(.grid-view) .live-item-img-wrap .zoom-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: var(--bg-elevated);
+}
+.live-feed:not(.grid-view) .live-item-img-wrap:hover .zoom-preview {
+  display: block;
+  animation: zoomIn 0.15s ease-out;
+}
+.live-feed:not(.grid-view) .live-item-img-wrap.zoom-left .zoom-preview {
+  left: auto;
+  right: calc(100% + 12px);
 }
 
 /* Live item rows new layout */
@@ -3864,6 +3931,9 @@ function computeProductAgg() {
     }
     map[key].qty += r.soLuong || 0;
     map[key].revenue += r.thanhTien || 0;
+    // Track latest known prices: giaBan = giá gốc, giaSale = giá sale (cột G > 0)
+    if (r.giaBan && r.giaBan > 0) map[key].lastGiaBan = r.giaBan;
+    if (r.giaSale && r.giaSale > 0) map[key].lastGiaSale = r.giaSale;
     if (r.soDon) map[key].orders.add(r.soDon);
     if (r.cuaHang) map[key].stores.add(r.cuaHang);
     if (r.ngay) {
@@ -4373,7 +4443,8 @@ function renderLive() {
         <div class="live-item-img-wrap">
           ${isSale ? '<span class="sale-tag">SALE</span>' : ''}
           ${img ?
-            `<img class="live-item-img" src="${escapeAttr(img)}" loading="lazy" onerror="handleImgError(this)" alt="${escapeAttr(r.maThamChieu)}">` :
+            `<img class="live-item-img" src="${escapeAttr(img)}" loading="lazy" onerror="handleImgError(this)" alt="${escapeAttr(r.maThamChieu)}" onclick="event.stopPropagation();openLightbox('${escapeAttr(img)}')" style="cursor:zoom-in">
+             <div class="zoom-preview"><img src="${escapeAttr(img)}" alt="" onerror="this.style.display='none'"></div>` :
             `<div class="live-item-img-placeholder">No image</div>`}
         </div>
         <div class="live-item-main">
@@ -4718,6 +4789,16 @@ function renderProductCards(products, withRank) {
     const isSale = (typeof SALE_CODES !== 'undefined' && SALE_CODES.has(p.code));
     const inCompare = (typeof COMPARE_LIST !== 'undefined' && COMPARE_LIST.includes(p.code));
 
+    // Build price line: ưu tiên giaBan/giaSale từ giao dịch, fallback giaNiemYet từ stock
+    const giaGoc = p.lastGiaBan || p.price || 0;
+    const giaSale = p.lastGiaSale || 0;
+    let priceHtml = '';
+    if (giaSale > 0 && giaGoc > 0 && giaSale < giaGoc) {
+      priceHtml = `<div class="product-price"><span class="price-old">${formatPriceVND(giaGoc)}</span><span class="price-sale">${formatPriceVND(giaSale)}</span></div>`;
+    } else if (giaGoc > 0) {
+      priceHtml = `<div class="product-price"><span class="price-now">${formatPriceVND(giaGoc)}</span></div>`;
+    }
+
     return `
       <div class="product-card" data-code="${escapeAttr(p.code)}" onclick="showProductDetail('${escapeAttr(p.code)}')">
         <div class="product-img">
@@ -4732,6 +4813,7 @@ function renderProductCards(products, withRank) {
         <div class="product-info">
           <div class="product-code">${escapeHtml(p.code)}</div>
           <span class="product-cat ${getCategoryClass(p.category)}">${escapeHtml(p.subCategory || p.category || 'Khác')}</span>
+          ${priceHtml}
           <div class="product-stats">
             <div>
               <div class="product-stat-num">${formatNumber(p.qty)}</div>
@@ -5347,8 +5429,17 @@ function computeRebalanceData() {
       const sales = (salesByStore[info.maKho] || salesByStore[info.khoHang] || 0);
       const velocity = p.numDays > 0 ? sales / p.numDays : 0;
       const dos = velocity > 0 ? info.tonHienTai / velocity : (info.tonHienTai > 0 ? 9999 : 0);
+      const code = info.maKho || info.khoHang;
+      // Lookup tên CH từ STORES_DATA (file Stores+Auth) trước, fallback khoHang
+      let displayName = info.khoHang || '';
+      if (typeof STORES_DATA !== 'undefined' && Array.isArray(STORES_DATA) && code) {
+        const match = STORES_DATA.find(st => 
+          st.maCh && st.maCh.toUpperCase() === String(code).toUpperCase()
+        );
+        if (match && match.ten && match.ten !== match.maCh) displayName = match.ten;
+      }
       return {
-        key, store: info.maKho || info.khoHang, storeName: info.khoHang,
+        key, store: code, storeName: displayName,
         region: info.khuVuc, type: typeOf(info.maKho || ''),
         stock: info.tonHienTai, sales, velocity, dos
       };
@@ -5390,7 +5481,7 @@ function computeRebalanceData() {
 
       const baseSuggestion = {
         code: p.code, image: p.image, category: p.category, subCategory: p.subCategory,
-        toStore: tgt.store, toRegion: tgt.region, toStock: tgt.stock,
+        toStore: tgt.store, toStoreName: tgt.storeName, toRegion: tgt.region, toStock: tgt.stock,
         toVel: tgt.velocity, toDos: tgt.dos, toSales: tgt.sales,
         priority, isEmergency,
         urgency: isEmergency ? 4 : (tgt.dos < 7 ? 3 : (tgt.dos < 14 ? 2 : 1))
@@ -5404,7 +5495,7 @@ function computeRebalanceData() {
         if (transferQty >= 1) {
           suggestions.push({
             ...baseSuggestion,
-            fromStore: bestWh.store, fromRegion: bestWh.region,
+            fromStore: bestWh.store, fromStoreName: bestWh.storeName, fromRegion: bestWh.region,
             fromStock: bestWh.stock, fromVel: bestWh.velocity,
             fromType: 'WAREHOUSE',
             qty: transferQty,
@@ -5441,7 +5532,7 @@ function computeRebalanceData() {
           if (transferQty >= 1) {
             suggestions.push({
               ...baseSuggestion,
-              fromStore: bestCh.store, fromRegion: bestCh.region,
+              fromStore: bestCh.store, fromStoreName: bestCh.storeName, fromRegion: bestCh.region,
               fromStock: bestCh.stock, fromVel: bestCh.velocity,
               fromType: bestCh.type,
               qty: transferQty,
@@ -5887,18 +5978,26 @@ function renderRebalanceCard(s) {
     ? `<span style="color:var(--negative);font-weight:700;margin-top:2px">🚨 Đã bán ${s.toSales || 0} · Tồn 0</span>`
     : `<span style="font-family:'IBM Plex Sans';color:${s.toDos < 7 ? 'var(--negative)' : 'var(--warn)'};margin-top:2px;font-weight:600">⚠ Còn ${s.toDos < 1 ? '<1' : s.toDos.toFixed(0)} ngày bán</span>`;
 
+  // Tên CH hiển thị riêng dòng (chỉ khi khác mã)
+  const fromNameLine = (s.fromStoreName && s.fromStoreName !== s.fromStore)
+    ? `<span style="font-size:11px;color:var(--ink-soft);margin-top:1px">${escapeHtml(s.fromStoreName)}</span>` : '';
+  const toNameLine = (s.toStoreName && s.toStoreName !== s.toStore)
+    ? `<span style="font-size:11px;color:var(--ink-soft);margin-top:1px">${escapeHtml(s.toStoreName)}</span>` : '';
+
   return `
     <div class="transfer-card" onclick="showProductDetail('${escapeAttr(s.code)}')" style="cursor:pointer">
       <div>${imgCell(s.image, s.code)}</div>
       <div class="transfer-store">
         ${sourceBadge}
         <strong>FROM: ${escapeHtml(s.fromStore)}</strong>
+        ${fromNameLine}
         <span>${escapeHtml(s.fromRegion || '—')} · Tồn ${s.fromStock} · ${(s.fromVel || 0).toFixed(2)}/ngày</span>
         <span style="font-family:'IBM Plex Sans';color:var(--ink-soft);margin-top:2px"><code>${escapeHtml(s.code)}</code> · ${escapeHtml(s.subCategory || s.category || '')}</span>
       </div>
       <div class="transfer-arrow">→ <span class="transfer-qty">${s.qty}</span> ${distHtml}</div>
       <div class="transfer-store">
         <strong>TO: ${escapeHtml(s.toStore)}</strong>
+        ${toNameLine}
         <span>${escapeHtml(s.toRegion || '—')} · Tồn ${s.toStock} · ${(s.toVel || 0).toFixed(2)}/ngày</span>
         ${emergencyContext}
       </div>
@@ -6077,20 +6176,23 @@ function renderRaw() {
   if (slice.length === 0) {
     tbody.innerHTML = '<tr><td colspan="10" class="empty-state">Không có dữ liệu</td></tr>';
   } else {
-    tbody.innerHTML = slice.map(r => `
+    tbody.innerHTML = slice.map(r => {
+      const rowSale = (r.giaSale && r.giaSale > 0 && r.giaBan && r.giaSale < r.giaBan);
+      return `
       <tr>
         <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${formatDateShort(r.ngay)}</td>
         <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${escapeHtml(r.gio)}</td>
         <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${escapeHtml(r.soDon)}</td>
-        <td>${imgCell(IMAGE_MAP[r.maThamChieu], r.maThamChieu)}</td>
+        <td>${imgCell(IMAGE_MAP[r.maThamChieu], r.maThamChieu, { saleFlag: rowSale })}</td>
         <td><code style="cursor:pointer;color:var(--accent)" onclick="showProductDetail('${escapeAttr(r.maThamChieu)}')">${escapeHtml(r.maThamChieu)}</code></td>
         <td><span class="product-cat ${getCategoryClass(r.nganhHang)}">${escapeHtml(r.nganhHang || '—')}</span></td>
         <td>${escapeHtml(r.cuaHang)}</td>
         <td class="num">${formatNumber(r.soLuong)}</td>
-        <td class="num">${formatNumber(r.giaBan)}</td>
+        <td class="num">${rowSale ? `<span style="color:var(--ink-muted);text-decoration:line-through;font-size:11px">${formatNumber(r.giaBan)}</span> <span style="color:var(--negative);font-weight:600">${formatNumber(r.giaSale)}</span>` : formatNumber(r.giaBan)}</td>
         <td class="num"><strong>${formatNumber(r.thanhTien)}</strong></td>
       </tr>
-    `).join('');
+    `;
+    }).join('');
   }
   
   document.querySelectorAll('#raw-table th').forEach(th => {
@@ -6264,13 +6366,23 @@ function closeLightbox() {
 
 // Helper: render image cell with hover preview + magnifier button
 // Used in tables across multiple tabs
-function imgCell(imageUrl, productCode) {
-  if (!imageUrl) return noImgPlaceholder('No img');
-  
+function imgCell(imageUrl, productCode, opts) {
+  // opts: { saleFlag: bool override, force: bool }
+  // Default: detect from SALE_CODES set
+  const isSale = opts && opts.saleFlag !== undefined
+    ? !!opts.saleFlag
+    : (typeof SALE_CODES !== 'undefined' && productCode && SALE_CODES.has(productCode));
+
+  if (!imageUrl) {
+    // Placeholder vẫn có thể có SALE tag
+    return `<div class="img-zoom-wrap" style="position:relative">${isSale ? '<span class="sale-tag" style="font-size:8px;padding:2px 5px">SALE</span>' : ''}<div style="width:72px;height:72px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;color:var(--ink-muted);font-size:9px;border:1px solid var(--line)">No img</div></div>`;
+  }
+
   const escUrl = escapeAttr(imageUrl);
-  
+
   return `
-    <div class="img-zoom-wrap">
+    <div class="img-zoom-wrap" style="position:relative">
+      ${isSale ? '<span class="sale-tag" style="font-size:8px;padding:2px 5px;border-radius:0 0 5px 0">SALE</span>' : ''}
       <img class="table-img" src="${escUrl}" loading="lazy" 
            onclick="event.stopPropagation();openLightbox('${escUrl}')"
            onerror="handleImgError(this)">
@@ -6386,6 +6498,19 @@ function formatNumberShort(n) {
   if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(1) + 'M';
   if (Math.abs(n) >= 1e3) return (n/1e3).toFixed(0) + 'K';
   return formatNumber(n);
+}
+// Format giá VND compact: 1500000 → "1.5tr", 950000 → "950k"
+function formatPriceVND(n) {
+  if (!n || isNaN(n) || n <= 0) return '';
+  if (n >= 1e6) {
+    const v = n / 1e6;
+    return (v % 1 === 0 ? v.toFixed(0) : v.toFixed(1).replace(/\.0$/, '')) + 'tr';
+  }
+  if (n >= 1e3) {
+    const v = Math.round(n / 1e3);
+    return v + 'k';
+  }
+  return Math.round(n).toString();
 }
 function formatDateShort(d) {
   if (!d) return '';
