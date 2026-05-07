@@ -1851,16 +1851,12 @@
     top: 0;
     left: 0;
   }
-  /* Khi ảnh fail và chỉ còn placeholder → ẩn SALE tag (xấu khi đè lên No image) */
-  .live-item-img-wrap:has(.live-item-img-placeholder) .sale-tag,
-  .img-zoom-wrap:has(.live-item-img-placeholder) .sale-tag {
-    display: none;
-  }
   .product-img .sale-tag {
     font-size: 9px;
     padding: 2px 6px;
     top: 0;
-    left: 0;
+    left: auto;
+    right: 0;
   }
   .modal-img-wrap { position: relative; display: inline-block; }
   .modal-img-wrap .sale-tag {
@@ -6733,36 +6729,19 @@ document.addEventListener('click', (e) => {
 });
 
 // Apply saved theme on first load (BEFORE DOMContentLoaded để tránh flash)
-// PWA Service Worker Registration (cho offline support cơ bản)
-// Chỉ register nếu HTTPS hoặc localhost (yêu cầu của Service Worker API)
-if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-  // Inline service worker - cache static assets, dashboard hoạt động offline limited
-  const swCode = `
-    const CACHE = 'ns-dashboard-v8';
-    self.addEventListener('install', e => {
-      e.waitUntil(caches.open(CACHE).then(c => c.addAll([
-        'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
-        'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
-        'https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap'
-      ])));
+// PWA: chỉ dùng manifest cho "Add to Home Screen", không dùng service worker
+// (Service worker từ blob URL không hoạt động đúng và can thiệp vào image fetch)
+// Nếu user trước đó đã đăng ký SW → unregister để không phá ảnh
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(reg => reg.unregister().then(() => console.log('[PWA] Old SW unregistered')));
+  });
+  // Cũng clear cache cũ của SW để chắc chắn
+  if ('caches' in window) {
+    caches.keys().then(keys => {
+      keys.filter(k => k.startsWith('ns-dashboard')).forEach(k => caches.delete(k));
     });
-    self.addEventListener('fetch', e => {
-      // Cache-first for static, network-first for data
-      if (e.request.url.includes('script.google.com')) return; // không cache API
-      e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).then(resp => {
-        if (resp.ok) {
-          const clone = resp.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-        }
-        return resp;
-      }).catch(() => caches.match(e.request))));
-    });
-  `;
-  const blob = new Blob([swCode], { type: 'application/javascript' });
-  const swUrl = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(swUrl)
-    .then(reg => console.log('[PWA] Service worker registered'))
-    .catch(err => console.log('[PWA] SW registration skipped:', err.message));
+  }
 }
 
 // Set print date for header before print
