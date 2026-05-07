@@ -1604,6 +1604,25 @@
     border: none;
     border-bottom: 1px solid var(--line);
   }
+  .live-feed.grid-view .live-item-img-wrap {
+    width: 100%;
+    aspect-ratio: 1;
+    display: block;
+    position: relative;
+  }
+  .live-feed.grid-view .live-item-img-wrap .live-item-img,
+  .live-feed.grid-view .live-item-img-wrap .live-item-img-placeholder {
+    width: 100%;
+    height: 100%;
+  }
+  /* List view: wrapper giữ size 64x64 như img */
+  .live-feed:not(.grid-view) .live-item-img-wrap {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    position: relative;
+    display: block;
+  }
   .live-feed.grid-view .live-item-main {
     padding: 10px 12px;
     gap: 6px;
@@ -1798,38 +1817,25 @@
   /* ========== SALE TAG - Hiện trên mọi ảnh có giá sale > 0 ========== */
   .sale-tag {
     position: absolute;
-    top: 6px;
-    left: 6px;
+    top: 0;
+    left: 0;
     background: linear-gradient(135deg, #e63946 0%, #c91e2c 100%);
     color: white;
     font-size: 9px;
     font-weight: 800;
-    padding: 3px 7px;
-    letter-spacing: 0.08em;
+    padding: 2px 6px;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     z-index: 5;
-    box-shadow: 0 2px 4px rgba(230,57,70,0.3);
+    box-shadow: 0 1px 3px rgba(230,57,70,0.3);
     font-family: 'IBM Plex Sans', sans-serif;
     pointer-events: none;
-  }
-  .sale-tag::after {
-    content: '';
-    position: absolute;
-    right: -3px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 0;
-    height: 0;
-    border-top: 3px solid transparent;
-    border-bottom: 3px solid transparent;
-    border-left: 3px solid #c91e2c;
+    line-height: 1.4;
   }
   
   .img-zoom-wrap .sale-tag {
-    font-size: 8px;
-    padding: 2px 5px;
-    top: 3px;
-    left: 3px;
+    font-size: 7px;
+    padding: 1px 4px;
   }
   .live-item-img-wrap {
     position: relative;
@@ -1837,33 +1843,34 @@
   }
   .live-item-img-wrap .sale-tag {
     font-size: 8px;
-    padding: 2px 5px;
+    padding: 1px 5px;
   }
   .live-feed.grid-view .live-item-img-wrap .sale-tag {
-    font-size: 11px;
-    padding: 4px 9px;
-    top: 8px;
-    left: 8px;
-  }
-  .product-img .sale-tag {
     font-size: 10px;
     padding: 3px 8px;
-    top: 8px;
-    left: 8px;
+    top: 0;
+    left: 0;
+  }
+  /* Khi ảnh fail và chỉ còn placeholder → ẩn SALE tag (xấu khi đè lên No image) */
+  .live-item-img-wrap:has(.live-item-img-placeholder) .sale-tag,
+  .img-zoom-wrap:has(.live-item-img-placeholder) .sale-tag {
+    display: none;
+  }
+  .product-img .sale-tag {
+    font-size: 9px;
+    padding: 2px 6px;
+    top: 0;
+    left: 0;
   }
   .modal-img-wrap { position: relative; display: inline-block; }
   .modal-img-wrap .sale-tag {
-    font-size: 13px;
-    padding: 5px 12px;
-    top: 10px;
-    left: 10px;
+    font-size: 12px;
+    padding: 4px 10px;
   }
   .live-hot-item-imgwrap { position: relative; display: inline-block; }
   .live-hot-item-imgwrap .sale-tag {
     font-size: 7px;
     padding: 1px 4px;
-    top: 0;
-    left: 0;
   }
   
   /* ========== LOGIN OVERLAY ========== */
@@ -6383,17 +6390,32 @@ function handleImgError(imgEl) {
 }
 
 function showImgFailed(imgEl) {
-  const wrap = imgEl.closest('.img-zoom-wrap');
-  if (wrap) {
-    wrap.outerHTML = noImgPlaceholder('Lỗi tải');
-  } else if (imgEl.classList.contains('live-item-img')) {
+  // Check img-zoom-wrap (used in tables)
+  const zoomWrap = imgEl.closest('.img-zoom-wrap');
+  if (zoomWrap) {
+    zoomWrap.outerHTML = noImgPlaceholder('Lỗi tải');
+    return;
+  }
+  
+  // Check live-item-img-wrap (live feed) - replace img with placeholder, KEEP SALE tag
+  const liveWrap = imgEl.closest('.live-item-img-wrap');
+  if (liveWrap && imgEl.classList.contains('live-item-img')) {
     const placeholder = document.createElement('div');
     placeholder.className = 'live-item-img-placeholder';
     placeholder.textContent = 'No image';
     imgEl.replaceWith(placeholder);
-  } else {
-    imgEl.style.display = 'none';
+    return;
   }
+  
+  if (imgEl.classList.contains('live-item-img')) {
+    const placeholder = document.createElement('div');
+    placeholder.className = 'live-item-img-placeholder';
+    placeholder.textContent = 'No image';
+    imgEl.replaceWith(placeholder);
+    return;
+  }
+  
+  imgEl.style.display = 'none';
 }
 
 function handleProductImgError(imgEl) {
