@@ -554,6 +554,27 @@
     color: var(--negative);
     font-weight: 700;
   }
+  /* Chip cảnh báo "N CH đang hết" */
+  .misalloc-chip {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 2px 8px;
+    background: var(--negative-soft);
+    color: var(--negative);
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em;
+    border: 1px solid rgba(239,68,68,0.2);
+    transition: all 0.15s ease;
+  }
+  .misalloc-chip:hover {
+    background: var(--negative);
+    color: white;
+    transform: scale(1.05);
+  }
   
   /* ========== TABLES ========== */
   .table-wrapper { overflow-x: auto; background: var(--bg-card); }
@@ -2677,6 +2698,14 @@ html { scroll-behavior: smooth; }
         </select>
       </div>
       <div class="filter-group">
+        <label class="filter-label">Loại giao dịch</label>
+        <select id="filter-saletype" class="filter-select">
+          <option value="">Tất cả</option>
+          <option value="main">Hàng chính</option>
+          <option value="sale">🏷 Hàng sale</option>
+        </select>
+      </div>
+      <div class="filter-group">
         <label class="filter-label">Cửa hàng</label>
         <input type="text" id="filter-store" class="filter-input" list="dl-stores" placeholder="Tất cả cửa hàng" autocomplete="off">
         <datalist id="dl-stores"></datalist>
@@ -2755,11 +2784,19 @@ html { scroll-behavior: smooth; }
         LIVE FEED
       </div>
       <div class="live-controls">
+        <select id="live-filter-region" class="live-select">
+          <option value="">Tất cả khu vực</option>
+        </select>
         <select id="live-filter-store" class="live-select">
           <option value="">Tất cả cửa hàng</option>
         </select>
         <select id="live-filter-cat" class="live-select">
           <option value="">Tất cả ngành</option>
+        </select>
+        <select id="live-filter-saletype" class="live-select">
+          <option value="">Tất cả loại GD</option>
+          <option value="main">Hàng chính</option>
+          <option value="sale">🏷 Hàng sale</option>
         </select>
         <div class="live-view-toggle">
           <button class="live-control-btn active" id="live-view-list" onclick="setLiveView('list')" title="List view">
@@ -3050,7 +3087,12 @@ html { scroll-behavior: smooth; }
     
     <!-- Sub-tabs -->
     <div class="sub-tabs">
-      <button class="sub-tab active" data-subtab="restock" onclick="switchSubTab('restock')">
+      <button class="sub-tab active" data-subtab="misallocation" onclick="switchSubTab('misallocation')">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>Phân bổ sai</span>
+        <span class="sub-tab-count" id="misalloc-count" style="background:var(--negative);color:white">0</span>
+      </button>
+      <button class="sub-tab" data-subtab="restock" onclick="switchSubTab('restock')">
         <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         <span>Cần sản xuất</span>
         <span class="sub-tab-count" id="restock-count">0</span>
@@ -3737,6 +3779,8 @@ async function applyFilters() {
   const region = document.getElementById('filter-region').value;
   const storeTypeEl = document.getElementById('filter-storetype');
   const storeType = storeTypeEl ? storeTypeEl.value : '';
+  const saleTypeEl = document.getElementById('filter-saletype');
+  const saleType = saleTypeEl ? saleTypeEl.value : '';
   const search = document.getElementById('filter-search').value.trim().toLowerCase();
   
   // Lazy load các tháng cần thiết nếu chưa có
@@ -3783,6 +3827,12 @@ async function applyFilters() {
     if (storeTypeStores) {
       if (!r.cuaHang || !storeTypeStores.has(r.cuaHang)) return false;
     }
+    // Loại giao dịch: hàng chính (giaSale=0 hoặc giaSale>=giaBan) vs hàng sale (giaSale>0 và <giaBan)
+    if (saleType) {
+      const isSaleTx = (r.giaSale && r.giaSale > 0 && r.giaBan && r.giaSale < r.giaBan);
+      if (saleType === 'sale' && !isSaleTx) return false;
+      if (saleType === 'main' && isSaleTx) return false;
+    }
     if (search) {
       const blob = (r.maThamChieu + ' ' + r.barcode + ' ' + r.soDon).toLowerCase();
       if (!blob.includes(search)) return false;
@@ -3801,6 +3851,8 @@ function clearFilters() {
   document.getElementById('filter-region').value = '';
   const stEl = document.getElementById('filter-storetype');
   if (stEl) stEl.value = '';
+  const saEl = document.getElementById('filter-saletype');
+  if (saEl) saEl.value = '';
   document.getElementById('filter-search').value = '';
   document.querySelectorAll('.quick-date-btn').forEach(b => b.classList.remove('active'));
   initFilters();
@@ -3867,7 +3919,7 @@ document.querySelectorAll('.quick-date-btn').forEach(btn => {
   });
 });
 
-['filter-date-from', 'filter-date-to', 'filter-storetype'].forEach(id => {
+['filter-date-from', 'filter-date-to', 'filter-storetype', 'filter-saletype'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('change', applyFilters);
 });
@@ -4280,6 +4332,7 @@ function initLiveFilters() {
   
   const stores = [...new Set(todayRecords.map(r => r.cuaHang).filter(Boolean))].sort();
   const cats = [...new Set(RAW_DATA.map(r => r.nganhHang).filter(Boolean))].sort();
+  const regions = [...new Set(STOCK_DATA.map(s => s.khuVuc).filter(Boolean))].sort();
   
   const storeSel = document.getElementById('live-filter-store');
   const currentStore = storeSel.value;
@@ -4292,6 +4345,14 @@ function initLiveFilters() {
   catSel.innerHTML = '<option value="">Tất cả ngành</option>' + 
     cats.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
   catSel.value = currentCat;
+
+  const regionSel = document.getElementById('live-filter-region');
+  if (regionSel) {
+    const currentRegion = regionSel.value;
+    regionSel.innerHTML = '<option value="">Tất cả khu vực</option>' +
+      regions.map(r => `<option value="${escapeAttr(r)}">${escapeHtml(r)}</option>`).join('');
+    regionSel.value = currentRegion;
+  }
 }
 
 // ============ MAIN RENDER ============
@@ -4304,10 +4365,32 @@ function renderLive() {
   // Apply filters
   const storeFilter = document.getElementById('live-filter-store').value;
   const catFilter = document.getElementById('live-filter-cat').value;
+  const regionFilterEl = document.getElementById('live-filter-region');
+  const regionFilter = regionFilterEl ? regionFilterEl.value : '';
+  const saleTypeEl = document.getElementById('live-filter-saletype');
+  const saleTypeFilter = saleTypeEl ? saleTypeEl.value : '';
   
   let filtered = todayRecords;
   if (storeFilter) filtered = filtered.filter(r => r.cuaHang === storeFilter);
   if (catFilter) filtered = filtered.filter(r => r.nganhHang === catFilter);
+
+  // Region filter: lookup CH có khu vực khớp
+  if (regionFilter) {
+    const regionStores = new Set(
+      STOCK_DATA.filter(s => s.khuVuc === regionFilter).map(s => s.khoHang)
+    );
+    filtered = filtered.filter(r => regionStores.has(r.cuaHang));
+  }
+
+  // Loại giao dịch: hàng chính vs hàng sale
+  if (saleTypeFilter) {
+    filtered = filtered.filter(r => {
+      const isSaleTx = (r.giaSale && r.giaSale > 0 && r.giaBan && r.giaSale < r.giaBan);
+      if (saleTypeFilter === 'sale') return isSaleTx;
+      if (saleTypeFilter === 'main') return !isSaleTx;
+      return true;
+    });
+  }
   
   // Sort by time desc (mới nhất ở trên)
   filtered.sort((a, b) => {
@@ -4619,10 +4702,10 @@ function parseDateTime(ngay, gio) {
 
 // Setup live filters - re-render when changed
 setTimeout(() => {
-  const sf = document.getElementById('live-filter-store');
-  const cf = document.getElementById('live-filter-cat');
-  if (sf) sf.addEventListener('change', renderLive);
-  if (cf) cf.addEventListener('change', renderLive);
+  ['live-filter-store', 'live-filter-cat', 'live-filter-region', 'live-filter-saletype'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', renderLive);
+  });
   
   // Init view mode buttons
   const viewMode = LIVE_STATE.viewMode;
@@ -4807,6 +4890,7 @@ function renderProductCards(products, withRank) {
     
     const isSale = (typeof SALE_CODES !== 'undefined' && SALE_CODES.has(p.code));
     const inCompare = (typeof COMPARE_LIST !== 'undefined' && COMPARE_LIST.includes(p.code));
+    const misallocCount = (window.MISALLOC_COUNT_BY_CODE && window.MISALLOC_COUNT_BY_CODE[p.code]) || 0;
 
     // Build price line: ưu tiên giaBan/giaSale từ giao dịch, fallback giaNiemYet từ stock
     const giaGoc = p.lastGiaBan || p.price || 0;
@@ -4817,6 +4901,11 @@ function renderProductCards(products, withRank) {
     } else if (giaGoc > 0) {
       priceHtml = `<div class="product-price"><span class="price-now">${formatPriceVND(giaGoc)}</span></div>`;
     }
+
+    // Misalloc chip: cảnh báo có N CH đang hết SP này nhưng có nguồn bù
+    const misallocChip = misallocCount > 0
+      ? `<div class="misalloc-chip" title="Có ${misallocCount} CH đang hết SP này nhưng hệ thống vẫn còn — click để xem ở tab Phân bổ sai" onclick="event.stopPropagation();gotoMisalloc('${escapeAttr(p.code)}')">⚠ ${misallocCount} CH hết</div>`
+      : '';
 
     return `
       <div class="product-card" data-code="${escapeAttr(p.code)}" onclick="showProductDetail('${escapeAttr(p.code)}')">
@@ -4833,6 +4922,7 @@ function renderProductCards(products, withRank) {
           <div class="product-code">${escapeHtml(p.code)}</div>
           <span class="product-cat ${getCategoryClass(p.category)}">${escapeHtml(p.subCategory || p.category || 'Khác')}</span>
           ${priceHtml}
+          ${misallocChip}
           <div class="product-stats">
             <div>
               <div class="product-stat-num">${formatNumber(p.qty)}</div>
@@ -5315,9 +5405,9 @@ function colorSwatchStyle(c) {
 <script>
 // ============ TRANSFER SUGGESTIONS ============
 // ============================================================
-// TRANSFER TAB - Overview + 2 sub-tabs (Cần sản xuất / Luân chuyển)
+// TRANSFER TAB - Overview + 3 sub-tabs (Phân bổ sai / Cần sản xuất / Luân chuyển)
 // ============================================================
-let TRANSFER_SUB_TAB = 'restock'; // restock | rebalance
+let TRANSFER_SUB_TAB = 'misallocation'; // misallocation | restock | rebalance
 
 function switchSubTab(tab) {
   TRANSFER_SUB_TAB = tab;
@@ -5327,7 +5417,269 @@ function switchSubTab(tab) {
   renderTransfer();
 }
 
-// Compute restock candidates - SP đã bán nhưng tồn cạn kiệt
+// ============================================================
+// PHÂN BỔ SAI: tìm SP × CH có giao dịch trong khoảng nhưng tồn=0
+// ============================================================
+function computeMisallocationData() {
+  const result = [];
+  if (typeof FILTERED === 'undefined' || !Array.isArray(FILTERED)) return result;
+  if (typeof STOCK_DATA === 'undefined' || !Array.isArray(STOCK_DATA)) return result;
+
+  // Helper: classify store type
+  const typeOf = code => {
+    if (!code) return '';
+    const u = String(code).toUpperCase();
+    if (u.startsWith('TP') || u.startsWith('SA')) return 'WAREHOUSE';
+    if (u.startsWith('CH')) return 'CH';
+    if (u.startsWith('DOISALE')) return 'DOISALE';
+    if (u.startsWith('DB')) return 'DB';
+    return 'OTHER';
+  };
+
+  // Lookup tên CH từ STORES_DATA (file Stores+Auth)
+  const storeNameOf = code => {
+    if (typeof STORES_DATA !== 'undefined' && Array.isArray(STORES_DATA) && code) {
+      const m = STORES_DATA.find(st => st.maCh && st.maCh.toUpperCase() === String(code).toUpperCase());
+      if (m && m.ten && m.ten !== m.maCh) return m.ten;
+    }
+    return code || '';
+  };
+  const storeRegionOf = code => {
+    if (typeof STORES_DATA !== 'undefined' && Array.isArray(STORES_DATA) && code) {
+      const m = STORES_DATA.find(st => st.maCh && st.maCh.toUpperCase() === String(code).toUpperCase());
+      if (m && m.khuVuc) return m.khuVuc;
+    }
+    // fallback: lookup STOCK_DATA
+    const stk = STOCK_DATA.find(s => s.maKho === code || s.khoHang === code);
+    return stk ? (stk.khuVuc || '') : '';
+  };
+
+  // Build current stock per (code, store) - both maKho and khoHang as lookup keys
+  // Stock indexed by code → maKho/khoHang → tồn
+  const stockByCodeStore = {};  // {code: {maKho/khoHang: tonHienTai}}
+  STOCK_DATA.forEach(s => {
+    const code = s.maThamChieu;
+    if (!code) return;
+    if (!stockByCodeStore[code]) stockByCodeStore[code] = {};
+    const key = s.maKho || s.khoHang;
+    if (!key) return;
+    stockByCodeStore[code][key] = (stockByCodeStore[code][key] || 0) + (s.tonHienTai || 0);
+    // Also index by khoHang as alt key (vì FILTERED.cuaHang có thể là text)
+    if (s.khoHang && s.khoHang !== key) {
+      stockByCodeStore[code][s.khoHang] = (stockByCodeStore[code][s.khoHang] || 0) + (s.tonHienTai || 0);
+    }
+  });
+
+  // Build sales per (code, store) trong khoảng FILTERED
+  // Track: tổng SL, ngày bán cuối cùng tại CH đó (để tính số ngày hết)
+  const salesByCodeStore = {};
+  FILTERED.forEach(r => {
+    if (!r.maThamChieu || !r.cuaHang) return;
+    if ((r.soLuong || 0) <= 0) return;  // bỏ refund
+    const k = r.maThamChieu + '||' + r.cuaHang;
+    if (!salesByCodeStore[k]) {
+      salesByCodeStore[k] = {
+        code: r.maThamChieu,
+        store: r.cuaHang,
+        category: r.nganhHang,
+        totalQty: 0,
+        firstSale: r.ngay,
+        lastSale: r.ngay,
+        daysWithSales: new Set()
+      };
+    }
+    const e = salesByCodeStore[k];
+    e.totalQty += r.soLuong;
+    if (r.ngay < e.firstSale) e.firstSale = r.ngay;
+    if (r.ngay > e.lastSale) e.lastSale = r.ngay;
+    e.daysWithSales.add(r.ngay);
+  });
+
+  // Filter range info để tính velocity
+  const dateFromVal = document.getElementById('filter-date-from').value;
+  const dateToVal = document.getElementById('filter-date-to').value;
+  let filterDays = 1;
+  try {
+    if (dateFromVal && dateToVal) {
+      const f = new Date(dateFromVal);
+      const t = new Date(dateToVal);
+      filterDays = Math.max(1, Math.round((t - f) / 86400000) + 1);
+    }
+  } catch (e) {}
+  const today = todayString();
+
+  // Loop từng (code, store) đã bán → check tồn = 0
+  Object.values(salesByCodeStore).forEach(e => {
+    const codeStock = stockByCodeStore[e.code] || {};
+    // Tồn tại CH này (lookup theo cuaHang text hoặc bất kỳ key trùng)
+    const stockHere = codeStock[e.store] || 0;
+
+    if (stockHere > 0) return;  // CH này còn hàng → không phải phân bổ sai
+
+    // Tổng tồn hệ thống (gồm tất cả nguồn) trừ chính CH này (= 0 anyway)
+    const totalSystemStock = Object.values(codeStock).reduce((s, v) => s + (v || 0), 0);
+    if (totalSystemStock <= 0) return;  // hệ thống cũng hết → emergency, không phải phân bổ sai
+
+    // Đánh giá nguồn còn hàng theo loại
+    const sources = [];
+    Object.entries(codeStock).forEach(([key, qty]) => {
+      if (qty <= 0) return;
+      if (key === e.store) return;
+      sources.push({ store: key, qty, type: typeOf(key) });
+    });
+    if (sources.length === 0) return;
+
+    // Phân loại nguồn: warehouse (TP/SA) ưu tiên, CH/DOISALE/DB là nguồn thay thế
+    const warehouseSources = sources.filter(s => s.type === 'WAREHOUSE')
+                                    .sort((a, b) => b.qty - a.qty);
+    const chSources = sources.filter(s => s.type !== 'WAREHOUSE')
+                             .sort((a, b) => b.qty - a.qty);
+
+    // Số ngày hết hàng = số ngày từ lần bán cuối tới hôm nay
+    let daysOutOfStock = 0;
+    try {
+      const lastDate = new Date(e.lastSale);
+      const todayDate = new Date(today);
+      daysOutOfStock = Math.max(0, Math.round((todayDate - lastDate) / 86400000));
+    } catch (err) {}
+
+    // Velocity: SL bán / số ngày có giao dịch (chứ không phải / filterDays vì có thể đã hết sớm)
+    const daysActive = e.daysWithSales.size || 1;
+    const velocity = e.totalQty / daysActive;
+
+    // Suggested qty: bù 14 ngày bán
+    const suggestedQty = Math.max(1, Math.ceil(velocity * 14));
+
+    // Doanh thu mất ước tính = velocity × số ngày hết × giá bán
+    let unitPrice = 0;
+    const p = (PRODUCT_AGG || []).find(x => x.code === e.code);
+    if (p) {
+      unitPrice = p.lastGiaBan || p.price || 0;
+    }
+    if (!unitPrice && typeof STOCK_BY_CODE !== 'undefined' && STOCK_BY_CODE[e.code]) {
+      unitPrice = STOCK_BY_CODE[e.code].giaNiemYet || 0;
+    }
+    const estLostRevenue = velocity * daysOutOfStock * unitPrice;
+
+    // Priority dựa trên doanh thu mất + ngày hết
+    let priority;
+    if (daysOutOfStock >= 7 || estLostRevenue > 5000000) priority = 'urgent';
+    else if (daysOutOfStock >= 3 || estLostRevenue > 1000000) priority = 'high';
+    else priority = 'medium';
+
+    result.push({
+      code: e.code,
+      image: p ? p.image : null,
+      category: e.category || (p ? p.category : ''),
+      subCategory: p ? p.subCategory : '',
+      // Target (CH bị thiếu)
+      toStore: e.store,
+      toStoreName: storeNameOf(e.store),
+      toRegion: storeRegionOf(e.store),
+      toType: typeOf(e.store),
+      // Thông số bán hàng
+      soldQty: e.totalQty,
+      daysActive,
+      velocity,
+      firstSale: e.firstSale,
+      lastSale: e.lastSale,
+      daysOutOfStock,
+      filterDays,
+      // Tồn hệ thống
+      totalSystemStock,
+      warehouseSources,
+      chSources,
+      // Đề xuất
+      suggestedQty,
+      estLostRevenue,
+      unitPrice,
+      priority
+    });
+  });
+
+  // Sort default: priority urgency → doanh thu mất giảm dần
+  const priOrder = { urgent: 3, high: 2, medium: 1 };
+  result.sort((a, b) => {
+    const pa = priOrder[a.priority] || 0;
+    const pb = priOrder[b.priority] || 0;
+    if (pb !== pa) return pb - pa;
+    return (b.estLostRevenue || 0) - (a.estLostRevenue || 0);
+  });
+
+  return result;
+}
+
+// Render 1 card phân bổ sai
+function renderMisallocCard(m) {
+  // Best source label + suggested chuyển từ đâu
+  let bestSourceHtml = '';
+  if (m.warehouseSources.length > 0) {
+    const w = m.warehouseSources[0];
+    bestSourceHtml = `
+      <span style="display:inline-block;background:var(--accent-soft);color:var(--accent);padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;margin-right:4px">🏭 ${escapeHtml(w.store)}</span>
+      <span style="font-size:11px;color:var(--ink-soft)">có ${formatNumber(w.qty)} SP</span>
+    `;
+  } else if (m.chSources.length > 0) {
+    const c = m.chSources[0];
+    bestSourceHtml = `
+      <span style="display:inline-block;background:var(--olive-soft);color:var(--olive);padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;margin-right:4px">🏪 ${escapeHtml(c.store)}</span>
+      <span style="font-size:11px;color:var(--ink-soft)">có ${formatNumber(c.qty)} SP</span>
+    `;
+  }
+
+  const priColors = {
+    urgent: { bg: 'var(--negative)', label: 'KHẨN' },
+    high:   { bg: 'var(--warn)', label: 'CAO' },
+    medium: { bg: 'var(--ink-muted)', label: 'TB' }
+  };
+  const pri = priColors[m.priority] || priColors.medium;
+  const priorityBadge = `<span style="background:${pri.bg};color:white;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.06em">${pri.label}</span>`;
+
+  // Tên CH to, mã nhỏ
+  const showName = m.toStoreName && m.toStoreName !== m.toStore;
+
+  return `
+    <div class="transfer-card" onclick="showProductDetail('${escapeAttr(m.code)}')" style="cursor:pointer;grid-template-columns:80px 1fr 110px 1fr 70px">
+      <div>${imgCell(m.image, m.code)}</div>
+
+      <div class="transfer-store">
+        <strong style="color:var(--negative)">⚠ THIẾU TẠI: ${escapeHtml(showName ? m.toStoreName : m.toStore)}</strong>
+        ${showName ? `<span style="font-size:11px;color:var(--ink-muted);margin-top:1px;font-family:'JetBrains Mono',monospace">${escapeHtml(m.toStore)}</span>` : ''}
+        <span>${escapeHtml(m.toRegion || '—')} · Tồn: <strong style="color:var(--negative)">0</strong></span>
+        <span style="font-family:'IBM Plex Sans';color:var(--ink-soft);margin-top:2px">
+          <code>${escapeHtml(m.code)}</code> · ${escapeHtml(m.subCategory || m.category || '')}
+        </span>
+      </div>
+
+      <div style="text-align:center">
+        <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:var(--negative);line-height:1">${m.daysOutOfStock}</div>
+        <div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px">ngày hết</div>
+        <div style="font-size:10px;color:var(--ink-muted);margin-top:6px">Bán cuối: ${escapeHtml(m.lastSale)}</div>
+        <div style="font-size:10px;color:var(--ink-soft);margin-top:1px">Đã bán <strong>${m.soldQty}</strong> · ${m.velocity.toFixed(2)}/ngày</div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:4px;font-size:11px">
+        <strong style="color:var(--positive)">✓ NGUỒN CÒN HÀNG: ${formatNumber(m.totalSystemStock)} SP</strong>
+        <div style="margin-top:3px">${bestSourceHtml}</div>
+        ${m.warehouseSources.length + m.chSources.length > 1 ? 
+          `<div style="font-size:10px;color:var(--ink-muted)">+ ${m.warehouseSources.length + m.chSources.length - 1} nguồn khác</div>` : ''}
+        <div style="margin-top:4px;font-size:11px;color:var(--ink-soft)">
+          → Đề xuất chuyển <strong style="color:var(--accent)">${m.suggestedQty}</strong> SP
+        </div>
+        ${m.estLostRevenue > 0 ? `<div style="font-size:11px;color:var(--negative);font-weight:600">💸 Mất ~${formatNumber(m.estLostRevenue)}đ</div>` : ''}
+      </div>
+
+      <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px">
+        ${priorityBadge}
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// PHẦN GỐC: Compute restock + rebalance
+// ============================================================
+
 // Emergency codes: SP đã bán trong khoảng FILTERED nhưng tổng tồn hệ thống = 0
 function getEmergencyCodes() {
   const codes = new Set();
@@ -5662,6 +6014,17 @@ function renderTransfer() {
   document.getElementById('transfer-overview').innerHTML = overviewHtml;
   document.getElementById('restock-count').textContent = formatNumber(restockAll.length);
   document.getElementById('rebalance-count').textContent = formatNumber(rebalanceAll.length);
+  // Pre-compute misalloc count + map by code (for product card chip)
+  try {
+    const misallocAll = computeMisallocationData();
+    const mc = document.getElementById('misalloc-count');
+    if (mc) mc.textContent = formatNumber(misallocAll.length);
+    // Build map: code → số CH đang bị thiếu (cho chip product card)
+    window.MISALLOC_COUNT_BY_CODE = {};
+    misallocAll.forEach(m => {
+      window.MISALLOC_COUNT_BY_CODE[m.code] = (window.MISALLOC_COUNT_BY_CODE[m.code] || 0) + 1;
+    });
+  } catch (e) {}
   
   // ============ APPLY FILTERS ============
   const catFilter = document.getElementById('transfer-filter-cat').value;
@@ -5809,7 +6172,131 @@ function renderTransfer() {
   // ============ RENDER SUB-TAB ============
   const container = document.getElementById('transfer-list');
   const meta = document.getElementById('transfer-list-meta');
-  
+
+  // ============ SUB-TAB: PHÂN BỔ SAI ============
+  if (TRANSFER_SUB_TAB === 'misallocation') {
+    const misalloc = computeMisallocationData();
+    document.getElementById('misalloc-count').textContent = misalloc.length;
+
+    // Apply same filters (cat, search, region, store, storeType, price, saleType context)
+    let filtered = misalloc;
+    if (catFilter) filtered = filtered.filter(m => m.category === catFilter);
+    if (search) filtered = filtered.filter(m => m.code.toLowerCase().includes(search));
+    if (regionFilter) filtered = filtered.filter(m => m.toRegion === regionFilter);
+    if (storeFilter) filtered = filtered.filter(m => m.toStore === storeFilter);
+    if (storeTypeFilter) {
+      const typeOf = c => {
+        const u = String(c || '').toUpperCase();
+        if (u.startsWith('CH')) return 'CH';
+        if (u.startsWith('DOISALE')) return 'DOISALE';
+        if (u.startsWith('DB')) return 'DB';
+        if (u.startsWith('TP') || u.startsWith('SA')) return 'WAREHOUSE';
+        return 'OTHER';
+      };
+      filtered = filtered.filter(m => typeOf(m.toStore) === storeTypeFilter);
+    }
+    if (priceMin !== null) filtered = filtered.filter(m => priceOf(m.code) >= priceMin);
+    if (priceMax !== null) filtered = filtered.filter(m => priceOf(m.code) <= priceMax);
+
+    // Apply sort theo sortMode
+    if (sortMode === 'qty-desc' || sortMode === 'emergency-first') {
+      // Sort theo doanh thu mất ước tính giảm dần
+      filtered.sort((a, b) => (b.estLostRevenue || 0) - (a.estLostRevenue || 0));
+    } else if (sortMode === 'qty-asc') {
+      filtered.sort((a, b) => (a.estLostRevenue || 0) - (b.estLostRevenue || 0));
+    } else if (sortMode === 'stock-asc') {
+      filtered.sort((a, b) => (b.daysOutOfStock || 0) - (a.daysOutOfStock || 0));
+    } else if (sortMode === 'price-desc') {
+      filtered.sort((a, b) => priceOf(b.code) - priceOf(a.code));
+    } else if (sortMode === 'price-asc') {
+      filtered.sort((a, b) => priceOf(a.code) - priceOf(b.code));
+    } else if (sortMode === 'region') {
+      filtered.sort((a, b) => (a.toRegion || '').localeCompare(b.toRegion || ''));
+    } else if (sortMode === 'store') {
+      filtered.sort((a, b) => (a.toStore || '').localeCompare(b.toStore || ''));
+    } else if (sortMode === 'code') {
+      filtered.sort((a, b) => a.code.localeCompare(b.code));
+    }
+    // else: giữ default sort từ compute (priority urgency)
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div style="font-size:32px;margin-bottom:8px">✓</div>
+          Không phát hiện phân bổ sai trong khoảng đã lọc.<br>
+          <span style="font-size:11px;color:var(--ink-muted)">Mọi CH có bán SP trong khoảng đều có tồn ≥ 1 hoặc không có nguồn bù.</span>
+        </div>`;
+      meta.textContent = '';
+      return;
+    }
+
+    meta.textContent = `${filtered.length} CH×SP thiếu hàng dù hệ thống còn`;
+
+    // Group by destination toggle
+    const groupByDest = document.getElementById('rebalance-group-by-dest');
+    const grouped = (groupByDest && groupByDest.checked);
+
+    // Banner tổng quan
+    const totalLost = filtered.reduce((s, m) => s + (m.estLostRevenue || 0), 0);
+    const uniqueStores = new Set(filtered.map(m => m.toStore)).size;
+    const uniqueCodes = new Set(filtered.map(m => m.code)).size;
+
+    const headerBanner = `
+      <div class="rebalance-emergency" style="background:linear-gradient(135deg, var(--negative-soft), var(--warn-soft))">
+        <div class="rebalance-emergency-head">
+          <span class="badge">⚠ PHÂN BỔ SAI</span>
+          <span><strong>${filtered.length}</strong> tình huống · <strong>${uniqueStores}</strong> CH bị thiếu hàng · <strong>${uniqueCodes}</strong> SP khác nhau</span>
+        </div>
+        <div style="font-size:13px;color:var(--ink-soft);margin-top:6px">
+          💸 Doanh thu ước tính mất do hết hàng: <strong style="color:var(--negative)">${formatNumber(totalLost)}đ</strong>
+          <span style="font-size:11px;color:var(--ink-muted)">(velocity TB × số ngày hết × giá bán)</span>
+        </div>
+      </div>
+    `;
+
+    let cardsHtml;
+    if (grouped) {
+      const groups = {};
+      filtered.forEach(m => {
+        if (!groups[m.toStore]) groups[m.toStore] = [];
+        groups[m.toStore].push(m);
+      });
+      cardsHtml = Object.keys(groups).sort().map(dest => {
+        const arr = groups[dest];
+        const totalQty = arr.reduce((s, x) => s + (x.suggestedQty || 0), 0);
+        const lostRev = arr.reduce((s, x) => s + (x.estLostRevenue || 0), 0);
+        let displayName = dest;
+        const first = arr[0];
+        if (first && first.toStoreName && first.toStoreName !== dest) {
+          displayName = first.toStoreName;
+        } else if (typeof STORES_DATA !== 'undefined') {
+          const m = STORES_DATA.find(st => st.maCh && st.maCh.toUpperCase() === String(dest).toUpperCase());
+          if (m && m.ten && m.ten !== m.maCh) displayName = m.ten;
+        }
+        const showCode = displayName !== dest;
+        return `
+          <div class="transfer-group">
+            <div class="transfer-group-head">
+              <div>
+                <div class="transfer-group-name">${escapeHtml(displayName)}</div>
+                ${showCode ? `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-muted);margin-top:2px">${escapeHtml(dest)}</div>` : ''}
+              </div>
+              <div class="transfer-group-meta">${arr.length} SP · ${totalQty} cần · Mất ~${formatNumber(lostRev)}đ</div>
+            </div>
+            <div class="transfer-group-items">
+              ${arr.map(m => renderMisallocCard(m)).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    } else {
+      cardsHtml = filtered.slice(0, 100).map(m => renderMisallocCard(m)).join('');
+    }
+
+    container.innerHTML = headerBanner + cardsHtml;
+    return;
+  }
+
   if (TRANSFER_SUB_TAB === 'restock') {
     if (restock.length === 0) {
       container.innerHTML = '<div class="empty-state">Không có SP nào cần sản xuất gấp khớp filter</div>';
@@ -7500,6 +7987,22 @@ function switchToTransferRebalance() {
   if (tab) tab.click();
   setTimeout(() => {
     if (typeof switchSubTab === 'function') switchSubTab('rebalance');
+  }, 100);
+}
+
+function gotoMisalloc(code) {
+  // Switch sang tab Đề xuất → sub-tab Phân bổ sai → search code
+  const tab = document.querySelector('.tab[data-tab="transfer"]');
+  if (tab) tab.click();
+  setTimeout(() => {
+    if (typeof switchSubTab === 'function') switchSubTab('misallocation');
+    setTimeout(() => {
+      const searchEl = document.getElementById('transfer-filter-search');
+      if (searchEl && code) {
+        searchEl.value = code;
+        renderTransfer();
+      }
+    }, 100);
   }, 100);
 }
 
