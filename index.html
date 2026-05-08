@@ -1309,9 +1309,27 @@
     gap: 6px;
   }
   .live-feed.grid-view .live-item-side { display: none; }
+  /* Banner block chỉ hiện ở LIST. Ở GRID dùng chip nhỏ trong ảnh */
   .live-feed.grid-view .live-hot-banner {
-    margin: 0;
+    display: none;
   }
+  /* Chip HOT (chỉ hiện ở GRID) */
+  .hot-chip {
+    display: none;
+    position: absolute;
+    bottom: 6px; left: 6px;
+    background: var(--terracotta);
+    color: white;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    z-index: 6;
+    letter-spacing: 0.04em;
+    pointer-events: auto;
+    cursor: help;
+    box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  }
+  .live-feed.grid-view .hot-chip { display: inline-block; }
   
   /* ========== TRANSFER OVERVIEW + SUB-TABS ========== */
   .transfer-overview {
@@ -1965,10 +1983,6 @@ td.num, .product-stat strong { font-variant-numeric: tabular-nums; }
   font-size: 12px; text-align: center;
   margin-top: 10px; display: none;
   font-family: 'IBM Plex Sans', system-ui, sans-serif;
-}
-  padding: 10px; border-radius: 8px;
-  font-size: 12px; text-align: center;
-  margin-top: 12px; display: none;
 }
 .login-error.active { display: block; }
 .user-badge {
@@ -2762,7 +2776,7 @@ html { scroll-behavior: smooth; }
           <input type="range" id="grid-size-slider" min="150" max="400" step="10" value="220" oninput="setGridSize(this.value)">
           <span class="grid-size-value" id="grid-size-value">220px</span>
         </div>
-        <button class="live-control-btn active" id="live-toggle-sound" onclick="toggleLiveSound()">
+        <button class="live-control-btn active" id="live-toggle-sound" onclick="toggleLiveSound()" title="Bật/tắt tiếng báo khi có giao dịch mới&#10;&#10;🔔 Cao (E6): giao dịch thường&#10;⭐ Cao trầm (A5): SP đang HOT (≥10 SP/khoảng)&#10;⚠ Vừa (E5): SP tồn kho thấp (≤5)&#10;🔄 Trầm (A4): trả hàng / refund">
           <svg viewBox="0 0 24 24" id="sound-icon-on" style="display:inline"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
           <svg viewBox="0 0 24 24" id="sound-icon-off" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>
           <span id="sound-label">SOUND</span>
@@ -2784,7 +2798,6 @@ html { scroll-behavior: smooth; }
       <div class="live-stat">
         <div class="live-stat-label">Đơn hôm nay</div>
         <div class="live-stat-value" id="live-stat-orders">—</div>
-        <div class="live-stat-meta">unique soDon</div>
       </div>
       <div class="live-stat">
         <div class="live-stat-label">SP bán hôm nay</div>
@@ -4425,11 +4438,16 @@ function renderLive() {
     if (isRefund) tags.push(`<span class="live-tag tag-refund">HOÀN/HỦY</span>`);
     
     let banner = '';
+    let hotChip = '';
     if (isHot) {
+      const hotMsg = `SP HOT - Đã bán ${recentByCode[r.maThamChieu]} lần trong 30 phút qua`;
+      // Banner block (chỉ hiện ở list mode, ẩn ở grid)
       banner = `<div class="live-hot-banner">
         <svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
-        SP HOT - Đã bán ${recentByCode[r.maThamChieu]} lần trong 30 phút qua
+        ${escapeHtml(hotMsg)}
       </div>`;
+      // Chip nhỏ trong card (chỉ hiện ở grid mode, ẩn ở list)
+      hotChip = `<span class="hot-chip" title="${escapeAttr(hotMsg)}">🔥 HOT</span>`;
     }
     
     // SALE detection per record
@@ -4441,6 +4459,7 @@ function renderLive() {
       ${banner}
       <div class="${classes}" onclick="showProductDetail('${escapeAttr(r.maThamChieu)}')">
         <div class="live-item-img-wrap">
+          ${hotChip}
           ${isSale ? '<span class="sale-tag">SALE</span>' : ''}
           ${img ?
             `<img class="live-item-img" src="${escapeAttr(img)}" loading="lazy" onerror="handleImgError(this)" alt="${escapeAttr(r.maThamChieu)}" onclick="event.stopPropagation();openLightbox('${escapeAttr(img)}')" style="cursor:zoom-in">
@@ -5923,10 +5942,24 @@ function renderTransfer() {
       cardsHtml = Object.keys(groups).sort().map(dest => {
         const arr = groups[dest];
         const totalQty = arr.reduce((s, x) => s + x.qty, 0);
+        // Lookup tên CH từ phần tử đầu tiên (đã có toStoreName được build trước)
+        // hoặc fallback STORES_DATA
+        let displayName = dest;
+        const firstItem = arr[0];
+        if (firstItem && firstItem.toStoreName && firstItem.toStoreName !== dest) {
+          displayName = firstItem.toStoreName;
+        } else if (typeof STORES_DATA !== 'undefined' && Array.isArray(STORES_DATA)) {
+          const m = STORES_DATA.find(st => st.maCh && st.maCh.toUpperCase() === String(dest).toUpperCase());
+          if (m && m.ten && m.ten !== m.maCh) displayName = m.ten;
+        }
+        const showCode = displayName !== dest;
         return `
           <div class="transfer-group">
             <div class="transfer-group-head">
-              <div class="transfer-group-name">${escapeHtml(dest)}</div>
+              <div>
+                <div class="transfer-group-name">${escapeHtml(displayName)}</div>
+                ${showCode ? `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-muted);margin-top:2px">${escapeHtml(dest)}</div>` : ''}
+              </div>
               <div class="transfer-group-meta">${arr.length} SP · ${totalQty} đơn vị</div>
             </div>
             <div class="transfer-group-items">
@@ -5978,26 +6011,29 @@ function renderRebalanceCard(s) {
     ? `<span style="color:var(--negative);font-weight:700;margin-top:2px">🚨 Đã bán ${s.toSales || 0} · Tồn 0</span>`
     : `<span style="font-family:'IBM Plex Sans';color:${s.toDos < 7 ? 'var(--negative)' : 'var(--warn)'};margin-top:2px;font-weight:600">⚠ Còn ${s.toDos < 1 ? '<1' : s.toDos.toFixed(0)} ngày bán</span>`;
 
-  // Tên CH hiển thị riêng dòng (chỉ khi khác mã)
-  const fromNameLine = (s.fromStoreName && s.fromStoreName !== s.fromStore)
-    ? `<span style="font-size:11px;color:var(--ink-soft);margin-top:1px">${escapeHtml(s.fromStoreName)}</span>` : '';
-  const toNameLine = (s.toStoreName && s.toStoreName !== s.toStore)
-    ? `<span style="font-size:11px;color:var(--ink-soft);margin-top:1px">${escapeHtml(s.toStoreName)}</span>` : '';
+  // Tên CH ở DÒNG TRÊN (to), mã CH dòng dưới (nhỏ).
+  // Nếu không có tên (storeName === maCH) thì chỉ hiển thị mã to
+  const fromMain = (s.fromStoreName && s.fromStoreName !== s.fromStore) ? s.fromStoreName : s.fromStore;
+  const fromSubCode = (s.fromStoreName && s.fromStoreName !== s.fromStore)
+    ? `<span style="font-size:11px;color:var(--ink-muted);margin-top:1px;font-family:'JetBrains Mono',monospace">${escapeHtml(s.fromStore)}</span>` : '';
+  const toMain = (s.toStoreName && s.toStoreName !== s.toStore) ? s.toStoreName : s.toStore;
+  const toSubCode = (s.toStoreName && s.toStoreName !== s.toStore)
+    ? `<span style="font-size:11px;color:var(--ink-muted);margin-top:1px;font-family:'JetBrains Mono',monospace">${escapeHtml(s.toStore)}</span>` : '';
 
   return `
     <div class="transfer-card" onclick="showProductDetail('${escapeAttr(s.code)}')" style="cursor:pointer">
       <div>${imgCell(s.image, s.code)}</div>
       <div class="transfer-store">
         ${sourceBadge}
-        <strong>FROM: ${escapeHtml(s.fromStore)}</strong>
-        ${fromNameLine}
+        <strong>FROM: ${escapeHtml(fromMain)}</strong>
+        ${fromSubCode}
         <span>${escapeHtml(s.fromRegion || '—')} · Tồn ${s.fromStock} · ${(s.fromVel || 0).toFixed(2)}/ngày</span>
         <span style="font-family:'IBM Plex Sans';color:var(--ink-soft);margin-top:2px"><code>${escapeHtml(s.code)}</code> · ${escapeHtml(s.subCategory || s.category || '')}</span>
       </div>
       <div class="transfer-arrow">→ <span class="transfer-qty">${s.qty}</span> ${distHtml}</div>
       <div class="transfer-store">
-        <strong>TO: ${escapeHtml(s.toStore)}</strong>
-        ${toNameLine}
+        <strong>TO: ${escapeHtml(toMain)}</strong>
+        ${toSubCode}
         <span>${escapeHtml(s.toRegion || '—')} · Tồn ${s.toStock} · ${(s.toVel || 0).toFixed(2)}/ngày</span>
         ${emergencyContext}
       </div>
