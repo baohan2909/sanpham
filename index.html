@@ -920,6 +920,21 @@
   }
   .transfer-store strong { font-size: 13px; }
   .transfer-store span { font-size: 11px; color: var(--ink-muted); font-family: 'JetBrains Mono', monospace; }
+  .src-picker {
+    margin-top: 4px;
+    padding: 4px 6px;
+    font-size: 10px;
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    border: 1px solid var(--line-strong);
+    background: var(--bg-elevated);
+    border-radius: 4px;
+    color: var(--accent);
+    cursor: pointer;
+    max-width: 220px;
+    width: 100%;
+  }
+  .src-picker:hover { background: var(--bg-card); border-color: var(--accent); }
+  .src-picker:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
   .transfer-qty {
     font-family: 'Fraunces', serif;
     font-weight: 700;
@@ -2975,15 +2990,29 @@ html { scroll-behavior: smooth; }
   <div class="section" id="section-velocity">
     <div class="charts-grid" style="margin-bottom:20px">
       <div class="panel" style="grid-column: 1 / -1">
-        <div class="panel-title">Phân bổ tần suất bán</div>
-        <div class="panel-sub">SP được phân loại theo độ đều đặn của giao dịch</div>
+        <div class="panel-title" style="display:flex;align-items:center;gap:8px">
+          Phân bổ tần suất bán
+          <span style="cursor:help;font-size:14px;color:var(--ink-muted)" title="Trục hoành (X): khoảng phần trăm số ngày trong khoảng filter mà SP có ít nhất 1 giao dịch.&#10;Trục tung (Y): số lượng SP rơi vào mỗi khoảng.&#10;&#10;Ví dụ: bạn lọc 30 ngày, 1 SP bán 21/30 ngày = 70% → rơi vào khoảng 60-80% (Warm).&#10;&#10;Ý nghĩa: cột bên phải nhiều = nhiều SP bán đều đặn.&#10;Cột bên trái nhiều = nhiều SP bán thưa thớt → cần xem xét loại bỏ hoặc giảm sản xuất.">ⓘ</span>
+        </div>
+        <div class="panel-sub">
+          Đếm số SP theo <strong>tỷ lệ ngày có bán hàng</strong> trong khoảng đã lọc. SP bán ≥80% số ngày = "đều đặn" (Hot), &lt;10% = gần như không bán (Dead).
+          <br>
+          <span style="color:var(--ink-muted);font-size:11px">Cách tính: với mỗi SP, đếm số ngày có ít nhất 1 GD ÷ tổng số ngày trong khoảng filter. Trục Y là <strong>số SP</strong> rơi vào từng khoảng %.</span>
+        </div>
         <div class="chart-wrapper" style="height:280px"><canvas id="chart-velocity-dist"></canvas></div>
       </div>
     </div>
     
     <div class="panel">
       <div class="panel-title">Bảng phân loại tần suất</div>
-      <div class="panel-sub">Hot = bán đều mỗi ngày · Warm = vài ngày một lần · Cold = thưa thớt · Dead = đã chết</div>
+      <div class="panel-sub">
+        <strong>Hot</strong> ≥80% ngày có bán (bán đều) · 
+        <strong>Warm</strong> 40-80% (bán vài ngày một lần) · 
+        <strong>Cold</strong> 10-40% (thưa thớt) · 
+        <strong>Dead</strong> &lt;10% (gần như không bán)
+        <br>
+        <span style="color:var(--ink-muted);font-size:11px">% tính trên tổng số ngày trong khoảng filter đang chọn.</span>
+      </div>
       <div class="product-controls">
         <select id="vel-class">
           <option value="all">Tất cả phân loại</option>
@@ -3089,7 +3118,7 @@ html { scroll-behavior: smooth; }
     <div class="sub-tabs">
       <button class="sub-tab active" data-subtab="misallocation" onclick="switchSubTab('misallocation')">
         <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <span>Phân bổ sai</span>
+        <span>Hết hàng - Khẩn cấp</span>
         <span class="sub-tab-count" id="misalloc-count" style="background:var(--negative);color:white">0</span>
       </button>
       <button class="sub-tab" data-subtab="restock" onclick="switchSubTab('restock')">
@@ -3113,10 +3142,10 @@ html { scroll-behavior: smooth; }
       </select>
       <select id="transfer-filter-priority" class="filter-select" onchange="renderTransfer()">
         <option value="">Tất cả mức ưu tiên</option>
-        <option value="emergency">🚨 KHẨN CẤP</option>
-        <option value="urgent">URGENT (gấp)</option>
-        <option value="high">HIGH</option>
-        <option value="medium">MEDIUM</option>
+        <option value="emergency">🚨 Khẩn cấp</option>
+        <option value="urgent">Cao (gấp)</option>
+        <option value="high">Trung bình</option>
+        <option value="medium">Thấp</option>
       </select>
       <select id="transfer-filter-region" class="filter-select" onchange="renderTransfer()">
         <option value="">Tất cả khu vực</option>
@@ -3131,23 +3160,23 @@ html { scroll-behavior: smooth; }
         <option value="DB">Điểm bán (DB)</option>
         <option value="WAREHOUSE">Kho (TP/SA)</option>
       </select>
-      <input type="text" id="transfer-filter-search" class="filter-input" placeholder="Tìm mã SP..." oninput="renderTransfer()" style="min-width:140px">
-      <input type="number" id="transfer-filter-price-min" class="filter-input" placeholder="Giá từ" oninput="renderTransfer()" style="min-width:90px">
-      <input type="number" id="transfer-filter-price-max" class="filter-input" placeholder="đến" oninput="renderTransfer()" style="min-width:90px">
+      <input type="text" id="transfer-filter-search" class="filter-input" placeholder="Tìm mã SP..." oninput="debouncedRenderTransfer()" style="min-width:140px">
+      <input type="number" id="transfer-filter-price-min" class="filter-input" placeholder="Giá từ" oninput="debouncedRenderTransfer()" style="min-width:90px">
+      <input type="number" id="transfer-filter-price-max" class="filter-input" placeholder="đến" oninput="debouncedRenderTransfer()" style="min-width:90px">
       <select id="transfer-sort" class="filter-select" onchange="renderTransfer()">
-        <option value="emergency-first">⚡ KHẨN CẤP trước</option>
+        <option value="emergency-first">⚡ Khẩn cấp trước</option>
         <option value="urgency">Mức ưu tiên</option>
-        <option value="qty-desc">SL nhiều nhất</option>
-        <option value="qty-asc">SL ít nhất</option>
-        <option value="stock-asc">Tồn ít nhất</option>
-        <option value="stock-desc">Tồn nhiều nhất</option>
-        <option value="price-desc">Giá cao nhất</option>
-        <option value="price-asc">Giá thấp nhất</option>
-        <option value="dist-asc">Gần nhất (km)</option>
-        <option value="dist-desc">Xa nhất (km)</option>
+        <option value="qty-desc">Số lượng giảm dần</option>
+        <option value="qty-asc">Số lượng tăng dần</option>
+        <option value="stock-asc">Tồn kho tăng dần</option>
+        <option value="stock-desc">Tồn kho giảm dần</option>
+        <option value="price-desc">Giá giảm dần</option>
+        <option value="price-asc">Giá tăng dần</option>
+        <option value="dist-asc">Khoảng cách gần nhất</option>
+        <option value="dist-desc">Khoảng cách xa nhất</option>
         <option value="region">Theo khu vực</option>
         <option value="store">Theo cửa hàng đích</option>
-        <option value="code">Mã SP A→Z</option>
+        <option value="code">Mã sản phẩm A→Z</option>
       </select>
       <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
         <input type="checkbox" id="rebalance-group-by-dest" onchange="renderTransfer()">
@@ -3164,12 +3193,20 @@ html { scroll-behavior: smooth; }
     <div class="charts-grid" style="margin-bottom:20px">
       <div class="panel">
         <div class="panel-title">SP mới xuất hiện</div>
-        <div class="panel-sub">Lần đầu xuất hiện trong 14 ngày qua</div>
+        <div class="panel-sub" id="new-products-sub">Lần đầu bán rơi trong khoảng đã lọc</div>
         <div class="product-grid" id="new-products"></div>
       </div>
       <div class="panel">
         <div class="panel-title">SP "ngủ đông"</div>
-        <div class="panel-sub">Có tồn nhưng &gt;30 ngày không bán</div>
+        <div class="panel-sub" style="display:flex;justify-content:space-between;align-items:center">
+          <span id="dormant-sub">Có tồn nhưng không bán quá N ngày tính từ ngày cuối khoảng lọc</span>
+          <label style="font-size:11px;color:var(--ink-soft);cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+            Ngưỡng (ngày):
+            <input id="lifecycle-dormant-days" type="number" value="30" min="1" max="365" 
+                   style="width:60px;padding:2px 6px;font-size:11px;font-family:'JetBrains Mono',monospace"
+                   onchange="renderLifecycle()">
+          </label>
+        </div>
         <div class="product-grid" id="dormant-products"></div>
       </div>
     </div>
@@ -4142,6 +4179,7 @@ function renderKPI() {
 
 // ============ RENDER ALL ============
 function renderAll() {
+  renderActiveFilterBanner();
   renderKPI();
   if (CURRENT_TAB === 'live') renderLive();
   if (CURRENT_TAB === 'hot') renderHot();
@@ -4153,6 +4191,35 @@ function renderAll() {
   if (CURRENT_TAB === 'transfer') renderTransfer();
   if (CURRENT_TAB === 'lifecycle') renderLifecycle();
   if (CURRENT_TAB === 'raw') renderRaw();
+}
+
+// Hiển thị banner cho biết các filter active
+function renderActiveFilterBanner() {
+  let target = document.getElementById('active-filter-banner');
+  if (!target) {
+    target = document.createElement('div');
+    target.id = 'active-filter-banner';
+    target.style.cssText = 'padding:6px 12px;background:var(--accent-soft);border-bottom:1px solid var(--line);font-size:11px;display:none;flex-wrap:wrap;gap:6px;align-items:center';
+    const filters = document.querySelector('.filters');
+    if (filters && filters.parentNode) filters.parentNode.insertBefore(target, filters.nextSibling);
+  }
+  const pills = [];
+  const saleType = document.getElementById('filter-saletype')?.value;
+  if (saleType === 'sale') pills.push('🏷 Đang lọc: Hàng SALE');
+  else if (saleType === 'main') pills.push('🏪 Đang lọc: Hàng CHÍNH');
+  const storeType = document.getElementById('filter-storetype')?.value;
+  if (storeType === 'CH') pills.push('🏪 Chỉ Cửa hàng');
+  else if (storeType === 'DOISALE') pills.push('🏃 Chỉ Đội sale');
+  else if (storeType === 'DB') pills.push('📍 Chỉ Điểm bán');
+
+  if (pills.length === 0) {
+    target.style.display = 'none';
+  } else {
+    target.style.display = 'flex';
+    target.innerHTML = pills.map(p =>
+      `<span style="background:var(--accent);color:white;padding:2px 8px;border-radius:10px;font-weight:600;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">${escapeHtml(p)}</span>`
+    ).join('') + ' <span style="color:var(--ink-muted);margin-left:4px">áp dụng cho tất cả các tab</span>';
+  }
 }
 
 // ============================================================
@@ -5420,7 +5487,37 @@ function switchSubTab(tab) {
 // ============================================================
 // PHÂN BỔ SAI: tìm SP × CH có giao dịch trong khoảng nhưng tồn=0
 // ============================================================
+let _MISALLOC_CACHE = { key: null, data: null };
+
+let _renderTransferTimeout;
+function debouncedRenderTransfer() {
+  clearTimeout(_renderTransferTimeout);
+  _renderTransferTimeout = setTimeout(() => renderTransfer(), 300);
+}
+
+function _misallocCacheKey() {
+  // Cache invalidate khi: số dòng FILTERED đổi, ngày filter đổi, STOCK_DATA đổi
+  const f = (typeof FILTERED !== 'undefined' && Array.isArray(FILTERED)) ? FILTERED.length : 0;
+  const s = (typeof STOCK_DATA !== 'undefined' && Array.isArray(STOCK_DATA)) ? STOCK_DATA.length : 0;
+  const dateFrom = document.getElementById('filter-date-from')?.value || '';
+  const dateTo = document.getElementById('filter-date-to')?.value || '';
+  // Note: KHÔNG include cat/region/store/priceMin... vì các filter này apply sau compute
+  return `${f}|${s}|${dateFrom}|${dateTo}`;
+}
+
 function computeMisallocationData() {
+  // Memoize: nếu cache key trùng, trả lại data đã compute
+  const key = _misallocCacheKey();
+  if (_MISALLOC_CACHE.key === key && _MISALLOC_CACHE.data) {
+    return _MISALLOC_CACHE.data;
+  }
+
+  const result = _computeMisallocationDataInner();
+  _MISALLOC_CACHE = { key, data: result };
+  return result;
+}
+
+function _computeMisallocationDataInner() {
   const result = [];
   if (typeof FILTERED === 'undefined' || !Array.isArray(FILTERED)) return result;
   if (typeof STOCK_DATA === 'undefined' || !Array.isArray(STOCK_DATA)) return result;
@@ -5454,9 +5551,11 @@ function computeMisallocationData() {
     return stk ? (stk.khuVuc || '') : '';
   };
 
-  // Build current stock per (code, store) - both maKho and khoHang as lookup keys
-  // Stock indexed by code → maKho/khoHang → tồn
-  const stockByCodeStore = {};  // {code: {maKho/khoHang: tonHienTai}}
+  // Build current stock per (code, store) - KHÔNG double-count
+  // stockByCodeStore: {code: {maKho: tonHienTai}}  ← key chính: maKho
+  // aliasMap: {khoHang: maKho}  ← để lookup từ FILTERED.cuaHang sang maKho
+  const stockByCodeStore = {};
+  const khoHangToMaKho = {};  // alias map (khoHang text → maKho code)
   STOCK_DATA.forEach(s => {
     const code = s.maThamChieu;
     if (!code) return;
@@ -5464,9 +5563,9 @@ function computeMisallocationData() {
     const key = s.maKho || s.khoHang;
     if (!key) return;
     stockByCodeStore[code][key] = (stockByCodeStore[code][key] || 0) + (s.tonHienTai || 0);
-    // Also index by khoHang as alt key (vì FILTERED.cuaHang có thể là text)
+    // Build alias - không cộng tồn vào alias key, chỉ ghi nhận mapping
     if (s.khoHang && s.khoHang !== key) {
-      stockByCodeStore[code][s.khoHang] = (stockByCodeStore[code][s.khoHang] || 0) + (s.tonHienTai || 0);
+      khoHangToMaKho[s.khoHang] = key;
     }
   });
 
@@ -5511,8 +5610,9 @@ function computeMisallocationData() {
   // Loop từng (code, store) đã bán → check tồn = 0
   Object.values(salesByCodeStore).forEach(e => {
     const codeStock = stockByCodeStore[e.code] || {};
-    // Tồn tại CH này (lookup theo cuaHang text hoặc bất kỳ key trùng)
-    const stockHere = codeStock[e.store] || 0;
+    // e.store có thể là text (khoHang) → lookup alias để get maKho key
+    const storeKey = khoHangToMaKho[e.store] || e.store;
+    const stockHere = codeStock[storeKey] || codeStock[e.store] || 0;
 
     if (stockHere > 0) return;  // CH này còn hàng → không phải phân bổ sai
 
@@ -5524,7 +5624,7 @@ function computeMisallocationData() {
     const sources = [];
     Object.entries(codeStock).forEach(([key, qty]) => {
       if (qty <= 0) return;
-      if (key === e.store) return;
+      if (key === storeKey || key === e.store) return;
       sources.push({ store: key, qty, type: typeOf(key) });
     });
     if (sources.length === 0) return;
@@ -5597,13 +5697,13 @@ function computeMisallocationData() {
     });
   });
 
-  // Sort default: priority urgency → doanh thu mất giảm dần
+  // Sort default: priority urgency → ngày hết giảm dần
   const priOrder = { urgent: 3, high: 2, medium: 1 };
   result.sort((a, b) => {
     const pa = priOrder[a.priority] || 0;
     const pb = priOrder[b.priority] || 0;
     if (pb !== pa) return pb - pa;
-    return (b.estLostRevenue || 0) - (a.estLostRevenue || 0);
+    return (b.daysOutOfStock || 0) - (a.daysOutOfStock || 0);
   });
 
   return result;
@@ -5611,19 +5711,35 @@ function computeMisallocationData() {
 
 // Render 1 card phân bổ sai
 function renderMisallocCard(m) {
-  // Best source label + suggested chuyển từ đâu
+  // Lookup tên CH cho nguồn (thay vì mã)
+  const sourceName = code => {
+    if (typeof STORES_DATA !== 'undefined' && Array.isArray(STORES_DATA) && code) {
+      const s = STORES_DATA.find(st => st.maCh && st.maCh.toUpperCase() === String(code).toUpperCase());
+      if (s && s.ten && s.ten !== s.maCh) return s.ten;
+    }
+    // Fallback: lookup từ STOCK_DATA
+    if (typeof STOCK_DATA !== 'undefined') {
+      const stk = STOCK_DATA.find(s => s.maKho === code);
+      if (stk && stk.khoHang && stk.khoHang !== code) return stk.khoHang;
+    }
+    return code;
+  };
+
+  // Best source label - dùng TÊN CH thay vì mã
   let bestSourceHtml = '';
   if (m.warehouseSources.length > 0) {
     const w = m.warehouseSources[0];
+    const wName = sourceName(w.store);
     bestSourceHtml = `
-      <span style="display:inline-block;background:var(--accent-soft);color:var(--accent);padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;margin-right:4px">🏭 ${escapeHtml(w.store)}</span>
-      <span style="font-size:11px;color:var(--ink-soft)">có ${formatNumber(w.qty)} SP</span>
+      <span style="display:inline-block;background:var(--accent-soft);color:var(--accent);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-right:4px">🏭 ${escapeHtml(wName)}</span>
+      <span style="font-size:11px;color:var(--ink-soft)">còn <strong>${formatNumber(w.qty)}</strong> SP</span>
     `;
   } else if (m.chSources.length > 0) {
     const c = m.chSources[0];
+    const cName = sourceName(c.store);
     bestSourceHtml = `
-      <span style="display:inline-block;background:var(--olive-soft);color:var(--olive);padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;margin-right:4px">🏪 ${escapeHtml(c.store)}</span>
-      <span style="font-size:11px;color:var(--ink-soft)">có ${formatNumber(c.qty)} SP</span>
+      <span style="display:inline-block;background:var(--olive-soft);color:var(--olive);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-right:4px">🏪 ${escapeHtml(cName)}</span>
+      <span style="font-size:11px;color:var(--ink-soft)">còn <strong>${formatNumber(c.qty)}</strong> SP</span>
     `;
   }
 
@@ -5638,8 +5754,13 @@ function renderMisallocCard(m) {
   // Tên CH to, mã nhỏ
   const showName = m.toStoreName && m.toStoreName !== m.toStore;
 
+  // Đã bán + khoảng thời gian (KHÔNG dùng "X.XX/ngày" nữa vì gây hiểu nhầm)
+  const periodText = m.filterDays === 1 
+    ? 'trong 1 ngày'
+    : `trong ${m.filterDays} ngày`;
+
   return `
-    <div class="transfer-card" onclick="showProductDetail('${escapeAttr(m.code)}')" style="cursor:pointer;grid-template-columns:80px 1fr 110px 1fr 70px">
+    <div class="transfer-card" onclick="showProductDetail('${escapeAttr(m.code)}')" style="cursor:pointer;grid-template-columns:80px 1fr 130px 1fr 70px">
       <div>${imgCell(m.image, m.code)}</div>
 
       <div class="transfer-store">
@@ -5653,20 +5774,16 @@ function renderMisallocCard(m) {
 
       <div style="text-align:center">
         <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:var(--negative);line-height:1">${m.daysOutOfStock}</div>
-        <div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px">ngày hết</div>
-        <div style="font-size:10px;color:var(--ink-muted);margin-top:6px">Bán cuối: ${escapeHtml(m.lastSale)}</div>
-        <div style="font-size:10px;color:var(--ink-soft);margin-top:1px">Đã bán <strong>${m.soldQty}</strong> · ${m.velocity.toFixed(2)}/ngày</div>
+        <div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px">ngày kể từ lần bán cuối</div>
+        <div style="font-size:11px;color:var(--ink-muted);margin-top:6px">Bán cuối: ${escapeHtml(m.lastSale || '—')}</div>
+        <div style="font-size:11px;color:var(--ink-soft);margin-top:2px">Đã bán <strong>${m.soldQty} SP</strong> ${escapeHtml(periodText)}</div>
       </div>
 
       <div style="display:flex;flex-direction:column;gap:4px;font-size:11px">
         <strong style="color:var(--positive)">✓ NGUỒN CÒN HÀNG: ${formatNumber(m.totalSystemStock)} SP</strong>
         <div style="margin-top:3px">${bestSourceHtml}</div>
-        ${m.warehouseSources.length + m.chSources.length > 1 ? 
+        ${(m.warehouseSources.length + m.chSources.length) > 1 ? 
           `<div style="font-size:10px;color:var(--ink-muted)">+ ${m.warehouseSources.length + m.chSources.length - 1} nguồn khác</div>` : ''}
-        <div style="margin-top:4px;font-size:11px;color:var(--ink-soft)">
-          → Đề xuất chuyển <strong style="color:var(--accent)">${m.suggestedQty}</strong> SP
-        </div>
-        ${m.estLostRevenue > 0 ? `<div style="font-size:11px;color:var(--negative);font-weight:600">💸 Mất ~${formatNumber(m.estLostRevenue)}đ</div>` : ''}
       </div>
 
       <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px">
@@ -5923,6 +6040,44 @@ function computeRebalanceData() {
     if ((a.sourcePriority || 99) !== (b.sourcePriority || 99)) return a.sourcePriority - b.sourcePriority;
     return b.qty - a.qty;
   });
+
+  // Apply user overrides (FROM dropdown chọn CH khác làm nguồn)
+  if (window.REBALANCE_SOURCE_OVERRIDES && Object.keys(window.REBALANCE_SOURCE_OVERRIDES).length > 0) {
+    suggestions.forEach(s => {
+      const k = `${s.code}||${s.toStore}`;
+      const newFrom = window.REBALANCE_SOURCE_OVERRIDES[k];
+      if (!newFrom || newFrom === s.fromStore) return;
+      // Lookup info CH mới
+      if (typeof STOCK_BY_STORE === 'undefined' || !STOCK_BY_STORE[s.code]) return;
+      let newSrc = null;
+      Object.entries(STOCK_BY_STORE[s.code]).forEach(([key, info]) => {
+        const code = info.maKho || info.khoHang;
+        if (code === newFrom) newSrc = info;
+      });
+      if (!newSrc) return;
+      // Lookup tên + khu vực
+      let newName = newSrc.khoHang || newFrom;
+      if (typeof STORES_DATA !== 'undefined') {
+        const m = STORES_DATA.find(st => st.maCh && st.maCh.toUpperCase() === String(newFrom).toUpperCase());
+        if (m && m.ten && m.ten !== m.maCh) newName = m.ten;
+      }
+      const u = String(newFrom).toUpperCase();
+      const newType = (u.startsWith('TP') || u.startsWith('SA')) ? 'WAREHOUSE'
+                    : (u.startsWith('CH') ? 'CH' : (u.startsWith('DOISALE') ? 'DOISALE' : 'DB'));
+      // Override
+      s.fromStore = newFrom;
+      s.fromStoreName = newName;
+      s.fromRegion = newSrc.khuVuc || s.fromRegion;
+      s.fromStock = newSrc.tonHienTai || 0;
+      s.fromVel = 0;  // unknown
+      s.fromType = newType;
+      s.sourceLabel = newType === 'WAREHOUSE' ? '🏭 Kho TP/SA (đã chỉnh)' : '✋ CH chọn tay';
+      s.distKm = null;
+      // Update qty: max half of new stock or original needed
+      s.qty = Math.min(s.qty, Math.floor(s.fromStock / 2) || s.fromStock);
+    });
+  }
+
   return suggestions;
 }
 
@@ -6199,13 +6354,14 @@ function renderTransfer() {
     if (priceMax !== null) filtered = filtered.filter(m => priceOf(m.code) <= priceMax);
 
     // Apply sort theo sortMode
-    if (sortMode === 'qty-desc' || sortMode === 'emergency-first') {
-      // Sort theo doanh thu mất ước tính giảm dần
-      filtered.sort((a, b) => (b.estLostRevenue || 0) - (a.estLostRevenue || 0));
-    } else if (sortMode === 'qty-asc') {
-      filtered.sort((a, b) => (a.estLostRevenue || 0) - (b.estLostRevenue || 0));
-    } else if (sortMode === 'stock-asc') {
+    if (sortMode === 'emergency-first' || sortMode === 'stock-asc') {
+      // Default: ngày hết giảm dần (CH thiếu lâu nhất lên đầu)
       filtered.sort((a, b) => (b.daysOutOfStock || 0) - (a.daysOutOfStock || 0));
+    } else if (sortMode === 'qty-desc') {
+      // SL đã bán giảm dần
+      filtered.sort((a, b) => (b.soldQty || 0) - (a.soldQty || 0));
+    } else if (sortMode === 'qty-asc') {
+      filtered.sort((a, b) => (a.soldQty || 0) - (b.soldQty || 0));
     } else if (sortMode === 'price-desc') {
       filtered.sort((a, b) => priceOf(b.code) - priceOf(a.code));
     } else if (sortMode === 'price-asc') {
@@ -6237,19 +6393,17 @@ function renderTransfer() {
     const grouped = (groupByDest && groupByDest.checked);
 
     // Banner tổng quan
-    const totalLost = filtered.reduce((s, m) => s + (m.estLostRevenue || 0), 0);
     const uniqueStores = new Set(filtered.map(m => m.toStore)).size;
     const uniqueCodes = new Set(filtered.map(m => m.code)).size;
 
     const headerBanner = `
       <div class="rebalance-emergency" style="background:linear-gradient(135deg, var(--negative-soft), var(--warn-soft))">
         <div class="rebalance-emergency-head">
-          <span class="badge">⚠ PHÂN BỔ SAI</span>
-          <span><strong>${filtered.length}</strong> tình huống · <strong>${uniqueStores}</strong> CH bị thiếu hàng · <strong>${uniqueCodes}</strong> SP khác nhau</span>
+          <span class="badge">🚨 HẾT HÀNG - KHẨN CẤP</span>
+          <span><strong>${filtered.length}</strong> CH×SP đang hết · <strong>${uniqueStores}</strong> cửa hàng thiếu hàng · <strong>${uniqueCodes}</strong> mã SP</span>
         </div>
-        <div style="font-size:13px;color:var(--ink-soft);margin-top:6px">
-          💸 Doanh thu ước tính mất do hết hàng: <strong style="color:var(--negative)">${formatNumber(totalLost)}đ</strong>
-          <span style="font-size:11px;color:var(--ink-muted)">(velocity TB × số ngày hết × giá bán)</span>
+        <div style="font-size:12px;color:var(--ink-soft);margin-top:4px">
+          Các CH này đã bán SP trong khoảng đã lọc nhưng hiện không còn tồn — ưu tiên xử lý ngay.
         </div>
       </div>
     `;
@@ -6263,8 +6417,7 @@ function renderTransfer() {
       });
       cardsHtml = Object.keys(groups).sort().map(dest => {
         const arr = groups[dest];
-        const totalQty = arr.reduce((s, x) => s + (x.suggestedQty || 0), 0);
-        const lostRev = arr.reduce((s, x) => s + (x.estLostRevenue || 0), 0);
+        const totalSold = arr.reduce((s, x) => s + (x.soldQty || 0), 0);
         let displayName = dest;
         const first = arr[0];
         if (first && first.toStoreName && first.toStoreName !== dest) {
@@ -6281,7 +6434,7 @@ function renderTransfer() {
                 <div class="transfer-group-name">${escapeHtml(displayName)}</div>
                 ${showCode ? `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-muted);margin-top:2px">${escapeHtml(dest)}</div>` : ''}
               </div>
-              <div class="transfer-group-meta">${arr.length} SP · ${totalQty} cần · Mất ~${formatNumber(lostRev)}đ</div>
+              <div class="transfer-group-meta">${arr.length} SP · đã bán ${totalSold} trong khoảng</div>
             </div>
             <div class="transfer-group-items">
               ${arr.map(m => renderMisallocCard(m)).join('')}
@@ -6391,22 +6544,23 @@ function renderTransfer() {
       const top10 = emergencyList.sort((a,b) => b.qty - a.qty).slice(0, 10);
       emergencyHtml = `
         <div class="rebalance-emergency">
-          <div class="rebalance-emergency-head">
-            <span class="badge">KHẨN CẤP</span>
-            <span>${emergencyList.length} SP đã bán trong khoảng đã lọc nhưng <strong>hết tồn toàn hệ thống</strong> — cần sản xuất gấp</span>
+          <div class="rebalance-emergency-head" onclick="switchSubTab('restock')" style="cursor:pointer" title="Bấm để xem tab Cần sản xuất">
+            <span class="badge">🚨 KHẨN CẤP</span>
+            <span>${emergencyList.length} SP đã bán trong khoảng đã lọc nhưng <strong>hết tồn toàn hệ thống</strong> — bấm vào SP để xem chi tiết, hoặc bấm để chuyển sang tab "Cần sản xuất" →</span>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;font-size:12px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;font-size:12px">
             ${top10.map(e => `
-              <div onclick="showProductDetail('${escapeAttr(e.code)}')" style="cursor:pointer;padding:8px;background:var(--bg-card);border-radius:6px;display:flex;gap:8px;align-items:center">
-                ${e.image ? `<img src="${escapeAttr(e.image)}" style="width:32px;height:32px;border-radius:4px;object-fit:cover">` : '<div style="width:32px;height:32px;background:var(--bg-elevated);border-radius:4px"></div>'}
+              <div onclick="event.stopPropagation();showProductDetail('${escapeAttr(e.code)}')" style="cursor:pointer;padding:10px;background:var(--bg-card);border:1px solid var(--line);border-radius:6px;display:flex;gap:10px;align-items:center;transition:all .15s ease" onmouseover="this.style.transform='translateX(2px)';this.style.borderColor='var(--negative)';this.style.boxShadow='0 2px 8px rgba(239,68,68,.15)'" onmouseout="this.style.transform='';this.style.borderColor='var(--line)';this.style.boxShadow=''">
+                ${e.image ? `<img src="${escapeAttr(e.image)}" style="width:40px;height:40px;border-radius:4px;object-fit:cover;flex-shrink:0">` : '<div style="width:40px;height:40px;background:var(--bg-elevated);border-radius:4px;flex-shrink:0"></div>'}
                 <div style="flex:1;min-width:0">
-                  <div style="font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11px">${escapeHtml(e.code)}</div>
-                  <div style="color:var(--ink-muted);font-size:10px">Đã bán: ${e.qty} · Tồn: 0</div>
+                  <div style="font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(e.code)}</div>
+                  <div style="color:var(--ink-muted);font-size:10px;margin-top:2px">Đã bán: <strong>${e.qty}</strong> · Tồn: <strong style="color:var(--negative)">0</strong></div>
+                  <div style="color:var(--accent);font-size:9px;margin-top:2px;text-transform:uppercase;letter-spacing:.05em">→ Bấm xem chi tiết</div>
                 </div>
               </div>
             `).join('')}
           </div>
-          ${emergencyList.length > 10 ? `<div style="margin-top:8px;font-size:11px;color:var(--ink-muted)">+ ${emergencyList.length - 10} SP khác</div>` : ''}
+          ${emergencyList.length > 10 ? `<div style="margin-top:10px;font-size:11px;color:var(--ink-muted);text-align:center"><a onclick="switchSubTab('restock')" style="cursor:pointer;color:var(--accent);text-decoration:underline">+ ${emergencyList.length - 10} SP khác → Xem tất cả ở tab "Cần sản xuất"</a></div>` : ''}
         </div>
       `;
     }
@@ -6507,6 +6661,55 @@ function renderRebalanceCard(s) {
   const toSubCode = (s.toStoreName && s.toStoreName !== s.toStore)
     ? `<span style="font-size:11px;color:var(--ink-muted);margin-top:1px;font-family:'JetBrains Mono',monospace">${escapeHtml(s.toStore)}</span>` : '';
 
+  // FROM source picker: list các CH/kho khác có tồn SP này, sort theo khu vực
+  const sourcePickerId = `srcpkr-${s.code}-${s.toStore}`.replace(/[^A-Za-z0-9-]/g, '_');
+  let sourcePickerHtml = '';
+  if (typeof STOCK_BY_STORE !== 'undefined' && STOCK_BY_STORE[s.code]) {
+    const altSources = [];
+    Object.entries(STOCK_BY_STORE[s.code]).forEach(([key, info]) => {
+      const stockQty = info.tonHienTai || 0;
+      if (stockQty <= 0) return;
+      const code = info.maKho || info.khoHang;
+      if (code === s.fromStore) return;  // bỏ chính nguồn hiện tại
+      if (code === s.toStore) return;    // bỏ chính đích
+      // Lookup tên CH
+      let nm = info.khoHang || code;
+      if (typeof STORES_DATA !== 'undefined') {
+        const m = STORES_DATA.find(st => st.maCh && st.maCh.toUpperCase() === String(code).toUpperCase());
+        if (m && m.ten && m.ten !== m.maCh) nm = m.ten;
+      }
+      altSources.push({
+        code, name: nm,
+        region: info.khuVuc || '—',
+        stock: stockQty
+      });
+    });
+    // Sort by khu vực → tồn giảm dần
+    altSources.sort((a, b) => {
+      if (a.region !== b.region) return a.region.localeCompare(b.region);
+      return b.stock - a.stock;
+    });
+    if (altSources.length > 0) {
+      // Group by khu vực
+      const byRegion = {};
+      altSources.forEach(a => { (byRegion[a.region] = byRegion[a.region] || []).push(a); });
+      const optGroups = Object.keys(byRegion).map(reg => `
+        <optgroup label="${escapeAttr(reg)}">
+          ${byRegion[reg].map(a => `<option value="${escapeAttr(a.code)}">${escapeHtml(a.name)} · Tồn ${formatNumber(a.stock)}</option>`).join('')}
+        </optgroup>
+      `).join('');
+      sourcePickerHtml = `
+        <select id="${sourcePickerId}" class="src-picker" 
+                onclick="event.stopPropagation()" 
+                onchange="event.stopPropagation();updateRebalanceSource('${escapeAttr(s.code)}','${escapeAttr(s.toStore)}',this.value)"
+                title="Đổi cửa hàng nguồn">
+          <option value="">▼ Đổi nguồn (${altSources.length} lựa chọn)</option>
+          ${optGroups}
+        </select>
+      `;
+    }
+  }
+
   return `
     <div class="transfer-card" onclick="showProductDetail('${escapeAttr(s.code)}')" style="cursor:pointer">
       <div>${imgCell(s.image, s.code)}</div>
@@ -6515,6 +6718,7 @@ function renderRebalanceCard(s) {
         <strong>FROM: ${escapeHtml(fromMain)}</strong>
         ${fromSubCode}
         <span>${escapeHtml(s.fromRegion || '—')} · Tồn ${s.fromStock} · ${(s.fromVel || 0).toFixed(2)}/ngày</span>
+        ${sourcePickerHtml}
         <span style="font-family:'IBM Plex Sans';color:var(--ink-soft);margin-top:2px"><code>${escapeHtml(s.code)}</code> · ${escapeHtml(s.subCategory || s.category || '')}</span>
       </div>
       <div class="transfer-arrow">→ <span class="transfer-qty">${s.qty}</span> ${distHtml}</div>
@@ -6575,29 +6779,41 @@ function exportTransferCSV() {
 
 // ============ LIFECYCLE ============
 function renderLifecycle() {
-  const today = document.getElementById('filter-date-to').value || fmtLocalDate(new Date());
-  const todayD = new Date(today);
-  
-  // New products: first sale within last 14 days of filter
-  const newCutoff = new Date(todayD); newCutoff.setDate(newCutoff.getDate() - 13);
-  const newCutoffStr = fmtLocalDate(newCutoff);
-  
-  const newProducts = PRODUCT_AGG.filter(p => 
-    p.firstSale && p.firstSale >= newCutoffStr && p.qty > 0
+  const dateFromVal = document.getElementById('filter-date-from')?.value;
+  const dateToVal = document.getElementById('filter-date-to')?.value || fmtLocalDate(new Date());
+
+  // SP mới: firstSale rơi trong khoảng [dateFrom, dateTo]
+  const newProducts = PRODUCT_AGG.filter(p =>
+    p.firstSale && p.qty > 0 &&
+    p.firstSale >= dateFromVal &&
+    p.firstSale <= dateToVal
   ).sort((a,b) => b.firstSale.localeCompare(a.firstSale) || b.qty - a.qty).slice(0, 30);
-  
-  // Dormant: have stock but last sale > 30 days ago (or never sold but in stock)
-  const dormantCutoff = new Date(todayD); dormantCutoff.setDate(dormantCutoff.getDate() - 30);
+
+  // SP ngủ đông: ngưỡng N do user chọn, default 30 ngày
+  const dormantInput = document.getElementById('lifecycle-dormant-days');
+  const N = Math.max(1, parseInt(dormantInput?.value || '30', 10));
+  const todayD = new Date(dateToVal);
+  const dormantCutoff = new Date(todayD); dormantCutoff.setDate(dormantCutoff.getDate() - N);
   const dormantCutoffStr = fmtLocalDate(dormantCutoff);
-  
+
   const dormant = PRODUCT_AGG.filter(p => {
     if (p.tonHienTai <= 0) return false;
     if (!p.lastSale) return true; // có tồn nhưng chưa bao giờ bán
     return p.lastSale < dormantCutoffStr;
   }).sort((a,b) => b.tonHienTai - a.tonHienTai).slice(0, 30);
-  
+
   document.getElementById('new-products').innerHTML = renderProductCards(newProducts, false);
   document.getElementById('dormant-products').innerHTML = renderProductCards(dormant, false);
+
+  // Update sub labels với số liệu thực tế
+  const newSub = document.getElementById('new-products-sub');
+  if (newSub) {
+    newSub.textContent = `Lần đầu bán rơi trong khoảng ${dateFromVal} → ${dateToVal} · Tìm thấy ${newProducts.length} SP`;
+  }
+  const dormantSub = document.getElementById('dormant-sub');
+  if (dormantSub) {
+    dormantSub.textContent = `Có tồn nhưng không bán quá ${N} ngày tính từ ${dateToVal} · Tìm thấy ${dormant.length} SP`;
+  }
 }
 
 // ============ TIME ANALYSIS ============
@@ -7307,34 +7523,102 @@ async function initAuthFlow() {
   const userJson = localStorage.getItem('ns_user');
 
   if (token && userJson) {
+    // Đang có token → KHÔNG hiện login, hiện splash trong khi verify
+    showAuthSplash('Đang xác thực phiên đăng nhập...');
     try {
-      // Verify token với server
       const data = await fetchEndpoint('verify', { token: token });
       if (data && data.valid) {
         CURRENT_USER = data.user;
         AUTH_TOKEN = token;
+        // Check idle timeout: nếu lần hoạt động cuối > 24h, force logout
+        const lastActive = parseInt(localStorage.getItem('ns_last_active') || '0', 10);
+        const idleHours = lastActive ? (Date.now() - lastActive) / 3600000 : 0;
+        if (idleHours > 24) {
+          // Quá 24h không hoạt động → bắt login lại
+          localStorage.removeItem('ns_auth_token');
+          localStorage.removeItem('ns_user');
+          hideAuthSplash();
+          showLoginOverlay('Phiên đã hết hạn do không hoạt động quá 24h. Vui lòng đăng nhập lại.');
+          return;
+        }
+        localStorage.setItem('ns_last_active', String(Date.now()));
+        hideAuthSplash();
         showMainApp();
         return;
       }
     } catch (e) {
       console.warn('verify token error', e);
     }
-    // Token invalid → clear
+    // Token invalid → clear + báo
     localStorage.removeItem('ns_auth_token');
     localStorage.removeItem('ns_user');
+    hideAuthSplash();
+    showLoginOverlay('Phiên đã hết hạn. Vui lòng đăng nhập lại.');
+    return;
   }
 
-  // Show login overlay
+  // Không có token → hiện login luôn
   showLoginOverlay();
 }
 
-function showLoginOverlay() {
+// Splash screen trong khi verify
+function showAuthSplash(msg) {
+  let splash = document.getElementById('auth-splash');
+  if (!splash) {
+    splash = document.createElement('div');
+    splash.id = 'auth-splash';
+    splash.style.cssText = `
+      position: fixed; inset: 0; z-index: 100000;
+      background: #f7f4ed;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 16px;
+    `;
+    splash.innerHTML = `
+      <div style="font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:#1c1815;letter-spacing:-0.02em">
+        Theo dõi <span style="font-style:italic;color:#b8451a">&amp;</span> <span style="color:#b8451a">Phân tích</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;color:#8a8378;font-size:13px;font-family:'JetBrains Mono',monospace;letter-spacing:0.06em">
+        <div style="width:14px;height:14px;border:2px solid #c9bfa7;border-top-color:#b8451a;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+        <span id="auth-splash-msg">${escapeHtml(msg || 'Đang tải...')}</span>
+      </div>
+    `;
+    document.body.appendChild(splash);
+  } else {
+    const msgEl = splash.querySelector('#auth-splash-msg');
+    if (msgEl) msgEl.textContent = msg || 'Đang tải...';
+    splash.style.display = 'flex';
+  }
+  // Ẩn login + main app
+  const loginOv = document.getElementById('login-overlay');
+  const mainApp = document.getElementById('main-app');
+  if (loginOv) loginOv.style.display = 'none';
+  if (mainApp) mainApp.style.display = 'none';
+}
+
+function hideAuthSplash() {
+  const splash = document.getElementById('auth-splash');
+  if (splash) splash.style.display = 'none';
+}
+
+function showLoginOverlay(message) {
   document.getElementById('login-overlay').style.display = 'flex';
   document.getElementById('main-app').style.display = 'none';
+  hideAuthSplash();
   setTimeout(() => {
     const userInput = document.getElementById('login-user');
     if (userInput) userInput.focus();
   }, 100);
+
+  // Display optional message (e.g., "Phiên đã hết hạn")
+  const errEl = document.getElementById('login-error');
+  if (errEl) {
+    if (message) {
+      errEl.textContent = message;
+      errEl.classList.add('active');
+    } else {
+      errEl.classList.remove('active');
+    }
+  }
 
   // Enter to submit
   ['login-user', 'login-pass'].forEach(id => {
@@ -7391,6 +7675,25 @@ async function doLogin() {
 function showMainApp() {
   document.getElementById('login-overlay').style.display = 'none';
   document.getElementById('main-app').style.display = 'block';
+  hideAuthSplash();
+  // Track user activity → reset idle timer
+  localStorage.setItem('ns_last_active', String(Date.now()));
+  // Listen for activity events to keep idle timer fresh
+  if (!window._activityHooked) {
+    window._activityHooked = true;
+    let lastUpdate = Date.now();
+    const updateActive = () => {
+      const now = Date.now();
+      // Throttle: chỉ update mỗi 30s
+      if (now - lastUpdate > 30000) {
+        localStorage.setItem('ns_last_active', String(now));
+        lastUpdate = now;
+      }
+    };
+    ['click', 'keydown', 'scroll'].forEach(ev => 
+      window.addEventListener(ev, updateActive, { passive: true })
+    );
+  }
   renderUserBadge();
   applyRolePermissions();
   loadData();
@@ -8004,6 +8307,19 @@ function gotoMisalloc(code) {
       }
     }, 100);
   }, 100);
+}
+
+// Lưu override source CH cho từng (code, toStore) - persist trong session
+window.REBALANCE_SOURCE_OVERRIDES = window.REBALANCE_SOURCE_OVERRIDES || {};
+function updateRebalanceSource(code, toStore, newFromCode) {
+  if (!newFromCode) return;
+  const k = `${code}||${toStore}`;
+  window.REBALANCE_SOURCE_OVERRIDES[k] = newFromCode;
+  // Tìm card và update inline (không cần re-render toàn bộ tab)
+  // Re-render chỉ section transfer
+  if (typeof renderTransfer === 'function') {
+    renderTransfer();
+  }
 }
 
 function exportTransferXLSX() {
