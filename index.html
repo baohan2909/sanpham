@@ -2717,7 +2717,7 @@ html { scroll-behavior: smooth; }
         <select id="filter-saletype" class="filter-select">
           <option value="">Tất cả</option>
           <option value="main">Hàng chính</option>
-          <option value="sale">🏷 Hàng sale</option>
+          <option value="sale">Hàng sale</option>
         </select>
       </div>
       <div class="filter-group">
@@ -2811,7 +2811,7 @@ html { scroll-behavior: smooth; }
         <select id="live-filter-saletype" class="live-select">
           <option value="">Tất cả loại GD</option>
           <option value="main">Hàng chính</option>
-          <option value="sale">🏷 Hàng sale</option>
+          <option value="sale">Hàng sale</option>
         </select>
         <div class="live-view-toggle">
           <button class="live-control-btn active" id="live-view-list" onclick="setLiveView('list')" title="List view">
@@ -2828,7 +2828,7 @@ html { scroll-behavior: smooth; }
           <input type="range" id="grid-size-slider" min="150" max="400" step="10" value="220" oninput="setGridSize(this.value)">
           <span class="grid-size-value" id="grid-size-value">220px</span>
         </div>
-        <button class="live-control-btn active" id="live-toggle-sound" onclick="toggleLiveSound()" title="Bật/tắt tiếng báo khi có giao dịch mới&#10;&#10;🔔 Cao (E6): giao dịch thường&#10;⭐ Cao trầm (A5): SP đang HOT (≥10 SP/khoảng)&#10;⚠ Vừa (E5): SP tồn kho thấp (≤5)&#10;🔄 Trầm (A4): trả hàng / refund">
+        <button class="live-control-btn active" id="live-toggle-sound" onclick="toggleLiveSound()" title="Bật/tắt tiếng báo khi có giao dịch mới&#10;&#10;Cao (E6): giao dịch thường&#10;Cao trầm (A5): SP đang HOT (≥10 SP/khoảng)&#10;Vừa (E5): SP tồn kho thấp (≤5)&#10;Trầm (A4): trả hàng / refund">
           <svg viewBox="0 0 24 24" id="sound-icon-on" style="display:inline"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
           <svg viewBox="0 0 24 24" id="sound-icon-off" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>
           <span id="sound-label">SOUND</span>
@@ -2938,8 +2938,8 @@ html { scroll-behavior: smooth; }
           <option value="lowstock">Tồn thấp (≤5)</option>
           <option value="outstock">Hết hàng (=0)</option>
           <option value="dead">Có tồn nhưng chưa bán</option>
-          <option value="missing-img">📷 Thiếu hình</option>
-          <option value="sale">🏷 Đang SALE</option>
+          <option value="missing-img">Thiếu hình</option>
+          <option value="sale">Đang SALE</option>
         </select>
         <div style="margin-left:auto" id="cat-count"></div>
       </div>
@@ -2957,11 +2957,11 @@ html { scroll-behavior: smooth; }
       <div class="product-controls">
         <select id="stock-status-filter">
           <option value="all">Tất cả trạng thái</option>
-          <option value="critical">● Cực kỳ thiếu (DoS &lt; 7)</option>
-          <option value="low">● Sắp hết (DoS 7-14)</option>
-          <option value="ok">● Đủ (DoS 14-60)</option>
-          <option value="excess">○ Tồn dư (DoS &gt; 60)</option>
-          <option value="nosale">○ Tồn nhưng chưa bán</option>
+          <option value="critical">Cực kỳ thiếu (DoS &lt; 7)</option>
+          <option value="low">Sắp hết (DoS 7-14)</option>
+          <option value="ok">Đủ (DoS 14-60)</option>
+          <option value="excess">Tồn dư (DoS &gt; 60)</option>
+          <option value="nosale">Tồn nhưng chưa bán</option>
         </select>
         <div style="margin-left:auto" id="stock-count"></div>
       </div>
@@ -3117,17 +3117,14 @@ html { scroll-behavior: smooth; }
     <!-- Sub-tabs -->
     <div class="sub-tabs">
       <button class="sub-tab active" data-subtab="misallocation" onclick="switchSubTab('misallocation')">
-        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <span>Hết hàng - Khẩn cấp</span>
         <span class="sub-tab-count" id="misalloc-count" style="background:var(--negative);color:white">0</span>
       </button>
       <button class="sub-tab" data-subtab="restock" onclick="switchSubTab('restock')">
-        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         <span>Cần sản xuất</span>
         <span class="sub-tab-count" id="restock-count">0</span>
       </button>
       <button class="sub-tab" data-subtab="rebalance" onclick="switchSubTab('rebalance')">
-        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>
         <span>Luân chuyển nội bộ</span>
         <span class="sub-tab-count" id="rebalance-count">0</span>
       </button>
@@ -3142,7 +3139,7 @@ html { scroll-behavior: smooth; }
       </select>
       <select id="transfer-filter-priority" class="filter-select" onchange="renderTransfer()">
         <option value="">Tất cả mức ưu tiên</option>
-        <option value="emergency">🚨 Khẩn cấp</option>
+        <option value="emergency">Khẩn cấp</option>
         <option value="urgent">Cao (gấp)</option>
         <option value="high">Trung bình</option>
         <option value="medium">Thấp</option>
@@ -3164,7 +3161,7 @@ html { scroll-behavior: smooth; }
       <input type="number" id="transfer-filter-price-min" class="filter-input" placeholder="Giá từ" oninput="debouncedRenderTransfer()" style="min-width:90px">
       <input type="number" id="transfer-filter-price-max" class="filter-input" placeholder="đến" oninput="debouncedRenderTransfer()" style="min-width:90px">
       <select id="transfer-sort" class="filter-select" onchange="renderTransfer()">
-        <option value="emergency-first">⚡ Khẩn cấp trước</option>
+        <option value="emergency-first">Khẩn cấp trước</option>
         <option value="urgency">Mức ưu tiên</option>
         <option value="qty-desc">Số lượng giảm dần</option>
         <option value="qty-asc">Số lượng tăng dần</option>
@@ -4205,12 +4202,12 @@ function renderActiveFilterBanner() {
   }
   const pills = [];
   const saleType = document.getElementById('filter-saletype')?.value;
-  if (saleType === 'sale') pills.push('🏷 Đang lọc: Hàng SALE');
-  else if (saleType === 'main') pills.push('🏪 Đang lọc: Hàng CHÍNH');
+  if (saleType === 'sale') pills.push('Đang lọc: Hàng SALE');
+  else if (saleType === 'main') pills.push('Đang lọc: Hàng CHÍNH');
   const storeType = document.getElementById('filter-storetype')?.value;
-  if (storeType === 'CH') pills.push('🏪 Chỉ Cửa hàng');
-  else if (storeType === 'DOISALE') pills.push('🏃 Chỉ Đội sale');
-  else if (storeType === 'DB') pills.push('📍 Chỉ Điểm bán');
+  if (storeType === 'CH') pills.push('Chỉ Cửa hàng');
+  else if (storeType === 'DOISALE') pills.push('Chỉ Đội sale');
+  else if (storeType === 'DB') pills.push('Chỉ Điểm bán');
 
   if (pills.length === 0) {
     target.style.display = 'none';
@@ -4597,7 +4594,7 @@ function renderLive() {
         ${escapeHtml(hotMsg)}
       </div>`;
       // Chip nhỏ trong card (chỉ hiện ở grid mode, ẩn ở list)
-      hotChip = `<span class="hot-chip" title="${escapeAttr(hotMsg)}">🔥 HOT</span>`;
+      hotChip = `<span class="hot-chip" title="${escapeAttr(hotMsg)}">HOT</span>`;
     }
     
     // SALE detection per record
@@ -4906,7 +4903,7 @@ function renderCatalogue() {
   if (MISSING_IMG_FILTER || filter === 'missing-img') {
     bannerHtml = `
       <div class="missing-img-banner">
-        <span>📷</span>
+        <span>!</span>
         <span>Đang lọc <strong>${products.length}</strong> SP thiếu hình</span>
         <button onclick="exportMissingImgList()">Xuất danh sách</button>
         <button onclick="MISSING_IMG_FILTER=false;document.getElementById('cat-filter').value='';renderCatalogue()" style="background:var(--ink-soft)">Bỏ lọc</button>
@@ -4971,7 +4968,7 @@ function renderProductCards(products, withRank) {
 
     // Misalloc chip: cảnh báo có N CH đang hết SP này nhưng có nguồn bù
     const misallocChip = misallocCount > 0
-      ? `<div class="misalloc-chip" title="Có ${misallocCount} CH đang hết SP này nhưng hệ thống vẫn còn — click để xem ở tab Phân bổ sai" onclick="event.stopPropagation();gotoMisalloc('${escapeAttr(p.code)}')">⚠ ${misallocCount} CH hết</div>`
+      ? `<div class="misalloc-chip" title="Có ${misallocCount} CH đang hết SP này nhưng hệ thống vẫn còn — click để xem ở tab Phân bổ sai" onclick="event.stopPropagation();gotoMisalloc('${escapeAttr(p.code)}')">${misallocCount} CH hết</div>`
       : '';
 
     return `
@@ -5731,14 +5728,14 @@ function renderMisallocCard(m) {
     const w = m.warehouseSources[0];
     const wName = sourceName(w.store);
     bestSourceHtml = `
-      <span style="display:inline-block;background:var(--accent-soft);color:var(--accent);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-right:4px">🏭 ${escapeHtml(wName)}</span>
+      <span style="display:inline-block;background:var(--accent-soft);color:var(--accent);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-right:4px">${escapeHtml(wName)}</span>
       <span style="font-size:11px;color:var(--ink-soft)">còn <strong>${formatNumber(w.qty)}</strong> SP</span>
     `;
   } else if (m.chSources.length > 0) {
     const c = m.chSources[0];
     const cName = sourceName(c.store);
     bestSourceHtml = `
-      <span style="display:inline-block;background:var(--olive-soft);color:var(--olive);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-right:4px">🏪 ${escapeHtml(cName)}</span>
+      <span style="display:inline-block;background:var(--olive-soft);color:var(--olive);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-right:4px">${escapeHtml(cName)}</span>
       <span style="font-size:11px;color:var(--ink-soft)">còn <strong>${formatNumber(c.qty)}</strong> SP</span>
     `;
   }
@@ -5764,12 +5761,13 @@ function renderMisallocCard(m) {
       <div>${imgCell(m.image, m.code)}</div>
 
       <div class="transfer-store">
-        <strong style="color:var(--negative)">⚠ THIẾU TẠI: ${escapeHtml(showName ? m.toStoreName : m.toStore)}</strong>
+        <strong style="color:var(--negative)">THIẾU TẠI: ${escapeHtml(showName ? m.toStoreName : m.toStore)}</strong>
         ${showName ? `<span style="font-size:11px;color:var(--ink-muted);margin-top:1px;font-family:'JetBrains Mono',monospace">${escapeHtml(m.toStore)}</span>` : ''}
         <span>${escapeHtml(m.toRegion || '—')} · Tồn: <strong style="color:var(--negative)">0</strong></span>
         <span style="font-family:'IBM Plex Sans';color:var(--ink-soft);margin-top:2px">
           <code>${escapeHtml(m.code)}</code> · ${escapeHtml(m.subCategory || m.category || '')}
         </span>
+        ${getCardPriceHtml(m.code)}
       </div>
 
       <div style="text-align:center">
@@ -5780,7 +5778,7 @@ function renderMisallocCard(m) {
       </div>
 
       <div style="display:flex;flex-direction:column;gap:4px;font-size:11px">
-        <strong style="color:var(--positive)">✓ NGUỒN CÒN HÀNG: ${formatNumber(m.totalSystemStock)} SP</strong>
+        <strong style="color:var(--positive)">NGUỒN CÒN HÀNG: ${formatNumber(m.totalSystemStock)} SP</strong>
         <div style="margin-top:3px">${bestSourceHtml}</div>
         ${(m.warehouseSources.length + m.chSources.length) > 1 ? 
           `<div style="font-size:10px;color:var(--ink-muted)">+ ${m.warehouseSources.length + m.chSources.length - 1} nguồn khác</div>` : ''}
@@ -5987,7 +5985,7 @@ function computeRebalanceData() {
             fromStock: bestWh.stock, fromVel: bestWh.velocity,
             fromType: 'WAREHOUSE',
             qty: transferQty,
-            sourceLabel: '🏭 Kho TP/SA',
+            sourceLabel: 'Kho TP/SA',
             sourcePriority: 1,
             distKm: distBetween(bestWh.store, tgt.store)
           });
@@ -6024,7 +6022,7 @@ function computeRebalanceData() {
               fromStock: bestCh.stock, fromVel: bestCh.velocity,
               fromType: bestCh.type,
               qty: transferQty,
-              sourceLabel: bestCh.region === tgt.region ? '📍 CH gần (cùng KV)' : '🏪 CH gần nhất',
+              sourceLabel: bestCh.region === tgt.region ? 'CH gần (cùng KV)' : 'CH gần nhất',
               sourcePriority: 2,
               distKm: bestCh.dist
             });
@@ -6071,7 +6069,7 @@ function computeRebalanceData() {
       s.fromStock = newSrc.tonHienTai || 0;
       s.fromVel = 0;  // unknown
       s.fromType = newType;
-      s.sourceLabel = newType === 'WAREHOUSE' ? '🏭 Kho TP/SA (đã chỉnh)' : '✋ CH chọn tay';
+      s.sourceLabel = newType === 'WAREHOUSE' ? 'Kho TP/SA (đã chỉnh)' : 'CH chọn tay';
       s.distKm = null;
       // Update qty: max half of new stock or original needed
       s.qty = Math.min(s.qty, Math.floor(s.fromStock / 2) || s.fromStock);
@@ -6399,7 +6397,7 @@ function renderTransfer() {
     const headerBanner = `
       <div class="rebalance-emergency" style="background:linear-gradient(135deg, var(--negative-soft), var(--warn-soft))">
         <div class="rebalance-emergency-head">
-          <span class="badge">🚨 HẾT HÀNG - KHẨN CẤP</span>
+          <span class="badge">HẾT HÀNG - KHẨN CẤP</span>
           <span><strong>${filtered.length}</strong> CH×SP đang hết · <strong>${uniqueStores}</strong> cửa hàng thiếu hàng · <strong>${uniqueCodes}</strong> mã SP</span>
         </div>
         <div style="font-size:12px;color:var(--ink-soft);margin-top:4px">
@@ -6463,8 +6461,8 @@ function renderTransfer() {
     container.innerHTML = limited.map(r => {
       const priorityColor = r.priority === 'urgent' ? 'var(--negative)' : 
                            r.priority === 'high' ? 'var(--warn)' : 'var(--ink-muted)';
-      const priorityLabel = r.priority === 'urgent' ? 'URGENT' : 
-                           r.priority === 'high' ? 'HIGH' : 'MEDIUM';
+      const priorityLabel = r.priority === 'urgent' ? 'KHẨN' : 
+                           r.priority === 'high' ? 'CAO' : 'TB';
       const stockText = r.totalStock === 0 
         ? `<span style="color:var(--negative);font-weight:700">HẾT TỒN</span>` 
         : `Tồn HT: <strong>${formatNumber(r.totalStock)}</strong>`;
@@ -6482,6 +6480,7 @@ function renderTransfer() {
               <code style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700">${escapeHtml(r.code)}</code>
               <span class="product-cat ${getCategoryClass(r.category)}" style="margin:0">${escapeHtml(r.subCategory || r.category || '—')}</span>
               <span style="font-size:9px;padding:2px 7px;background:${priorityColor};color:white;font-weight:700;letter-spacing:0.06em">${priorityLabel}</span>
+              ${getCardPriceHtml(r.code)}
             </div>
             <div style="font-size:12px;color:var(--ink-soft);font-family:'JetBrains Mono',monospace">
               Đã bán: <strong>${formatNumber(r.qty)} SP</strong> trong ${r.numDays} ngày · 
@@ -6545,7 +6544,7 @@ function renderTransfer() {
       emergencyHtml = `
         <div class="rebalance-emergency">
           <div class="rebalance-emergency-head" onclick="switchSubTab('restock')" style="cursor:pointer" title="Bấm để xem tab Cần sản xuất">
-            <span class="badge">🚨 KHẨN CẤP</span>
+            <span class="badge">KHẨN CẤP</span>
             <span>${emergencyList.length} SP đã bán trong khoảng đã lọc nhưng <strong>hết tồn toàn hệ thống</strong> — bấm vào SP để xem chi tiết, hoặc bấm để chuyển sang tab "Cần sản xuất" →</span>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;font-size:12px">
@@ -6630,7 +6629,7 @@ function renderRebalanceCard(s) {
     distHtml = `<span class="dist-pill">${km.toFixed(1)} km</span>`;
   }
 
-  // Source badge: 🏭 kho TP/SA hoặc 🏪 CH gần
+  // Source badge: Kho TP/SA hoặc CH gần
   const sourceBadge = s.sourceLabel
     ? `<span style="display:inline-block;background:${s.sourcePriority === 1 ? 'var(--accent-soft)' : 'var(--olive-soft)'};color:${s.sourcePriority === 1 ? 'var(--accent)' : 'var(--olive)'};padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;margin-bottom:3px">${escapeHtml(s.sourceLabel)}</span>`
     : '';
@@ -6638,7 +6637,7 @@ function renderRebalanceCard(s) {
   // Emergency / priority badge
   let priorityHtml;
   if (s.isEmergency) {
-    priorityHtml = `<span style="background:var(--negative);color:white;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.06em">🚨 KHẨN CẤP</span>`;
+    priorityHtml = `<span style="background:var(--negative);color:white;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.06em">KHẨN CẤP</span>`;
   } else if (s.urgency === 3) {
     priorityHtml = statusDot('var(--negative)') + 'GẤP';
   } else if (s.urgency === 2) {
@@ -6649,8 +6648,8 @@ function renderRebalanceCard(s) {
 
   // Emergency context: hiển thị "đã bán X / tồn 0"
   const emergencyContext = s.isEmergency
-    ? `<span style="color:var(--negative);font-weight:700;margin-top:2px">🚨 Đã bán ${s.toSales || 0} · Tồn 0</span>`
-    : `<span style="font-family:'IBM Plex Sans';color:${s.toDos < 7 ? 'var(--negative)' : 'var(--warn)'};margin-top:2px;font-weight:600">⚠ Còn ${s.toDos < 1 ? '<1' : s.toDos.toFixed(0)} ngày bán</span>`;
+    ? `<span style="color:var(--negative);font-weight:700;margin-top:2px">Đã bán ${s.toSales || 0} · Tồn 0</span>`
+    : `<span style="font-family:'IBM Plex Sans';color:${s.toDos < 7 ? 'var(--negative)' : 'var(--warn)'};margin-top:2px;font-weight:600">Còn ${s.toDos < 1 ? '<1' : s.toDos.toFixed(0)} ngày bán</span>`;
 
   // Tên CH ở DÒNG TRÊN (to), mã CH dòng dưới (nhỏ).
   // Nếu không có tên (storeName === maCH) thì chỉ hiển thị mã to
@@ -6703,7 +6702,7 @@ function renderRebalanceCard(s) {
                 onclick="event.stopPropagation()" 
                 onchange="event.stopPropagation();updateRebalanceSource('${escapeAttr(s.code)}','${escapeAttr(s.toStore)}',this.value)"
                 title="Đổi cửa hàng nguồn">
-          <option value="">▼ Đổi nguồn (${altSources.length} lựa chọn)</option>
+          <option value="">Đổi nguồn (${altSources.length} lựa chọn)</option>
           ${optGroups}
         </select>
       `;
@@ -6720,6 +6719,7 @@ function renderRebalanceCard(s) {
         <span>${escapeHtml(s.fromRegion || '—')} · Tồn ${s.fromStock} · ${(s.fromVel || 0).toFixed(2)}/ngày</span>
         ${sourcePickerHtml}
         <span style="font-family:'IBM Plex Sans';color:var(--ink-soft);margin-top:2px"><code>${escapeHtml(s.code)}</code> · ${escapeHtml(s.subCategory || s.category || '')}</span>
+        ${getCardPriceHtml(s.code)}
       </div>
       <div class="transfer-arrow">→ <span class="transfer-qty">${s.qty}</span> ${distHtml}</div>
       <div class="transfer-store">
@@ -7251,6 +7251,28 @@ function formatPriceVND(n) {
   }
   return Math.round(n).toString();
 }
+
+// Lookup giá chính + giá sale cho 1 mã SP, trả HTML compact (giống style Bán chạy)
+function getCardPriceHtml(code) {
+  if (!code) return '';
+  let giaGoc = 0, giaSale = 0;
+  if (typeof PRODUCT_AGG !== 'undefined' && Array.isArray(PRODUCT_AGG)) {
+    const p = PRODUCT_AGG.find(x => x.code === code);
+    if (p) {
+      giaGoc = p.lastGiaBan || p.price || 0;
+      giaSale = p.lastGiaSale || 0;
+    }
+  }
+  if (!giaGoc && typeof STOCK_BY_CODE !== 'undefined' && STOCK_BY_CODE[code]) {
+    giaGoc = STOCK_BY_CODE[code].giaNiemYet || 0;
+  }
+  if (!giaGoc) return '';
+  if (giaSale > 0 && giaSale < giaGoc) {
+    return `<div class="product-price"><span class="price-old">${formatPriceVND(giaGoc)}</span><span class="price-sale">${formatPriceVND(giaSale)}</span></div>`;
+  }
+  return `<div class="product-price"><span class="price-now">${formatPriceVND(giaGoc)}</span></div>`;
+}
+
 function formatDateShort(d) {
   if (!d) return '';
   const parts = d.split('-');
@@ -7904,7 +7926,7 @@ function renderSmartInsights() {
     }
   });
   if (anomalyCode) {
-    pills.push(`<span class="smart-insight-pill up"><span class="arrow">⚡</span> ${escapeHtml(anomalyCode)} đang nóng (${anomalyRatio.toFixed(1)}x baseline)</span>`);
+    pills.push(`<span class="smart-insight-pill up"><span class="arrow">↑</span> ${escapeHtml(anomalyCode)} đang nóng (${anomalyRatio.toFixed(1)}x baseline)</span>`);
   }
 
   if (pills.length > 0) {
@@ -7940,7 +7962,7 @@ function detectAlerts() {
       if (!dismissed.includes(id)) {
         alerts.push({
           id: id, level: bigStockoutCount >= 50 ? 'critical' : 'warning',
-          icon: bigStockoutCount >= 50 ? '🚨' : '⚠',
+          icon: bigStockoutCount >= 50 ? '!!' : '!',
           msg: `${bigStockoutCount} SP đang hết ở ≥5 cửa hàng — cần sản xuất gấp`,
           action: { label: 'XEM', fn: 'switchToTransferRebalance()' }
         });
@@ -7957,7 +7979,7 @@ function detectAlerts() {
     const id = 'missing-img-' + new Date().toDateString();
     if (!dismissed.includes(id)) {
       alerts.push({
-        id: id, level: 'warning', icon: '📷',
+        id: id, level: 'warning', icon: '!',
         msg: `${missingCount} SP đang thiếu hình ảnh`,
         action: { label: 'LỌC', fn: 'toggleMissingImgFilter()' }
       });
