@@ -2926,6 +2926,9 @@ html { scroll-behavior: smooth; }
       <div class="panel-title">Catalogue toàn bộ sản phẩm</div>
       <div class="panel-sub">Tất cả mã SP đã bán hoặc có trong tồn kho · click để xem chi tiết · hover ảnh để phóng to</div>
       <div class="product-controls">
+        <input type="text" id="cat-search" class="filter-input" placeholder="Tìm mã SP..." 
+               list="dl-products" autocomplete="off"
+               oninput="renderCatalogue()" style="min-width:160px">
         <select id="cat-sort">
           <option value="qty-desc">SL bán: cao → thấp</option>
           <option value="qty-asc">SL bán: thấp → cao</option>
@@ -2957,6 +2960,9 @@ html { scroll-behavior: smooth; }
       <div class="panel-title">Phân tích tồn kho × tốc độ bán</div>
       <div class="panel-sub">Số ngày bán còn (Tồn ÷ tốc độ bán TB/ngày) — cảnh báo các SP sắp hết hàng</div>
       <div class="product-controls">
+        <input type="text" id="stock-search" class="filter-input" placeholder="Tìm mã SP..."
+               list="dl-products" autocomplete="off"
+               oninput="renderStockAnalysis()" style="min-width:160px">
         <select id="stock-status-filter">
           <option value="all">Tất cả trạng thái</option>
           <option value="critical">Cực kỳ thiếu (DoS &lt; 7)</option>
@@ -4930,8 +4936,36 @@ function renderHot() {
 function renderCatalogue() {
   const sort = document.getElementById('cat-sort').value;
   const filter = document.getElementById('cat-filter').value;
-  
+  const searchEl = document.getElementById('cat-search');
+  const search = searchEl ? searchEl.value.trim().toLowerCase() : '';
+
   let products = [...PRODUCT_AGG];
+
+  // Search filter — dùng MASTER_PRODUCT_INDEX để tìm mã ngoài khoảng filter
+  if (search) {
+    // Tìm trong PRODUCT_AGG trước
+    const inAgg = products.filter(p => p.code.toLowerCase().includes(search));
+    if (inAgg.length > 0) {
+      products = inAgg;
+    } else if (typeof MASTER_PRODUCT_INDEX !== 'undefined') {
+      // Tìm trong MASTER_PRODUCT_INDEX — mã có trong stock nhưng chưa bán trong khoảng
+      const masterMatches = Object.values(MASTER_PRODUCT_INDEX).filter(m =>
+        m.code.toLowerCase().includes(search)
+      );
+      // Convert sang format tương thích PRODUCT_AGG
+      products = masterMatches.map(m => ({
+        code: m.code,
+        qty: 0,
+        tonHienTai: m.tonHienTai || 0,
+        image: m.image || IMAGE_MAP[m.code] || null,
+        nganhHang: m.nganhHang || '',
+        category: m.nganhHang || '',
+        subCategory: '',
+        stockStatus: m.tonHienTai > 0 ? 'ok' : 'zero',
+        lastGiaBan: 0, lastGiaSale: 0, price: 0
+      }));
+    }
+  }
   
   if (filter === 'sold') products = products.filter(p => p.qty > 0);
   else if (filter === 'instock') products = products.filter(p => p.tonHienTai > 0);
@@ -5074,8 +5108,29 @@ function renderProductCards(products, withRank) {
 // ============ STOCK ANALYSIS ============
 function renderStockAnalysis() {
   const filter = document.getElementById('stock-status-filter').value;
-  
+  const searchEl = document.getElementById('stock-search');
+  const search = searchEl ? searchEl.value.trim().toLowerCase() : '';
+
   let products = PRODUCT_AGG.filter(p => p.tonHienTai > 0 || p.qty > 0);
+
+  // Search mã SP — dùng MASTER_PRODUCT_INDEX nếu không tìm thấy trong PRODUCT_AGG
+  if (search) {
+    const inAgg = products.filter(p => p.code.toLowerCase().includes(search));
+    if (inAgg.length > 0) {
+      products = inAgg;
+    } else if (typeof MASTER_PRODUCT_INDEX !== 'undefined') {
+      const masterMatches = Object.values(MASTER_PRODUCT_INDEX).filter(m =>
+        m.code.toLowerCase().includes(search)
+      );
+      products = masterMatches.map(m => ({
+        code: m.code, qty: 0, tonHienTai: m.tonHienTai || 0,
+        image: m.image || IMAGE_MAP[m.code] || null,
+        category: m.nganhHang || '', subCategory: '',
+        stockStatus: m.tonHienTai > 0 ? 'ok' : 'zero',
+        daysOfStock: 0, velocity: 0
+      }));
+    }
+  }
   
   if (filter === 'critical') products = products.filter(p => p.stockStatus === 'critical');
   else if (filter === 'low') products = products.filter(p => p.stockStatus === 'low');
@@ -7395,6 +7450,7 @@ function statusDot(color) {
 ['cat-sort', 'cat-filter'].forEach(id => {
   document.getElementById(id).addEventListener('change', renderCatalogue);
 });
+// cat-search dùng oninput inline, stock-search cũng vậy
 document.getElementById('stock-status-filter').addEventListener('change', renderStockAnalysis);
 document.getElementById('vel-class').addEventListener('change', renderVelocity);
 
