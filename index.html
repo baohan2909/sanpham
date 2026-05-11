@@ -2698,6 +2698,8 @@ html { scroll-behavior: smooth; }
         <input type="text" id="filter-category" class="filter-input" list="dl-categories" placeholder="Tất cả ngành" autocomplete="off">
         <datalist id="dl-categories"></datalist>
       </div>
+      <!-- Shared datalist for all product code searches -->
+      <datalist id="dl-products"></datalist>
       <div class="filter-group">
         <label class="filter-label">Khu vực</label>
         <input type="text" id="filter-region" class="filter-input" list="dl-regions" placeholder="Tất cả khu vực" autocomplete="off">
@@ -2727,7 +2729,7 @@ html { scroll-behavior: smooth; }
       </div>
       <div class="filter-group">
         <label class="filter-label">Tìm Mã / Barcode</label>
-        <input type="text" id="filter-search" class="filter-input" placeholder="VD: NS008BTG">
+        <input type="text" id="filter-search" class="filter-input" placeholder="Tìm mã SP..." list="dl-products" autocomplete="off">
       </div>
       <div class="filter-actions">
         <button class="btn-export" onclick="exportCSV()">⬇ CSV</button>
@@ -3157,7 +3159,7 @@ html { scroll-behavior: smooth; }
         <option value="DB">Điểm bán (DB)</option>
         <option value="WAREHOUSE">Kho (TP/SA)</option>
       </select>
-      <input type="text" id="transfer-filter-search" class="filter-input" placeholder="Tìm mã SP..." oninput="debouncedRenderTransfer()" style="min-width:140px">
+      <input type="text" id="transfer-filter-search" class="filter-input" placeholder="Tìm mã SP..." list="dl-products" autocomplete="off" oninput="debouncedRenderTransfer()" style="min-width:140px">
       <input type="number" id="transfer-filter-price-min" class="filter-input" placeholder="Giá từ" oninput="debouncedRenderTransfer()" style="min-width:90px">
       <input type="number" id="transfer-filter-price-max" class="filter-input" placeholder="đến" oninput="debouncedRenderTransfer()" style="min-width:90px">
       <select id="transfer-sort" class="filter-select" onchange="renderTransfer()">
@@ -3290,6 +3292,10 @@ let STOCK_BY_CODE = {};      // tổng tồn theo mã SP
 let STOCK_BY_REGION = {};    // tổng tồn theo khu vực
 let STOCK_BY_STORE = {};     // {code: {storeCode: {tonHienTai, tonDuTinh, ...}}}
 let PRODUCT_AGG = [];        // sản phẩm tổng hợp đã có thông tin tồn
+
+// Index toàn bộ mã SP (KHÔNG phụ thuộc filter khoảng) — built từ STOCK_DATA + RAW_DATA
+// {code: {code, nganhHang, image, tonHienTai, lastSeen}}
+let MASTER_PRODUCT_INDEX = {};
 
 let CURRENT_TAB = 'live';
 let CURRENT_PAGE = 1;
@@ -3772,6 +3778,38 @@ function indexStock() {
     STOCK_BY_STORE[key][storeKey].tonHienTai += r.tonHienTai;
     STOCK_BY_STORE[key][storeKey].tonDuTinh += r.tonDuTinh;
   });
+
+  // Build MASTER_PRODUCT_INDEX — toàn bộ mã SP từ STOCK_DATA
+  // Không phụ thuộc filter khoảng — dùng cho search toàn cục
+  MASTER_PRODUCT_INDEX = {};
+  STOCK_DATA.forEach(r => {
+    const code = r.maThamChieu;
+    if (!code) return;
+    if (!MASTER_PRODUCT_INDEX[code]) {
+      MASTER_PRODUCT_INDEX[code] = {
+        code,
+        nganhHang: r.nganhCap1 || r.nganhCap3 || '',
+        tonHienTai: 0,
+        image: IMAGE_MAP[code] || null
+      };
+    }
+    MASTER_PRODUCT_INDEX[code].tonHienTai += (r.tonHienTai || 0);
+  });
+  // Bổ sung từ RAW_DATA (mã đã từng bán nhưng hết tồn)
+  if (typeof RAW_DATA !== 'undefined' && Array.isArray(RAW_DATA)) {
+    RAW_DATA.forEach(r => {
+      const code = r.maThamChieu;
+      if (!code) return;
+      if (!MASTER_PRODUCT_INDEX[code]) {
+        MASTER_PRODUCT_INDEX[code] = {
+          code,
+          nganhHang: r.nganhHang || '',
+          tonHienTai: 0,
+          image: IMAGE_MAP[code] || null
+        };
+      }
+    });
+  }
 }
 
 // ============ FILTERS ============
@@ -3791,6 +3829,10 @@ function initFilters() {
 
   const regions = [...new Set(STOCK_DATA.map(r => r.khuVuc).filter(Boolean))].sort();
   fillDataList('dl-regions', regions);
+
+  // Populate product code suggestions (toàn bộ mã từ MASTER_PRODUCT_INDEX)
+  const productCodes = Object.keys(MASTER_PRODUCT_INDEX || {}).sort();
+  fillDataList('dl-products', productCodes);
   
   // Default: chỉ HÔM NAY (file LIVE) - nhanh nhất
   // User muốn xem khoảng dài hơn thì click các nút quick date (sẽ auto load tháng cũ)
@@ -3867,12 +3909,37 @@ async function applyFilters() {
       if (saleType === 'sale' && !isSaleTx) return false;
       if (saleType === 'main' && isSaleTx) return false;
     }
-    if (search) {
-      const blob = (r.maThamChieu + ' ' + r.barcode + ' ' + r.soDon).toLowerCase();
-      if (!blob.includes(search)) return false;
-    }
     return true;
   });
+
+  // === SEARCH POST-FILTER ===
+  // Search chạy sau .filter() để có quyền mở rộng kết quả nếu cần
+  if (search) {
+    const masterCodes = typeof MASTER_PRODUCT_INDEX !== 'undefined'
+      ? Object.keys(MASTER_PRODUCT_INDEX) : [];
+    const matchedCodes = new Set(
+      masterCodes.filter(code => code.toLowerCase().includes(search))
+    );
+
+    if (matchedCodes.size > 0) {
+      // User đang tìm mã SP cụ thể
+      const hasInRange = FILTERED.some(r => matchedCodes.has(r.maThamChieu));
+      if (hasInRange) {
+        // Có GD trong khoảng → chỉ giữ GD của mã đó
+        FILTERED = FILTERED.filter(r => matchedCodes.has(r.maThamChieu));
+      } else {
+        // Mã có trong hệ thống nhưng không có GD trong khoảng → lấy toàn bộ GD của mã từ RAW_DATA
+        // (để user vẫn xem được SP detail + stock info)
+        FILTERED = RAW_DATA.filter(r => matchedCodes.has(r.maThamChieu));
+      }
+    } else {
+      // Không khớp mã SP → tìm trong barcode + soDon
+      FILTERED = FILTERED.filter(r => {
+        const blob = (r.maThamChieu + ' ' + (r.barcode || '') + ' ' + (r.soDon || '')).toLowerCase();
+        return blob.includes(search);
+      });
+    }
+  }
   
   computeProductAgg();
   CURRENT_PAGE = 1;
@@ -8047,17 +8114,27 @@ function buildCmdItems() {
     });
   });
 
-  // Products (top 50 by sales if available)
+  // Products from MASTER_PRODUCT_INDEX (toàn bộ mã, không giới hạn 100, không phụ thuộc filter)
+  const masterCodes = (typeof MASTER_PRODUCT_INDEX !== 'undefined')
+    ? Object.values(MASTER_PRODUCT_INDEX)
+    : [];
+  // Nếu PRODUCT_AGG có (sau khi filter), enrich với qty + tonHienTai
+  const aggMap = {};
   if (typeof PRODUCT_AGG !== 'undefined' && Array.isArray(PRODUCT_AGG)) {
-    PRODUCT_AGG.slice(0, 100).forEach(p => {
-      items.push({
-        kind: 'SP',
-        label: p.code,
-        sub: `${p.qty} đã bán · Tồn ${p.tonHienTai || 0}`,
-        fn: () => showProductDetail(p.code)
-      });
-    });
+    PRODUCT_AGG.forEach(p => { aggMap[p.code] = p; });
   }
+  masterCodes.forEach(m => {
+    const agg = aggMap[m.code] || {};
+    items.push({
+      kind: 'SP',
+      label: m.code,
+      sub: [
+        agg.qty > 0 ? `Đã bán ${agg.qty}` : '',
+        `Tồn ${m.tonHienTai || agg.tonHienTai || 0}`
+      ].filter(Boolean).join(' · '),
+      fn: () => showProductDetail(m.code)
+    });
+  });
 
   // Stores
   if (Array.isArray(STORES_DATA)) {
