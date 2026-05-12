@@ -3234,8 +3234,7 @@ html { scroll-behavior: smooth; }
               <th data-col="nganhHang">Ngành</th>
               <th data-col="cuaHang">Cửa hàng</th>
               <th data-col="soLuong" class="num">SL</th>
-              <th data-col="giaBan" class="num">Giá bán</th>
-              <th data-col="thanhTien" class="num">Thành tiền</th>
+              <th data-col="giaBan" class="num">Đơn giá</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -3276,7 +3275,7 @@ html { scroll-behavior: smooth; }
 </div>
 <script>
 // ============ STATE ============
-const API_URL = 'https://script.google.com/macros/s/AKfycbyZvvlNm_F1kkqJRys8BgsOtN8kVBEPAtMTRfRiIszRbGTc0ahYS9MFAa9r-GvZJ0v-/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwLFRIAtQakFlNax7Uezg9w50FIaIihvTOAd6o2Qtqx-zP4VrE6lXxgYJYaCjkmC-D2/exec';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -6215,7 +6214,7 @@ function renderTransfer() {
   // Smart insights
   const insights = [];
   if (restockUrgent > 0) {
-    insights.push(`<strong>${restockUrgent}</strong> SP cấp bách — cần sản xuất gấp trong tuần để tránh mất doanh số`);
+    insights.push(`<strong>${restockUrgent}</strong> SP cấp bách — cần sản xuất gấp trong tuần để tránh hết hàng`);
   }
   if (rebalanceUrgent > 0) {
     insights.push(`<strong>${rebalanceUrgent}</strong> tình huống GẤP có thể luân chuyển ngay (không cần chờ nhập)`);
@@ -6265,12 +6264,12 @@ function renderTransfer() {
         <div class="transfer-stat">
           <div class="transfer-stat-label">Tổng SL nhập</div>
           <div class="transfer-stat-value">${formatNumber(totalRestockQty)}</div>
-          <div class="transfer-stat-meta">~${formatNumber(Math.round(totalRestockCost/1000000))}tr ngân sách</div>
+          <div class="transfer-stat-meta">đủ 30 ngày bán</div>
         </div>
         <div class="transfer-stat">
           <div class="transfer-stat-label">SL luân chuyển</div>
           <div class="transfer-stat-value">${formatNumber(totalRebalanceQty)}</div>
-          <div class="transfer-stat-meta">tiết kiệm chi phí nhập</div>
+          <div class="transfer-stat-meta">đề xuất chuyển nội bộ</div>
         </div>
       </div>
       ${insights.length > 0 ? `
@@ -6591,9 +6590,7 @@ function renderTransfer() {
       const projectedText = r.totalProjected > 0
         ? `Tồn dự tính: <strong>${formatNumber(r.totalProjected)}</strong> (~${r.daysOfStock < 1 ? '<1' : r.daysOfStock.toFixed(0)} ngày)` : '';
       const lastSaleText = r.lastSaleDate ? `Bán cuối: ${r.lastSaleDate}` : '';
-      const costText = r.unitPrice > 0 
-        ? `~${formatNumber(Math.round(r.totalCost/1000))}k VNĐ` : '';
-      
+
       return `
         <div class="restock-card" onclick="showProductDetail('${escapeAttr(r.code)}')" style="cursor:pointer;display:grid;grid-template-columns:80px 1fr auto auto;gap:16px;padding:14px 18px;background:white;border:1px solid var(--line);border-left:4px solid ${priorityColor};margin-bottom:8px;align-items:center">
           <div>${imgCell(r.image, r.code)}</div>
@@ -6615,7 +6612,7 @@ function renderTransfer() {
           <div style="text-align:right;border-left:1px solid var(--line);padding-left:16px">
             <div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">Đề xuất nhập</div>
             <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:${priorityColor}">${formatNumber(r.suggestQty)}</div>
-            <div style="font-size:10px;color:var(--ink-muted)">đủ 30 ngày · ${costText}</div>
+            <div style="font-size:10px;color:var(--ink-muted)">đủ 30 ngày</div>
           </div>
           <div style="font-size:10px;color:var(--ink-muted);writing-mode:vertical-rl;text-orientation:mixed;letter-spacing:0.1em;text-transform:uppercase">
             ${r.storeCount} CH có tồn
@@ -7050,7 +7047,6 @@ function renderRaw() {
         <td>${escapeHtml(r.cuaHang)}</td>
         <td class="num">${formatNumber(r.soLuong)}</td>
         <td class="num">${rowSale ? `<span style="color:var(--ink-muted);text-decoration:line-through;font-size:11px">${formatNumber(r.giaBan)}</span> <span style="color:var(--negative);font-weight:600">${formatNumber(r.giaSale)}</span>` : formatNumber(r.giaBan)}</td>
-        <td class="num"><strong>${formatNumber(r.thanhTien)}</strong></td>
       </tr>
     `;
     }).join('');
@@ -8001,13 +7997,6 @@ function renderSmartInsights() {
     const sign = pct >= 0 ? '↑' : '↓';
     const cls = pct >= 0 ? 'up' : 'down';
     pills.push(`<span class="smart-insight-pill ${cls}"><span class="arrow">${sign}</span> Hôm nay ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}% SL vs hôm qua</span>`);
-  }
-
-  if (yestRev > 0) {
-    const pct = ((todayRev - yestRev) / yestRev * 100);
-    const sign = pct >= 0 ? '↑' : '↓';
-    const cls = pct >= 0 ? 'up' : 'down';
-    pills.push(`<span class="smart-insight-pill ${cls}"><span class="arrow">${sign}</span> Doanh thu ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</span>`);
   }
 
   // Top mover today
