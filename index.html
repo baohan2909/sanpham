@@ -2657,6 +2657,7 @@ body.workspace-dphh .filters,
 body.workspace-dphh .info-bar,
 body.workspace-dphh #alerts-container,
 body.workspace-dphh #smart-insights,
+body.workspace-dphh .kpi-grid,
 body.workspace-dphh .tabs,
 body.workspace-dphh #section-live,
 body.workspace-dphh #section-best,
@@ -2931,6 +2932,76 @@ body.workspace-analytics #section-allocation {
   color: #fff;
 }
 
+/* Card 4 kho nguồn */
+.scope-warehouses {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
+}
+.scope-warehouse-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: var(--text);
+  transition: all 0.18s;
+  position: relative;
+}
+.scope-warehouse-btn:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.scope-warehouse-btn.active {
+  border-color: var(--accent);
+  background: var(--accent-soft, rgba(168, 86, 48, 0.08));
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.scope-warehouse-btn[data-issale="true"].active {
+  border-color: #c84a4a;
+  background: rgba(200, 74, 74, 0.06);
+  box-shadow: 0 0 0 1px #c84a4a;
+}
+.scope-warehouse-btn[data-issale="false"].active {
+  border-color: #1f4e79;
+  background: rgba(31, 78, 121, 0.06);
+  box-shadow: 0 0 0 1px #1f4e79;
+}
+.scope-wh-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.scope-wh-meta {
+  font-size: 10px;
+  color: var(--text-soft);
+}
+.scope-wh-code {
+  font-family: 'SF Mono', Menlo, monospace;
+  font-weight: 600;
+}
+.scope-wh-stock {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 3px;
+  font-family: 'SF Mono', Menlo, monospace;
+}
+.scope-warehouse-btn.active .scope-wh-stock { color: var(--accent); }
+.scope-warehouse-btn[data-issale="true"].active .scope-wh-stock { color: #c84a4a; }
+.scope-warehouse-btn[data-issale="false"].active .scope-wh-stock { color: #1f4e79; }
+@media (max-width: 768px) {
+  .scope-warehouses { grid-template-columns: 1fr; }
+}
+
 /* Stores list (step 1 result) */
 .scope-stores-wrap {
   margin-top: 18px;
@@ -3104,8 +3175,18 @@ body.workspace-analytics #section-allocation {
   background: var(--bg-elevated);
   border-bottom: 1px solid var(--line);
 }
+.cap-bars.cap-bars-single {
+  grid-template-columns: 1fr;
+}
+.cap-bars.cap-bars-single .cap-bar {
+  padding: 14px 18px;
+}
+.cap-bars.cap-bars-single .cap-bar-value {
+  font-size: 22px;
+}
 @media (max-width: 768px) {
   .cap-bars { grid-template-columns: 1fr 1fr; }
+  .cap-bars.cap-bars-single { grid-template-columns: 1fr; }
 }
 .cap-bar {
   background: var(--bg);
@@ -3188,6 +3269,28 @@ body.workspace-analytics #section-allocation {
 .alloc-table tbody tr:hover { background: var(--accent-soft); }
 .alloc-table tbody tr.has-warning { background: rgba(200, 74, 74, 0.04); }
 .alloc-table tbody tr.has-warning:hover { background: rgba(200, 74, 74, 0.09); }
+.alloc-table tbody tr.has-alloc { background: rgba(106, 119, 82, 0.10); }
+.alloc-table tbody tr.has-alloc:hover { background: rgba(106, 119, 82, 0.18); }
+.alloc-table tbody tr.has-alloc.has-warning {
+  background: linear-gradient(90deg, rgba(106, 119, 82, 0.10), rgba(200, 74, 74, 0.10));
+}
+
+/* Sortable headers */
+.alloc-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.12s;
+}
+.alloc-table th.sortable:hover { color: var(--accent); }
+.sort-arrow {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 9px;
+  color: var(--text-soft);
+  opacity: 0.5;
+  vertical-align: middle;
+}
+.sort-arrow.active { opacity: 1; color: var(--accent); }
 
 .alloc-product-cell {
   display: flex;
@@ -4248,13 +4351,31 @@ body.workspace-analytics #section-allocation {
               <span class="scope-chip" onclick="allocSetDateRange(30)">30 ngày</span>
             </div>
 
-            <div class="scope-label" style="margin-top:18px">Loại hàng chia kỳ này</div>
-            <div class="scope-chips alloc-loai-chips">
-              <span class="scope-chip alloc-chip-chinh active" data-loai="chinh" onclick="allocSetLoai('chinh')">Hàng CHÍNH</span>
-              <span class="scope-chip alloc-chip-sale" data-loai="sale" onclick="allocSetLoai('sale')">Hàng SALE</span>
+            <div class="scope-label" style="margin-top:18px">Kho nguồn</div>
+            <div class="scope-warehouses" id="alloc-warehouses">
+              <button class="scope-warehouse-btn active" data-warehouse="TP05006" data-cat="BH" data-issale="false" onclick="allocSetWarehouse('TP05006')">
+                <div class="scope-wh-name">Kho xuất Nón Bảo hiểm</div>
+                <div class="scope-wh-meta"><span class="scope-wh-code">TP05006</span> · Hàng chính · Bảo hiểm</div>
+                <div class="scope-wh-stock" id="wh-stock-TP05006">Tồn: —</div>
+              </button>
+              <button class="scope-warehouse-btn" data-warehouse="TP05002" data-cat="NV" data-issale="false" onclick="allocSetWarehouse('TP05002')">
+                <div class="scope-wh-name">Kho TP Nón vải</div>
+                <div class="scope-wh-meta"><span class="scope-wh-code">TP05002</span> · Hàng chính · Nón vải</div>
+                <div class="scope-wh-stock" id="wh-stock-TP05002">Tồn: —</div>
+              </button>
+              <button class="scope-warehouse-btn" data-warehouse="SA05001" data-cat="BH" data-issale="true" onclick="allocSetWarehouse('SA05001')">
+                <div class="scope-wh-name">Kho Sale BH Offline</div>
+                <div class="scope-wh-meta"><span class="scope-wh-code">SA05001</span> · Hàng sale · Bảo hiểm</div>
+                <div class="scope-wh-stock" id="wh-stock-SA05001">Tồn: —</div>
+              </button>
+              <button class="scope-warehouse-btn" data-warehouse="SA05002" data-cat="NV" data-issale="true" onclick="allocSetWarehouse('SA05002')">
+                <div class="scope-wh-name">Kho Sale Nón vải</div>
+                <div class="scope-wh-meta"><span class="scope-wh-code">SA05002</span> · Hàng sale · Nón vải</div>
+                <div class="scope-wh-stock" id="wh-stock-SA05002">Tồn: —</div>
+              </button>
             </div>
             <div style="font-size:11px;color:var(--text-soft);margin-top:6px;font-style:italic" id="alloc-loai-hint">
-              Phiên này chỉ chia hàng CHÍNH. Hàng SALE chia trong phiên riêng để tách file CSV.
+              Mỗi phiên chia 1 kho nguồn (= 1 phiếu Odoo). Hệ thống tự lọc đúng ngành hàng và loại chính/sale.
             </div>
           </div>
 
@@ -9810,10 +9931,12 @@ const ALLOC = {
     dateFrom: null,
     dateTo: null,
     region: '',
-    group: 'all',       // 'all' | '1' | '2' | '3'
-    type: 'all',        // 'all' | 'CH' | 'DB' | 'DOISALE'
-    loai: 'chinh',      // 'chinh' | 'sale' - phiên này chia loại nào
-    storeIds: new Set() // selected mã CH
+    group: 'all',          // 'all' | '1' | '2' | '3'
+    type: 'all',           // 'all' | 'CH' | 'DB' | 'DOISALE'
+    warehouse: 'TP05006',  // mã kho nguồn (1 trong 4)
+    cat: 'BH',             // 'BH' | 'NV' (derived from warehouse)
+    isSale: false,         // true | false (derived from warehouse)
+    storeIds: new Set()    // selected mã CH
   },
   // Master data computed cho scope hiện tại
   data: {
@@ -9830,6 +9953,9 @@ const ALLOC = {
   selectedProduct: null,  // current product in step 2 'product' mode
   // Coverage defaults
   coverageDefault: 120,    // %
+  // Sort state
+  sortBy: 'chia',          // 'product' | 'loai' | 'sold' | 'onHand' | 'warehouseStock' | 'suggested' | 'chia'
+  sortDir: 'desc',         // 'asc' | 'desc'
   draftSaved: false,
   draftSavedAt: null
 };
@@ -9907,6 +10033,9 @@ function allocInitScope() {
       regions.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
   }
 
+  // Hiển thị tồn 4 kho ở Step 1
+  allocUpdateWarehouseStockDisplay();
+
   allocRenderStoreList();
 }
 
@@ -9947,18 +10076,62 @@ function allocSetType(t) {
   allocRenderStoreList();
 }
 
-function allocSetLoai(l) {
-  ALLOC.scope.loai = l;
-  document.querySelectorAll('.scope-chip[data-loai]').forEach(c => {
-    c.classList.toggle('active', c.dataset.loai === l);
+// Check 1 sản phẩm có thuộc kho/loại đã chọn không
+function allocMatchesScope(meta) {
+  if (!meta) return false;
+  // Loại sale/chính
+  if (!!meta.isSale !== !!ALLOC.scope.isSale) return false;
+  // Ngành
+  const cat = (meta.nganhCap1 || '').toLowerCase();
+  const isBH = cat.includes('bảo hiểm') || cat.includes('bao hiem');
+  const isNV = cat.includes('nón vải') || cat.includes('non vai');
+  if (ALLOC.scope.cat === 'BH' && !isBH) return false;
+  if (ALLOC.scope.cat === 'NV' && !isNV) return false;
+  return true;
+}
+
+function allocSetWarehouse(wh) {
+  // Map kho → ngành + loại
+  const WAREHOUSE_MAP = {
+    'TP05006': { cat: 'BH', isSale: false, name: 'Kho xuất Nón Bảo hiểm' },
+    'TP05002': { cat: 'NV', isSale: false, name: 'Kho TP Nón vải' },
+    'SA05001': { cat: 'BH', isSale: true,  name: 'Kho Sale BH Offline' },
+    'SA05002': { cat: 'NV', isSale: true,  name: 'Kho Sale Nón vải' }
+  };
+  const info = WAREHOUSE_MAP[wh];
+  if (!info) return;
+
+  ALLOC.scope.warehouse = wh;
+  ALLOC.scope.cat = info.cat;
+  ALLOC.scope.isSale = info.isSale;
+
+  document.querySelectorAll('.scope-warehouse-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.warehouse === wh);
   });
   const hint = document.getElementById('alloc-loai-hint');
   if (hint) {
-    if (l === 'chinh') hint.textContent = 'Phiên này chỉ chia hàng CHÍNH. Hàng SALE chia trong phiên riêng để tách file CSV.';
-    else hint.textContent = 'Phiên này chỉ chia hàng SALE. File CSV xuất riêng cho hàng giảm giá.';
+    const loaiTxt = info.isSale ? 'hàng sale' : 'hàng chính';
+    const catTxt = info.cat === 'BH' ? 'bảo hiểm' : 'nón vải';
+    hint.textContent = `Phiên này chia ${loaiTxt} · ngành ${catTxt} · xuất từ kho ${info.name} (${wh}).`;
   }
-  // Khi đổi loại → reset allocations để build lại
+  // Đổi kho → reset allocations
   ALLOC.allocations = new Map();
+}
+
+// Cập nhật tồn 4 kho ở Step 1 (gọi 1 lần khi vào tab DPHH)
+function allocUpdateWarehouseStockDisplay() {
+  if (typeof STOCK_DATA === 'undefined') return;
+  const totals = { 'TP05006': 0, 'TP05002': 0, 'SA05001': 0, 'SA05002': 0 };
+  const codes = Object.keys(totals);
+  for (const s of STOCK_DATA) {
+    const code = String(s.maKho || '').toUpperCase();
+    if (!codes.includes(code)) continue;
+    totals[code] += (s.tonHienTai || 0);
+  }
+  for (const code of codes) {
+    const el = document.getElementById('wh-stock-' + code);
+    if (el) el.textContent = `Tồn: ${formatNumber(totals[code])}`;
+  }
 }
 
 function allocFilterStores() {
@@ -10168,9 +10341,8 @@ function allocBuildEngineData() {
         if (!meta.giaNiemYet && s.giaNiemYet) meta.giaNiemYet = s.giaNiemYet;
       }
 
-      // Tồn theo loại điểm
-      const isWarehouse = storeCode.startsWith('TP') || storeCode.startsWith('SA');
-      if (isWarehouse) {
+      // Tồn theo kho nguồn ĐÃ CHỌN (Step 1) — không gộp các kho khác
+      if (storeCode === ALLOC.scope.warehouse) {
         d.warehouseStockByCode.set(ma, (d.warehouseStockByCode.get(ma) || 0) + qty);
       }
       if (selectedStoreSet.has(storeCode)) {
@@ -10270,17 +10442,14 @@ function allocRecomputeAll() {
   allocBuildEngineData();
   ALLOC.allocations = new Map();
 
-  const wantSale = (ALLOC.scope.loai === 'sale');
-
-  // Mọi cặp (store, sp đã bán hoặc có tồn ở store đó) — chỉ giữ đúng loại
+  // Mọi cặp (store, sp đã bán hoặc có tồn ở store đó) — chỉ giữ đúng kho/loại/ngành
   for (const storeCode of ALLOC.scope.storeIds) {
     const salesMap = ALLOC.data.salesByStoreCode.get(storeCode) || new Map();
     const stockMap = ALLOC.data.stockByStoreCode.get(storeCode) || new Map();
     const allMa = new Set([...salesMap.keys(), ...stockMap.keys()]);
     for (const ma of allMa) {
       const meta = ALLOC.data.productMeta.get(ma);
-      if (!meta) continue;
-      if (!!meta.isSale !== wantSale) continue;
+      if (!allocMatchesScope(meta)) continue;
       const sug = allocComputeSuggestion(storeCode, ma);
       if (sug.suggested > 0 || sug.sold > 0) {
         ALLOC.allocations.set(`${storeCode}|${ma}`, {
@@ -10395,16 +10564,14 @@ function allocRenderStep2() {
   // Build engine nếu chưa có
   if (ALLOC.allocations.size === 0) {
     allocBuildEngineData();
-    // First-time auto compute suggestion — chỉ tạo cho mã đúng LOẠI đã chọn ở Step 1
-    const wantSale = (ALLOC.scope.loai === 'sale');
+    // First-time auto compute suggestion — chỉ tạo cho mã đúng kho/ngành/loại đã chọn ở Step 1
     for (const storeCode of ALLOC.scope.storeIds) {
       const salesMap = ALLOC.data.salesByStoreCode.get(storeCode) || new Map();
       const stockMap = ALLOC.data.stockByStoreCode.get(storeCode) || new Map();
       const allMa = new Set([...salesMap.keys(), ...stockMap.keys()]);
       for (const ma of allMa) {
         const meta = ALLOC.data.productMeta.get(ma);
-        if (!meta) continue;
-        if (!!meta.isSale !== wantSale) continue;  // ← FILTER theo loại hàng
+        if (!allocMatchesScope(meta)) continue;
         const sug = allocComputeSuggestion(storeCode, ma);
         if (sug.suggested > 0 || sug.sold > 0) {
           ALLOC.allocations.set(`${storeCode}|${ma}`, {
@@ -10423,8 +10590,9 @@ function allocRenderStep2() {
   const subEl = document.getElementById('alloc-step2-sub');
   if (subEl) {
     const dates = `${ALLOC.scope.dateFrom} → ${ALLOC.scope.dateTo}`;
-    const loaiTxt = ALLOC.scope.loai === 'sale' ? 'hàng SALE' : 'hàng CHÍNH';
-    subEl.textContent = `Phiên này chia ${loaiTxt} · Sức bán tính từ ${dates} · ${ALLOC.scope.storeIds.size} điểm bán`;
+    const loaiTxt = ALLOC.scope.isSale ? 'hàng sale' : 'hàng chính';
+    const catTxt = ALLOC.scope.cat === 'BH' ? 'bảo hiểm' : 'nón vải';
+    subEl.textContent = `Phiên này chia ${loaiTxt} ngành ${catTxt} · Kho ${ALLOC.scope.warehouse} · ${ALLOC.scope.storeIds.size} điểm bán · Sức bán ${dates}`;
   }
 }
 
@@ -10561,14 +10729,13 @@ function allocRenderStoreDetail(maCh) {
   // Cap bars
   allocRenderCapBars(maCh, store);
 
-  // Table: list các mã trong allocations của CH này + có thể bán mà chưa có suggestion
+  // Table: list các mã trong allocations của CH này
   const rows = [];
   for (const a of ALLOC.allocations.values()) {
     if (a.storeCode !== maCh) continue;
     rows.push(a);
   }
-  // Sort: sale rate desc, sau đó qty desc
-  rows.sort((a, b) => (b.sold || 0) - (a.sold || 0) || (b.qty || 0) - (a.qty || 0));
+  allocSortRows(rows);
 
   const wrap = document.getElementById('alloc-table-wrap');
   if (rows.length === 0) {
@@ -10576,17 +10743,22 @@ function allocRenderStoreDetail(maCh) {
     return;
   }
 
+  const sortArrow = (col) => {
+    if (ALLOC.sortBy !== col) return '<span class="sort-arrow">⇅</span>';
+    return ALLOC.sortDir === 'desc' ? '<span class="sort-arrow active">▼</span>' : '<span class="sort-arrow active">▲</span>';
+  };
+
   wrap.innerHTML = `
     <table class="alloc-table">
       <thead>
         <tr>
-          <th>Sản phẩm</th>
+          <th class="sortable" onclick="allocToggleSort('product')">Sản phẩm ${sortArrow('product')}</th>
           <th>Loại</th>
-          <th class="num">Bán</th>
-          <th class="num">Tồn CH</th>
-          <th class="num">Kho TP/SA</th>
-          <th class="num">Đề xuất</th>
-          <th class="num">Chia</th>
+          <th class="num sortable" onclick="allocToggleSort('sold')">Bán ${sortArrow('sold')}</th>
+          <th class="num sortable" onclick="allocToggleSort('onHand')">Tồn CH ${sortArrow('onHand')}</th>
+          <th class="num sortable" onclick="allocToggleSort('warehouseStock')">Kho TP/SA ${sortArrow('warehouseStock')}</th>
+          <th class="num sortable" onclick="allocToggleSort('suggested')">Đề xuất ${sortArrow('suggested')}</th>
+          <th class="num sortable" onclick="allocToggleSort('chia')">Chia ${sortArrow('chia')}</th>
           <th>Cảnh báo</th>
         </tr>
       </thead>
@@ -10597,6 +10769,50 @@ function allocRenderStoreDetail(maCh) {
   `;
 }
 
+function allocSortRows(rows) {
+  const col = ALLOC.sortBy;
+  const desc = ALLOC.sortDir === 'desc';
+
+  rows.sort((a, b) => {
+    // Product code: string compare
+    if (col === 'product') {
+      const r = String(a.maSp).localeCompare(String(b.maSp));
+      return desc ? -r : r;
+    }
+    // Numeric columns
+    let va, vb;
+    switch (col) {
+      case 'sold': va = a.sold || 0; vb = b.sold || 0; break;
+      case 'onHand': va = a.onHand || 0; vb = b.onHand || 0; break;
+      case 'warehouseStock': va = a.warehouseStock || 0; vb = b.warehouseStock || 0; break;
+      case 'suggested': va = a.suggested || 0; vb = b.suggested || 0; break;
+      case 'chia':
+      default:
+        va = a.qty || 0; vb = b.qty || 0;
+        // Tie-break: chia = 0 cả 2 → sort theo warehouseStock DESC (cố định)
+        if (va === 0 && vb === 0) {
+          return (b.warehouseStock || 0) - (a.warehouseStock || 0);
+        }
+        break;
+    }
+    return desc ? (vb - va) : (va - vb);
+  });
+}
+
+function allocToggleSort(col) {
+  if (ALLOC.sortBy === col) {
+    ALLOC.sortDir = ALLOC.sortDir === 'desc' ? 'asc' : 'desc';
+  } else {
+    ALLOC.sortBy = col;
+    ALLOC.sortDir = 'desc';
+  }
+  if (ALLOC.mode === 'store' && ALLOC.selectedStore) {
+    allocRenderStoreDetail(ALLOC.selectedStore);
+  } else if (ALLOC.mode === 'product' && ALLOC.selectedProduct) {
+    allocRenderProductDetail(ALLOC.selectedProduct);
+  }
+}
+
 function allocRenderRow(a) {
   const meta = ALLOC.data.productMeta.get(a.maSp) || {};
   const imgUrl = (typeof IMAGE_MAP !== 'undefined' && IMAGE_MAP[a.maSp]) ? IMAGE_MAP[a.maSp] : '';
@@ -10605,14 +10821,23 @@ function allocRenderRow(a) {
     : `<div class="alloc-product-img" style="display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-soft)">—</div>`;
   const isChanged = a.qty !== a.suggested;
   const inputCls = isChanged ? 'alloc-input changed' : (a.qty === 0 ? 'alloc-input zero' : 'alloc-input');
-  const loaiPill = meta.isSale ? '<span class="alloc-loai-pill sale">SALE</span>' : '<span class="alloc-loai-pill chinh">CHÍNH</span>';
+  const loaiPill = meta.isSale
+    ? '<span class="alloc-loai-pill sale">Sale</span>'
+    : '<span class="alloc-loai-pill chinh">Chính</span>';
   let warning = '';
   if (a.qty > 0 && a.qty > a.warehouseStock) warning += '<span class="alloc-warning-dot"></span>Vượt kho tổng';
   if (meta.isSale && a.warehouseStock < a.qty) {
     warning += ` <a href="javascript:void(0)" style="color:var(--accent);font-size:11px" onclick="allocOpenSubModal('${a.maSp}','${a.storeCode}')">Gợi ý thay thế</a>`;
   }
+
+  // Class set
+  const rowClasses = [];
+  if (warning) rowClasses.push('has-warning');
+  if (a.qty > 0) rowClasses.push('has-alloc');
+  const rowClass = rowClasses.length ? ` class="${rowClasses.join(' ')}"` : '';
+
   return `
-    <tr ${warning ? 'class="has-warning"' : ''} data-key="${a.storeCode}|${a.maSp}">
+    <tr${rowClass} data-key="${a.storeCode}|${a.maSp}">
       <td>
         <div class="alloc-product-cell">
           ${imgTag}
@@ -10652,59 +10877,53 @@ function allocRenderCapBars(maCh, store) {
   const wrap = document.getElementById('alloc-cap-bars-wrap');
   if (!wrap || !store) { if (wrap) wrap.innerHTML = ''; return; }
 
-  const items = [
-    { label: 'BH chính', catKey: 'BH_C', cap: store.capBhChinh },
-    { label: 'BH sale',  catKey: 'BH_S', cap: store.capBhSale },
-    { label: 'NV chính', catKey: 'NV_C', cap: store.capNvChinh },
-    { label: 'NV sale',  catKey: 'NV_S', cap: store.capNvSale }
-  ];
+  // Chỉ hiện 1 cap bar đúng kho/loại/ngành hiện tại
+  const isSale = ALLOC.scope.isSale;
+  const cat = ALLOC.scope.cat;
+  let catKey, label, cap;
+  if (cat === 'BH' && !isSale) { catKey = 'BH_C'; label = 'BH chính'; cap = store.capBhChinh; }
+  else if (cat === 'BH' && isSale) { catKey = 'BH_S'; label = 'BH sale'; cap = store.capBhSale; }
+  else if (cat === 'NV' && !isSale) { catKey = 'NV_C'; label = 'NV chính'; cap = store.capNvChinh; }
+  else if (cat === 'NV' && isSale) { catKey = 'NV_S'; label = 'NV sale'; cap = store.capNvSale; }
+  else { wrap.innerHTML = ''; return; }
 
-  // Tính tồn sau chia cho mỗi loại
-  const allocByCat = { BH_C: 0, BH_S: 0, NV_C: 0, NV_S: 0 };
+  // Tính qty chia cho loại này
+  let newQ = 0;
   for (const a of ALLOC.allocations.values()) {
     if (a.storeCode !== maCh) continue;
-    const meta = ALLOC.data.productMeta.get(a.maSp);
-    if (!meta) continue;
-    const cat = (meta.nganhCap1 || '').toLowerCase();
-    const isBH = cat.includes('bảo hiểm') || cat.includes('bao hiem');
-    const isNV = cat.includes('nón vải') || cat.includes('non vai');
-    let k = null;
-    if (isBH && meta.isSale) k = 'BH_S';
-    else if (isBH) k = 'BH_C';
-    else if (isNV && meta.isSale) k = 'NV_S';
-    else if (isNV) k = 'NV_C';
-    if (k) allocByCat[k] += a.qty || 0;
+    newQ += a.qty || 0;
   }
 
+  const onHand = allocGetOnHandByCategory(maCh, catKey);
+  const after = onHand + newQ;
+
+  if (!cap || cap.max === 0) {
+    wrap.innerHTML = `
+      <div class="cap-bars cap-bars-single">
+        <div class="cap-bar">
+          <div class="cap-bar-label">${label}</div>
+          <div class="cap-bar-value" style="color:var(--text-soft)">${after}</div>
+          <div class="cap-bar-range">Chưa cấu hình mức trần — Tồn ${onHand} + chia ${newQ}</div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const pct = Math.min(100, (after / cap.max) * 100);
+  let fillCls = 'ok';
+  let alertCls = '';
+  if (after > cap.max) { fillCls = 'over'; alertCls = 'alert'; }
+  else if (after < cap.min) { fillCls = 'under'; alertCls = 'under-alert'; }
+
   wrap.innerHTML = `
-    <div class="cap-bars">
-      ${items.map(it => {
-        if (!it.cap || it.cap.max === 0) {
-          return `
-            <div class="cap-bar">
-              <div class="cap-bar-label">${it.label}</div>
-              <div class="cap-bar-value" style="color:var(--text-soft)">—</div>
-              <div class="cap-bar-range">Chưa cấu hình</div>
-            </div>
-          `;
-        }
-        const onHand = allocGetOnHandByCategory(maCh, it.catKey);
-        const newQ = allocByCat[it.catKey] || 0;
-        const after = onHand + newQ;
-        const pct = it.cap.max > 0 ? Math.min(100, (after / it.cap.max) * 100) : 0;
-        let cls = 'ok';
-        let alertCls = '';
-        if (after > it.cap.max) { cls = 'over'; alertCls = 'alert'; }
-        else if (after < it.cap.min) { cls = 'under'; alertCls = 'under-alert'; }
-        return `
-          <div class="cap-bar ${alertCls}">
-            <div class="cap-bar-label">${it.label}</div>
-            <div class="cap-bar-value">${after} / ${it.cap.max}</div>
-            <div class="cap-bar-range">Tồn ${onHand} + chia ${newQ} · Sàn ${it.cap.min}</div>
-            <div class="cap-bar-track"><div class="cap-bar-fill ${cls}" style="width:${pct}%"></div></div>
-          </div>
-        `;
-      }).join('')}
+    <div class="cap-bars cap-bars-single">
+      <div class="cap-bar ${alertCls}">
+        <div class="cap-bar-label">Mức tồn ${label}</div>
+        <div class="cap-bar-value">${after} <span style="font-size:13px;color:var(--text-soft);font-weight:500">/ ${cap.max}</span></div>
+        <div class="cap-bar-range">Tồn hiện tại ${onHand} + chia ${newQ} · Sàn ${cap.min} · Trần ${cap.max}</div>
+        <div class="cap-bar-track"><div class="cap-bar-fill ${fillCls}" style="width:${pct}%"></div></div>
+      </div>
     </div>
   `;
 }
@@ -10800,7 +11019,7 @@ function allocRenderProductDetail(ma) {
           const isChanged = r.qty !== r.suggested;
           const inputCls = isChanged ? 'alloc-input changed' : 'alloc-input';
           return `
-            <tr data-key="${r.storeCode}|${r.maSp}">
+            <tr${r.qty > 0 ? ' class="has-alloc"' : ''} data-key="${r.storeCode}|${r.maSp}">
               <td>
                 <div class="alloc-sidebar-item-name">${escapeHtml(store ? store.ten : r.storeCode)}</div>
                 <div class="alloc-product-code" style="font-size:10px;margin-top:2px">${escapeHtml(r.storeCode)}</div>
@@ -10881,12 +11100,11 @@ function allocRenderStep3() {
   if (!body) return;
 
   // Mã hàng mới = có tồn kho TP/SA > 0 nhưng chưa CH nào trong scope có tồn
-  const wantSale = (ALLOC.scope.loai === 'sale');
   const candidates = [];
   for (const [ma, supply] of ALLOC.data.warehouseStockByCode) {
     if (supply <= 0) continue;
     const meta = ALLOC.data.productMeta.get(ma) || {};
-    if (!!meta.isSale !== wantSale) continue;  // chỉ lấy đúng loại
+    if (!allocMatchesScope(meta)) continue;  // chỉ lấy đúng kho/ngành/loại
     // Check chưa CH nào trong scope có tồn
     let hasInAnyStore = false;
     for (const storeCode of ALLOC.scope.storeIds) {
@@ -10894,7 +11112,7 @@ function allocRenderStep3() {
       if (onHand > 0) { hasInAnyStore = true; break; }
     }
     if (hasInAnyStore) continue;
-    if (!meta.nganhCap3) continue;  // không có ngành cấp 3 thì không chia được
+    if (!meta.nganhCap3) continue;
     candidates.push({ ma, supply, meta });
   }
 
@@ -10944,7 +11162,7 @@ function allocRenderNewItem(c) {
       <div class="alloc-source-card-head">
         <div class="alloc-source-name">
           <span style="font-family:'SF Mono',Menlo,monospace">${escapeHtml(c.ma)}</span>
-          <span class="alloc-loai-pill ${c.meta.isSale ? 'sale' : 'chinh'}" style="margin-left:8px">${c.meta.isSale ? 'SALE' : 'CHÍNH'}</span>
+          <span class="alloc-loai-pill ${c.meta.isSale ? 'sale' : 'chinh'}" style="margin-left:8px">${c.meta.isSale ? 'Sale' : 'Chính'}</span>
         </div>
         <div style="font-size:11px;color:var(--text-soft)">Kho TP/SA: <strong>${c.supply}</strong> · Đã đề xuất: ${totalSuggested}</div>
       </div>
@@ -11083,7 +11301,7 @@ function allocRenderShortCard(s) {
       <div class="alloc-source-card-head">
         <div class="alloc-source-name">
           <span style="font-family:'SF Mono',Menlo,monospace">${escapeHtml(s.ma)}</span>
-          <span class="alloc-loai-pill ${s.meta.isSale ? 'sale' : 'chinh'}" style="margin-left:8px">${s.meta.isSale ? 'SALE' : 'CHÍNH'}</span>
+          <span class="alloc-loai-pill ${s.meta.isSale ? 'sale' : 'chinh'}" style="margin-left:8px">${s.meta.isSale ? 'Sale' : 'Chính'}</span>
           <span style="color:var(--text-soft);font-size:11px;margin-left:8px">${escapeHtml(s.meta.nganhCap3 || '')}</span>
         </div>
         <div class="alloc-source-deficit">Thiếu ${s.deficit}</div>
@@ -11171,13 +11389,11 @@ function allocRenderStep5() {
 
 function allocBuildExportLines() {
   const lines = [];
+  const sourceWarehouse = ALLOC.scope.warehouse;  // Kho nguồn cố định cho cả phiên
   for (const a of ALLOC.allocations.values()) {
     if (a.qty <= 0) continue;
-    // Source: chọn warehouse có nhiều stock nhất cho mã đó
-    const source = allocPickSourceWarehouse(a.maSp);
-    if (!source) continue;
     lines.push({
-      from: source,
+      from: sourceWarehouse,
       to: a.storeCode,
       sku: a.maSp,
       qty: a.qty
@@ -11221,7 +11437,7 @@ function allocExportOdoo() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `dieu-chuyen-odoo-${todayString()}.csv`;
+  a.download = `dieu-chuyen-${ALLOC.scope.warehouse}-${todayString()}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
