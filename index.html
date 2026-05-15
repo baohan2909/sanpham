@@ -10155,7 +10155,11 @@ function allocSetWarehouse(wh) {
 
 // Cập nhật tồn 4 kho ở Step 1 (gọi 1 lần khi vào tab DPHH)
 function allocUpdateWarehouseStockDisplay() {
-  if (typeof STOCK_DATA === 'undefined') return;
+  // Retry nếu STOCK_DATA chưa load
+  if (typeof STOCK_DATA === 'undefined' || !STOCK_DATA.length) {
+    setTimeout(allocUpdateWarehouseStockDisplay, 500);
+    return;
+  }
   const totals = { 'TP05006': 0, 'TP05002': 0, 'SA05001': 0, 'SA05002': 0 };
   const codes = Object.keys(totals);
   for (const s of STOCK_DATA) {
