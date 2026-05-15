@@ -9854,12 +9854,22 @@ function allocComputeSalesByStore(stores) {
   const from = ALLOC.scope.dateFrom;
   const to = ALLOC.scope.dateTo;
   const allowed = new Set(stores.map(s => s.maCh.toUpperCase()));
+
+  // Build name→maCh lookup
+  const nameToCode = new Map();
+  for (const s of stores) {
+    if (s.ten) nameToCode.set(s.ten.trim().toLowerCase(), s.maCh.toUpperCase());
+  }
+
   for (const r of RAW_DATA) {
-    if (!r.maKho) continue;
-    const code = String(r.maKho).toUpperCase();
-    if (!allowed.has(code)) continue;
     if (from && r.ngay && r.ngay < from) continue;
     if (to && r.ngay && r.ngay > to) continue;
+
+    let code = '';
+    if (r.maKho) code = String(r.maKho).toUpperCase();
+    else if (r.cuaHang) code = nameToCode.get(String(r.cuaHang).trim().toLowerCase()) || '';
+    if (!code || !allowed.has(code)) continue;
+
     m.set(code, (m.get(code) || 0) + (r.soLuong || 0));
   }
   return m;
@@ -9899,18 +9909,37 @@ function allocBuildEngineData() {
   const from = ALLOC.scope.dateFrom;
   const to = ALLOC.scope.dateTo;
 
+  // Build name→maCh lookup map (RAW_DATA dùng cuaHang = tên CH dài, không có maKho)
+  const nameToCode = new Map();
+  if (typeof STORES_DATA !== 'undefined' && Array.isArray(STORES_DATA)) {
+    for (const s of STORES_DATA) {
+      if (s.ten && s.maCh) {
+        nameToCode.set(s.ten.trim().toLowerCase(), s.maCh.toUpperCase());
+      }
+    }
+  }
+
   // 1. Sales theo (store, maSp) trong scope + classify hàng chính/sale theo SALE_CODES
   if (typeof RAW_DATA !== 'undefined' && Array.isArray(RAW_DATA)) {
     for (const r of RAW_DATA) {
-      if (!r.maThamChieu || !r.maKho) continue;
-      const code = String(r.maKho).toUpperCase();
+      if (!r.maThamChieu) continue;
       if (from && r.ngay && r.ngay < from) continue;
       if (to && r.ngay && r.ngay > to) continue;
+
+      // Resolve mã CH từ cuaHang (tên) hoặc maKho (nếu có)
+      let code = '';
+      if (r.maKho) {
+        code = String(r.maKho).toUpperCase();
+      } else if (r.cuaHang) {
+        const key = String(r.cuaHang).trim().toLowerCase();
+        code = nameToCode.get(key) || '';
+      }
+      if (!code) continue;
 
       const ma = r.maThamChieu;
       const qty = r.soLuong || 0;
 
-      // store sales
+      // store sales (chỉ tính CH trong scope)
       if (selectedStoreSet.has(code)) {
         if (!d.salesByStoreCode.has(code)) d.salesByStoreCode.set(code, new Map());
         const sm = d.salesByStoreCode.get(code);
@@ -9921,15 +9950,13 @@ function allocBuildEngineData() {
       if (!d.productMeta.has(ma)) {
         const isSale = (typeof SALE_CODES !== 'undefined' && SALE_CODES.has(ma));
         d.productMeta.set(ma, {
-          ten: ma,  // fallback
+          ten: ma,
           nganhCap1: r.nganhHang || '',
-          nganhCap3: '',  // sẽ enrich từ STOCK_DATA
+          nganhCap3: '',
           giaNiemYet: r.giaBan || 0,
           isSale: isSale
         });
       }
-
-      // Tổng bán hệ thống theo nganhCap3 (need stock meta first, làm pass sau)
     }
   }
 
@@ -9981,7 +10008,12 @@ function allocBuildEngineData() {
       const cap3 = meta && meta.nganhCap3 ? meta.nganhCap3 : '';
       if (!cap3) continue;
       const qty = r.soLuong || 0;
-      const code = String(r.maKho || '').toUpperCase();
+
+      // Resolve mã CH từ cuaHang
+      let code = '';
+      if (r.maKho) code = String(r.maKho).toUpperCase();
+      else if (r.cuaHang) code = nameToCode.get(String(r.cuaHang).trim().toLowerCase()) || '';
+      if (!code) continue;
 
       d.totalSoldByCap3.set(cap3, (d.totalSoldByCap3.get(cap3) || 0) + qty);
 
