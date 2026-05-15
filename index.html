@@ -2584,6 +2584,103 @@ html { scroll-behavior: smooth; }
 
 
 /* ============================================================
+   WORKSPACE SWITCHER (cấp 1)
+   ============================================================ */
+.workspace-bar {
+  display: flex;
+  gap: 8px;
+  padding: 12px 0 18px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 18px;
+}
+.workspace-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 22px;
+  border: 1px solid var(--line);
+  background: var(--bg-elevated);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  color: var(--text);
+  font-family: inherit;
+  min-width: 280px;
+}
+.workspace-btn:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.workspace-btn.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(168, 86, 48, 0.18);
+}
+.workspace-btn.active .workspace-btn-sub {
+  color: rgba(255, 255, 255, 0.78);
+}
+.workspace-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--accent-soft, rgba(168, 86, 48, 0.08));
+  flex-shrink: 0;
+  color: var(--accent);
+}
+.workspace-btn.active .workspace-btn-icon {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+.workspace-btn-text { flex: 1; min-width: 0; }
+.workspace-btn-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.workspace-btn-sub {
+  font-size: 11px;
+  color: var(--text-soft);
+  margin-top: 3px;
+}
+@media (max-width: 768px) {
+  .workspace-bar { flex-direction: column; }
+  .workspace-btn { min-width: auto; width: 100%; }
+}
+
+/* Khi workspace = dphh: ẩn các UI của analytics */
+body.workspace-dphh .filters,
+body.workspace-dphh .info-bar,
+body.workspace-dphh #alerts-container,
+body.workspace-dphh #smart-insights,
+body.workspace-dphh .tabs,
+body.workspace-dphh #section-live,
+body.workspace-dphh #section-best,
+body.workspace-dphh #section-catalogue,
+body.workspace-dphh #section-stock,
+body.workspace-dphh #section-frequency,
+body.workspace-dphh #section-region,
+body.workspace-dphh #section-attributes,
+body.workspace-dphh #section-lifecycle,
+body.workspace-dphh #section-transfer,
+body.workspace-dphh #section-raw {
+  display: none !important;
+}
+body.workspace-dphh #section-allocation {
+  display: block !important;
+}
+
+/* Khi workspace = analytics: ẩn section-allocation */
+body.workspace-analytics #section-allocation {
+  display: none !important;
+}
+
+
+/* ============================================================
    ĐIỀU PHỐI HÀNG HÓA — Bàn chia hàng (v9)
    ============================================================ */
 
@@ -2820,6 +2917,18 @@ html { scroll-behavior: smooth; }
   background: var(--accent);
   color: #fff;
   border-color: var(--accent);
+}
+
+/* Chip phân biệt loại CHÍNH/SALE màu khác accent */
+.alloc-loai-chips .scope-chip.alloc-chip-chinh.active {
+  background: #1f4e79;
+  border-color: #1f4e79;
+  color: #fff;
+}
+.alloc-loai-chips .scope-chip.alloc-chip-sale.active {
+  background: #c84a4a;
+  border-color: #c84a4a;
+  color: #fff;
 }
 
 /* Stores list (step 1 result) */
@@ -3391,7 +3500,7 @@ html { scroll-behavior: smooth; }
 
 </style>
 </head>
-<body>
+<body class="workspace-analytics">
 <!-- LOGIN OVERLAY -->
 <div id="login-overlay" class="login-overlay">
   <div style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:420px">
@@ -3478,6 +3587,41 @@ html { scroll-behavior: smooth; }
       <button class="theme-switcher-btn" onclick="openCmdPalette()" title="Tìm nhanh (Cmd/Ctrl+K)" style="font-size:13px">⌘K</button>
     </div>
   </header>
+
+  <!-- ============ WORKSPACE SWITCHER (cấp 1) ============ -->
+  <div class="workspace-bar" id="workspace-bar">
+    <button class="workspace-btn active" data-workspace="analytics" onclick="switchWorkspace('analytics')">
+      <span class="workspace-btn-icon">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="9"/>
+          <rect x="14" y="3" width="7" height="5"/>
+          <rect x="14" y="12" width="7" height="9"/>
+          <rect x="3" y="16" width="7" height="5"/>
+        </svg>
+      </span>
+      <div class="workspace-btn-text">
+        <div class="workspace-btn-title">Sản phẩm &amp; Phân tích</div>
+        <div class="workspace-btn-sub">Theo dõi · Bán chạy · Tồn kho · Khu vực</div>
+      </div>
+    </button>
+    <button class="workspace-btn workspace-btn-dphh" data-workspace="dphh" data-perm="dphh" onclick="switchWorkspace('dphh')">
+      <span class="workspace-btn-icon">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 7h18"/>
+          <path d="M3 12h18"/>
+          <path d="M3 17h18"/>
+          <circle cx="7" cy="7" r="1.5" fill="currentColor"/>
+          <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+          <circle cx="17" cy="17" r="1.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <div class="workspace-btn-text">
+        <div class="workspace-btn-title">Điều phối hàng hóa</div>
+        <div class="workspace-btn-sub">Bàn chia · Xuất Odoo · Cân đối nguồn</div>
+      </div>
+    </button>
+  </div>
+
   <!-- INFO BAR -->
   <div class="info-bar" id="info-bar">
     <span>Đang tải...</span>
@@ -3598,8 +3742,6 @@ html { scroll-behavior: smooth; }
     <button class="tab" data-tab="transfer"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg></span> Đề xuất hàng</button>
     <button class="tab" data-tab="lifecycle"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg></span> Vòng đời</button>
     <button class="tab" data-tab="raw"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg></span> Raw data</button>
-    <span class="tab-sep" data-perm="dphh"></span>
-    <button class="tab tab-dphh" data-tab="allocation" data-perm="dphh"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M3 7h18"/><path d="M3 12h18"/><path d="M3 17h18"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="17" cy="17" r="1.5" fill="currentColor"/></svg></span> Điều phối hàng hóa</button>
   </div>
   
   <!-- ============ SECTION: LIVE ============ -->
@@ -4104,6 +4246,15 @@ html { scroll-behavior: smooth; }
               <span class="scope-chip" onclick="allocSetDateRange(14)">14 ngày</span>
               <span class="scope-chip" onclick="allocSetDateRange(21)">21 ngày</span>
               <span class="scope-chip" onclick="allocSetDateRange(30)">30 ngày</span>
+            </div>
+
+            <div class="scope-label" style="margin-top:18px">Loại hàng chia kỳ này</div>
+            <div class="scope-chips alloc-loai-chips">
+              <span class="scope-chip alloc-chip-chinh active" data-loai="chinh" onclick="allocSetLoai('chinh')">Hàng CHÍNH</span>
+              <span class="scope-chip alloc-chip-sale" data-loai="sale" onclick="allocSetLoai('sale')">Hàng SALE</span>
+            </div>
+            <div style="font-size:11px;color:var(--text-soft);margin-top:6px;font-style:italic" id="alloc-loai-hint">
+              Phiên này chỉ chia hàng CHÍNH. Hàng SALE chia trong phiên riêng để tách file CSV.
             </div>
           </div>
 
@@ -8900,23 +9051,21 @@ function applyRolePermissions() {
   if (!CURRENT_USER) return;
 
   const permLevel = CURRENT_USER.permLevel || 'manager';
+  const showDphh = (permLevel === 'admin' || permLevel === 'dphh');
 
-  // Tab Điều phối hàng hóa (data-perm="dphh"): chỉ admin + dphh thấy
-  // QL chỉ thấy các tab phân tích cũ, ẩn allocation
-  const allocTab = document.querySelector('.tab[data-tab="allocation"]');
-  const allocSep = document.querySelector('.tab-sep[data-perm="dphh"]');
-  const showAllocation = (permLevel === 'admin' || permLevel === 'dphh');
+  // Workspace bar: ẩn nút "Điều phối hàng hóa" nếu không có quyền
+  const dphhBtn = document.querySelector('.workspace-btn[data-workspace="dphh"]');
+  if (dphhBtn) dphhBtn.style.display = showDphh ? '' : 'none';
 
-  if (allocTab) allocTab.style.display = showAllocation ? '' : 'none';
-  if (allocSep) allocSep.style.display = showAllocation ? '' : 'none';
-
-  // Store role (legacy): hide "Đề xuất hàng" tab
+  // Store role (legacy)
   if (CURRENT_USER.role === 'store') {
     const transferTab = document.querySelector('.tab[data-tab="transfer"]');
     if (transferTab) transferTab.style.display = 'none';
-    if (allocTab) allocTab.style.display = 'none';
-    if (allocSep) allocSep.style.display = 'none';
+    if (dphhBtn) dphhBtn.style.display = 'none';
   }
+
+  // Áp workspace
+  applyWorkspaceFromStorage();
 }
 
 function logout() {
@@ -9663,6 +9812,7 @@ const ALLOC = {
     region: '',
     group: 'all',       // 'all' | '1' | '2' | '3'
     type: 'all',        // 'all' | 'CH' | 'DB' | 'DOISALE'
+    loai: 'chinh',      // 'chinh' | 'sale' - phiên này chia loại nào
     storeIds: new Set() // selected mã CH
   },
   // Master data computed cho scope hiện tại
@@ -9694,6 +9844,17 @@ function allocCanUse() {
 // ====== STEP NAVIGATION ======
 function allocGotoStep(step) {
   if (!allocCanUse()) return;
+
+  // Khi rời step 1 → lock scope: bỏ check các CH không còn trong storeIds
+  if (ALLOC.step === 1 && step > 1) {
+    if (ALLOC.scope.storeIds.size === 0) {
+      alert('Vui lòng chọn ít nhất 1 cửa hàng ở Bước 1.');
+      return;
+    }
+    // Reset allocations để build lại theo scope mới
+    ALLOC.allocations = new Map();
+  }
+
   ALLOC.step = step;
 
   document.querySelectorAll('.alloc-step').forEach(el => {
@@ -9786,6 +9947,20 @@ function allocSetType(t) {
   allocRenderStoreList();
 }
 
+function allocSetLoai(l) {
+  ALLOC.scope.loai = l;
+  document.querySelectorAll('.scope-chip[data-loai]').forEach(c => {
+    c.classList.toggle('active', c.dataset.loai === l);
+  });
+  const hint = document.getElementById('alloc-loai-hint');
+  if (hint) {
+    if (l === 'chinh') hint.textContent = 'Phiên này chỉ chia hàng CHÍNH. Hàng SALE chia trong phiên riêng để tách file CSV.';
+    else hint.textContent = 'Phiên này chỉ chia hàng SALE. File CSV xuất riêng cho hàng giảm giá.';
+  }
+  // Khi đổi loại → reset allocations để build lại
+  ALLOC.allocations = new Map();
+}
+
 function allocFilterStores() {
   if (typeof STORES_DATA === 'undefined' || !Array.isArray(STORES_DATA)) return [];
   return STORES_DATA.filter(s => {
@@ -9809,16 +9984,25 @@ function allocRenderStoreList() {
 
   if (stores.length === 0) {
     wrap.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-soft);font-size:13px">Không có CH nào khớp bộ lọc.</div>';
+    ALLOC.scope.storeIds = new Set();
     return;
+  }
+
+  // Đồng bộ storeIds với store list hiện tại:
+  // - Bỏ các CH không còn trong filter
+  // - Nếu set rỗng (lần đầu hoặc sau khi đổi filter) → check all
+  const visibleSet = new Set(stores.map(s => s.maCh));
+  // Loại bỏ CH ngoài filter
+  for (const id of [...ALLOC.scope.storeIds]) {
+    if (!visibleSet.has(id)) ALLOC.scope.storeIds.delete(id);
+  }
+  // Nếu rỗng → auto-select all
+  if (ALLOC.scope.storeIds.size === 0) {
+    stores.forEach(s => ALLOC.scope.storeIds.add(s.maCh));
   }
 
   // Compute sức bán mỗi CH trong scope (preview)
   const salesMap = allocComputeSalesByStore(stores);
-
-  // Auto-select all by default
-  if (ALLOC.scope.storeIds.size === 0) {
-    stores.forEach(s => ALLOC.scope.storeIds.add(s.maCh));
-  }
 
   wrap.innerHTML = stores.map(s => {
     const checked = ALLOC.scope.storeIds.has(s.maCh);
@@ -10086,18 +10270,23 @@ function allocRecomputeAll() {
   allocBuildEngineData();
   ALLOC.allocations = new Map();
 
-  // Mọi cặp (store, sp đã bán hoặc có tồn ở store đó)
+  const wantSale = (ALLOC.scope.loai === 'sale');
+
+  // Mọi cặp (store, sp đã bán hoặc có tồn ở store đó) — chỉ giữ đúng loại
   for (const storeCode of ALLOC.scope.storeIds) {
     const salesMap = ALLOC.data.salesByStoreCode.get(storeCode) || new Map();
     const stockMap = ALLOC.data.stockByStoreCode.get(storeCode) || new Map();
     const allMa = new Set([...salesMap.keys(), ...stockMap.keys()]);
     for (const ma of allMa) {
+      const meta = ALLOC.data.productMeta.get(ma);
+      if (!meta) continue;
+      if (!!meta.isSale !== wantSale) continue;
       const sug = allocComputeSuggestion(storeCode, ma);
       if (sug.suggested > 0 || sug.sold > 0) {
         ALLOC.allocations.set(`${storeCode}|${ma}`, {
           storeCode, maSp: ma,
           ...sug,
-          qty: sug.suggested,   // qty chia thực tế (có thể chỉnh tay)
+          qty: sug.suggested,
           locked: false,
           note: ''
         });
@@ -10206,12 +10395,16 @@ function allocRenderStep2() {
   // Build engine nếu chưa có
   if (ALLOC.allocations.size === 0) {
     allocBuildEngineData();
-    // First-time auto compute suggestion
+    // First-time auto compute suggestion — chỉ tạo cho mã đúng LOẠI đã chọn ở Step 1
+    const wantSale = (ALLOC.scope.loai === 'sale');
     for (const storeCode of ALLOC.scope.storeIds) {
       const salesMap = ALLOC.data.salesByStoreCode.get(storeCode) || new Map();
       const stockMap = ALLOC.data.stockByStoreCode.get(storeCode) || new Map();
       const allMa = new Set([...salesMap.keys(), ...stockMap.keys()]);
       for (const ma of allMa) {
+        const meta = ALLOC.data.productMeta.get(ma);
+        if (!meta) continue;
+        if (!!meta.isSale !== wantSale) continue;  // ← FILTER theo loại hàng
         const sug = allocComputeSuggestion(storeCode, ma);
         if (sug.suggested > 0 || sug.sold > 0) {
           ALLOC.allocations.set(`${storeCode}|${ma}`, {
@@ -10230,7 +10423,8 @@ function allocRenderStep2() {
   const subEl = document.getElementById('alloc-step2-sub');
   if (subEl) {
     const dates = `${ALLOC.scope.dateFrom} → ${ALLOC.scope.dateTo}`;
-    subEl.textContent = `Sức bán tính từ ${dates} · ${ALLOC.scope.storeIds.size} điểm bán · Đề xuất tự động theo (sức bán × hệ số phủ) − tồn hiện tại`;
+    const loaiTxt = ALLOC.scope.loai === 'sale' ? 'hàng SALE' : 'hàng CHÍNH';
+    subEl.textContent = `Phiên này chia ${loaiTxt} · Sức bán tính từ ${dates} · ${ALLOC.scope.storeIds.size} điểm bán`;
   }
 }
 
@@ -10687,9 +10881,12 @@ function allocRenderStep3() {
   if (!body) return;
 
   // Mã hàng mới = có tồn kho TP/SA > 0 nhưng chưa CH nào trong scope có tồn
+  const wantSale = (ALLOC.scope.loai === 'sale');
   const candidates = [];
   for (const [ma, supply] of ALLOC.data.warehouseStockByCode) {
     if (supply <= 0) continue;
+    const meta = ALLOC.data.productMeta.get(ma) || {};
+    if (!!meta.isSale !== wantSale) continue;  // chỉ lấy đúng loại
     // Check chưa CH nào trong scope có tồn
     let hasInAnyStore = false;
     for (const storeCode of ALLOC.scope.storeIds) {
@@ -10697,7 +10894,6 @@ function allocRenderStep3() {
       if (onHand > 0) { hasInAnyStore = true; break; }
     }
     if (hasInAnyStore) continue;
-    const meta = ALLOC.data.productMeta.get(ma) || {};
     if (!meta.nganhCap3) continue;  // không có ngành cấp 3 thì không chia được
     candidates.push({ ma, supply, meta });
   }
@@ -11220,6 +11416,45 @@ function allocMarkDraftDirty() {
 }
 
 
+// ====== WORKSPACE SWITCHER ======
+function switchWorkspace(ws) {
+  document.body.classList.remove('workspace-analytics', 'workspace-dphh');
+  document.body.classList.add('workspace-' + ws);
+  document.querySelectorAll('.workspace-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.workspace === ws);
+  });
+  // Lưu preference
+  try { localStorage.setItem('ns_workspace', ws); } catch (e) {}
+
+  if (ws === 'dphh') {
+    allocInitOnTabOpen();
+  } else {
+    // Quay về analytics: đảm bảo tab hiện tại của analytics đang render
+    // Trigger 1 click trên tab active để re-render nếu cần
+  }
+
+  // Cuộn lên đầu
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Áp dụng workspace từ localStorage hoặc default analytics
+function applyWorkspaceFromStorage() {
+  if (!allocCanUse()) {
+    // User không có quyền DPHH → ép về analytics + ẩn nút dphh
+    const btn = document.querySelector('.workspace-btn[data-workspace="dphh"]');
+    if (btn) btn.style.display = 'none';
+    document.body.classList.add('workspace-analytics');
+    return;
+  }
+  let ws = 'analytics';
+  try {
+    const saved = localStorage.getItem('ns_workspace');
+    if (saved === 'dphh' || saved === 'analytics') ws = saved;
+  } catch (e) {}
+  switchWorkspace(ws);
+}
+
+
 // ====== INIT HOOK: khi user lần đầu bấm tab Điều phối ======
 let _allocInitialized = false;
 function allocInitOnTabOpen() {
@@ -11237,19 +11472,14 @@ function allocInitOnTabOpen() {
   }, 200);
 }
 
-// Hook vào tab click: chèn vào DOMContentLoaded sẵn
+// Sau khi DOM ready và login xong → apply workspace
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.tab[data-tab="allocation"]').forEach(btn => {
-    btn.addEventListener('click', allocInitOnTabOpen);
-  });
+  // Đợi auth xong xuôi mới apply (CURRENT_USER có thể null lúc DOM ready)
+  setTimeout(applyWorkspaceFromStorage, 800);
 });
-// Also hook nếu DOM đã ready
+// Backup nếu DOM đã ready
 if (document.readyState !== 'loading') {
-  setTimeout(() => {
-    document.querySelectorAll('.tab[data-tab="allocation"]').forEach(btn => {
-      btn.addEventListener('click', allocInitOnTabOpen);
-    });
-  }, 100);
+  setTimeout(applyWorkspaceFromStorage, 1000);
 }
 
 
