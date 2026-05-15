@@ -3292,6 +3292,39 @@ body.workspace-analytics #section-allocation {
 }
 .sort-arrow.active { opacity: 1; color: var(--accent); }
 
+/* Dòng tổng (sticky dưới header) */
+.alloc-table-totals {
+  position: sticky;
+  top: 38px;
+  background: var(--bg-elevated);
+  z-index: 1;
+}
+.alloc-table-totals td {
+  padding: 8px 10px !important;
+  font-size: 12px;
+  font-family: 'SF Mono', Menlo, monospace;
+  font-weight: 700;
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent) !important;
+  border-top: 1px solid var(--line);
+  background: var(--accent-soft, rgba(168, 86, 48, 0.06));
+}
+.alloc-table-totals td:first-child {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+.alloc-table-totals .totals-label {
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+.alloc-table-totals td strong {
+  font-size: 13px;
+}
+
 .alloc-product-cell {
   display: flex;
   align-items: center;
@@ -3540,6 +3573,8 @@ body.workspace-analytics #section-allocation {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
+  gap: 14px;
+  flex-wrap: wrap;
 }
 .alloc-source-name { font-weight: 600; font-size: 13px; }
 .alloc-source-deficit {
@@ -10748,6 +10783,16 @@ function allocRenderStoreDetail(maCh) {
     return ALLOC.sortDir === 'desc' ? '<span class="sort-arrow active">▼</span>' : '<span class="sort-arrow active">▲</span>';
   };
 
+  // Tính tổng các cột số
+  const totals = rows.reduce((t, r) => ({
+    sold: t.sold + (r.sold || 0),
+    onHand: t.onHand + (r.onHand || 0),
+    warehouseStock: t.warehouseStock + (r.warehouseStock || 0),
+    suggested: t.suggested + (r.suggested || 0),
+    qty: t.qty + (r.qty || 0)
+  }), { sold: 0, onHand: 0, warehouseStock: 0, suggested: 0, qty: 0 });
+  const allocCount = rows.filter(r => r.qty > 0).length;
+
   wrap.innerHTML = `
     <table class="alloc-table">
       <thead>
@@ -10760,6 +10805,16 @@ function allocRenderStoreDetail(maCh) {
           <th class="num sortable" onclick="allocToggleSort('suggested')">Đề xuất ${sortArrow('suggested')}</th>
           <th class="num sortable" onclick="allocToggleSort('chia')">Chia ${sortArrow('chia')}</th>
           <th>Cảnh báo</th>
+        </tr>
+        <tr class="alloc-table-totals">
+          <td><span class="totals-label">Tổng ${rows.length} mã · chia ${allocCount} mã</span></td>
+          <td></td>
+          <td class="num">${formatNumber(totals.sold)}</td>
+          <td class="num">${formatNumber(totals.onHand)}</td>
+          <td class="num">${formatNumber(totals.warehouseStock)}</td>
+          <td class="num">${formatNumber(totals.suggested)}</td>
+          <td class="num"><strong>${formatNumber(totals.qty)}</strong></td>
+          <td></td>
         </tr>
       </thead>
       <tbody>
@@ -10998,6 +11053,15 @@ function allocRenderProductDetail(ma) {
     ? `<div style="padding:12px 16px;background:rgba(200,74,74,0.08);border-bottom:1px solid var(--line);font-size:13px"><strong style="color:#c84a4a">Thiếu nguồn ${deficit} cái</strong> · Tổng nhu cầu ${totalDemand}, kho TP/SA chỉ có ${supply}. <a href="javascript:void(0)" onclick="allocProrate('${ma}')" style="color:var(--accent);font-weight:600">Chia tỷ lệ tự động</a></div>`
     : `<div style="padding:12px 16px;background:rgba(106,119,82,0.08);border-bottom:1px solid var(--line);font-size:13px"><strong style="color:#6a7752">Đủ nguồn</strong> · Tổng nhu cầu ${totalDemand} / ${supply}</div>`;
 
+  // Tính tổng các cột số
+  const totalsP = rows.reduce((t, r) => ({
+    sold: t.sold + (r.sold || 0),
+    onHand: t.onHand + (r.onHand || 0),
+    suggested: t.suggested + (r.suggested || 0),
+    qty: t.qty + (r.qty || 0)
+  }), { sold: 0, onHand: 0, suggested: 0, qty: 0 });
+  const allocCountP = rows.filter(r => r.qty > 0).length;
+
   wrap.innerHTML = deficitBanner + `
     <table class="alloc-table">
       <thead>
@@ -11009,6 +11073,15 @@ function allocRenderProductDetail(ma) {
           <th class="num">Đề xuất</th>
           <th class="num">Chia</th>
           <th class="num">% tổng</th>
+        </tr>
+        <tr class="alloc-table-totals">
+          <td><span class="totals-label">Tổng ${rows.length} CH · chia ${allocCountP} CH</span></td>
+          <td></td>
+          <td class="num">${formatNumber(totalsP.sold)}</td>
+          <td class="num">${formatNumber(totalsP.onHand)}</td>
+          <td class="num">${formatNumber(totalsP.suggested)}</td>
+          <td class="num"><strong>${formatNumber(totalsP.qty)}</strong></td>
+          <td class="num">100%</td>
         </tr>
       </thead>
       <tbody>
@@ -11135,55 +11208,95 @@ function allocRenderStep3() {
 function allocRenderNewItem(c) {
   const cap3 = c.meta.nganhCap3;
   const totalSold = ALLOC.data.totalSoldByCap3.get(cap3) || 0;
-  if (totalSold === 0) {
+
+  // Tính lại share NORMALIZE trong scope: chỉ chia cho các CH đã chọn,
+  // dựa trên tỷ trọng bán cap3 của các CH này so với tổng các CH trong scope
+  const scopeShares = [];
+  let scopeTotalShare = 0;
+  for (const storeCode of ALLOC.scope.storeIds) {
+    const rawShare = ALLOC.data.storeShareByCap3.get(`${storeCode}|${cap3}`) || 0;
+    if (rawShare <= 0) continue;
+    scopeShares.push({ storeCode, rawShare });
+    scopeTotalShare += rawShare;
+  }
+
+  if (totalSold === 0 || scopeShares.length === 0) {
     return `
       <div class="alloc-source-card">
         <div class="alloc-source-card-head">
-          <div class="alloc-source-name">${escapeHtml(c.ma)}</div>
-          <span style="font-size:11px;color:var(--text-soft)">Ngành ${escapeHtml(cap3)} chưa có dữ liệu bán</span>
+          ${allocNewItemHeader(c)}
         </div>
+        <div style="font-size:11px;color:var(--text-soft)">Ngành ${escapeHtml(cap3)} chưa có dữ liệu bán trong các CH đã chọn.</div>
       </div>
     `;
   }
 
-  // Đề xuất chia cho CH có share cao
-  const suggestions = [];
-  for (const storeCode of ALLOC.scope.storeIds) {
-    const share = ALLOC.data.storeShareByCap3.get(`${storeCode}|${cap3}`) || 0;
-    if (share <= 0) continue;
-    const suggested = Math.max(1, Math.round(share * c.supply));
-    suggestions.push({ storeCode, share, suggested });
-  }
+  // Re-normalize: scale các share lên cho tổng = 1 trong phạm vi scope
+  const suggestions = scopeShares.map(s => {
+    const normShare = s.rawShare / scopeTotalShare;
+    const suggested = Math.max(1, Math.round(normShare * c.supply));
+    return { storeCode: s.storeCode, share: normShare, suggested };
+  });
   suggestions.sort((a, b) => b.share - a.share);
-  const totalSuggested = suggestions.reduce((s, x) => s + x.suggested, 0);
+
+  // Adjust rounding để tổng suggestion = supply
+  let totalSuggested = suggestions.reduce((s, x) => s + x.suggested, 0);
+  let diff = c.supply - totalSuggested;
+  let idx = 0;
+  while (diff !== 0 && suggestions.length > 0 && idx < 1000) {
+    const i = idx % suggestions.length;
+    if (diff > 0) { suggestions[i].suggested++; diff--; }
+    else if (suggestions[i].suggested > 1) { suggestions[i].suggested--; diff++; }
+    idx++;
+  }
+  totalSuggested = suggestions.reduce((s, x) => s + x.suggested, 0);
 
   return `
     <div class="alloc-source-card">
       <div class="alloc-source-card-head">
-        <div class="alloc-source-name">
-          <span style="font-family:'SF Mono',Menlo,monospace">${escapeHtml(c.ma)}</span>
-          <span class="alloc-loai-pill ${c.meta.isSale ? 'sale' : 'chinh'}" style="margin-left:8px">${c.meta.isSale ? 'Sale' : 'Chính'}</span>
-        </div>
-        <div style="font-size:11px;color:var(--text-soft)">Kho TP/SA: <strong>${c.supply}</strong> · Đã đề xuất: ${totalSuggested}</div>
+        ${allocNewItemHeader(c)}
+        <div style="font-size:11px;color:var(--text-soft)">Đề xuất chia hết kho ${c.supply}: <strong>${totalSuggested}</strong> cho ${suggestions.length} CH</div>
       </div>
-      <div style="font-size:11px;color:var(--text-soft);margin-bottom:6px">Ngành cấp 3: ${escapeHtml(cap3)} · Tổng bán hệ thống: ${formatNumber(totalSold)}</div>
+      <div style="font-size:11px;color:var(--text-soft);margin-bottom:8px">Ngành cấp 3: ${escapeHtml(cap3)} · Tổng bán hệ thống: ${formatNumber(totalSold)} · Trong scope: ${suggestions.length}/${ALLOC.scope.storeIds.size} CH bán mặt hàng này</div>
       <div style="display:flex;flex-wrap:wrap;gap:6px">
-        ${suggestions.slice(0, 12).map(s => {
+        ${suggestions.slice(0, 18).map(s => {
           const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(st => st.maCh === s.storeCode) : null;
           const name = store ? store.ten : s.storeCode;
+          const groupTag = store && store.nhomCh ? `<span style="color:var(--text-soft);font-size:10px">N${store.nhomCh}</span>` : '';
           return `
             <div style="border:1px solid var(--line);border-radius:6px;padding:5px 10px;background:var(--bg);font-size:11px;display:flex;align-items:center;gap:8px">
-              <span>${escapeHtml(name)}</span>
+              <span title="${escapeHtml(s.storeCode)}">${escapeHtml(name)}</span>
+              ${groupTag}
               <span style="color:var(--text-soft)">${(s.share*100).toFixed(1)}%</span>
               <input type="number" class="alloc-input" style="width:50px" value="${s.suggested}" min="0"
                 onchange="allocSetNewItemAlloc('${c.ma}','${s.storeCode}',this.value)">
             </div>
           `;
         }).join('')}
-        ${suggestions.length > 12 ? `<div style="font-size:11px;color:var(--text-soft);padding:5px 10px">+${suggestions.length - 12} CH khác</div>` : ''}
+        ${suggestions.length > 18 ? `<div style="font-size:11px;color:var(--text-soft);padding:5px 10px">+${suggestions.length - 18} CH khác</div>` : ''}
       </div>
-      <div style="margin-top:8px;text-align:right">
+      <div style="margin-top:10px;text-align:right">
         <button class="alloc-btn ghost" style="font-size:11px;padding:4px 10px" onclick="allocApplyNewItem('${c.ma}')">✓ Chấp nhận đề xuất hệ thống</button>
+      </div>
+    </div>
+  `;
+}
+
+// Header card hàng mới — có hình ảnh
+function allocNewItemHeader(c) {
+  const imgUrl = (typeof IMAGE_MAP !== 'undefined' && IMAGE_MAP[c.ma]) ? IMAGE_MAP[c.ma] : '';
+  const imgTag = imgUrl
+    ? `<img src="${escapeHtml(imgUrl)}" loading="lazy" style="width:56px;height:56px;border-radius:8px;object-fit:cover;background:var(--line);flex-shrink:0">`
+    : `<div style="width:56px;height:56px;border-radius:8px;background:var(--line);display:flex;align-items:center;justify-content:center;color:var(--text-soft);font-size:10px;flex-shrink:0">—</div>`;
+  return `
+    <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
+      ${imgTag}
+      <div style="min-width:0;flex:1">
+        <div class="alloc-source-name" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-family:'SF Mono',Menlo,monospace;font-size:13px">${escapeHtml(c.ma)}</span>
+          <span class="alloc-loai-pill ${c.meta.isSale ? 'sale' : 'chinh'}">${c.meta.isSale ? 'Sale' : 'Chính'}</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-soft);margin-top:3px">Kho TP/SA: <strong style="color:var(--text)">${c.supply}</strong></div>
       </div>
     </div>
   `;
@@ -11222,17 +11335,43 @@ function allocApplyNewItem(ma) {
   const supply = ALLOC.data.warehouseStockByCode.get(ma) || 0;
   const cap3 = meta.nganhCap3;
   if (!cap3) return;
-  let applied = 0;
+
+  // Re-normalize share trong phạm vi scope
+  const scopeShares = [];
+  let totalScopeShare = 0;
   for (const storeCode of ALLOC.scope.storeIds) {
-    const share = ALLOC.data.storeShareByCap3.get(`${storeCode}|${cap3}`) || 0;
-    if (share <= 0) continue;
-    const qty = Math.max(1, Math.round(share * supply));
-    allocSetNewItemAlloc(ma, storeCode, qty);
-    applied++;
+    const raw = ALLOC.data.storeShareByCap3.get(`${storeCode}|${cap3}`) || 0;
+    if (raw <= 0) continue;
+    scopeShares.push({ storeCode, raw });
+    totalScopeShare += raw;
   }
-  // Re-render step 3
+  if (scopeShares.length === 0 || totalScopeShare === 0) {
+    alert('Không có CH nào trong scope từng bán ngành này.');
+    return;
+  }
+
+  const assignments = scopeShares.map(s => ({
+    storeCode: s.storeCode,
+    qty: Math.max(1, Math.round((s.raw / totalScopeShare) * supply))
+  }));
+
+  // Adjust rounding để tổng = supply
+  let total = assignments.reduce((s, a) => s + a.qty, 0);
+  let diff = supply - total;
+  let idx = 0;
+  while (diff !== 0 && assignments.length > 0 && idx < 1000) {
+    const i = idx % assignments.length;
+    if (diff > 0) { assignments[i].qty++; diff--; }
+    else if (assignments[i].qty > 1) { assignments[i].qty--; diff++; }
+    idx++;
+  }
+
+  for (const a of assignments) {
+    allocSetNewItemAlloc(ma, a.storeCode, a.qty);
+  }
+
   allocRenderStep3();
-  alert(`Đã áp dụng đề xuất cho ${applied} CH.`);
+  alert(`Đã áp dụng đề xuất cho ${assignments.length} CH (tổng ${assignments.reduce((s,a)=>s+a.qty,0)} cái).`);
 }
 
 
