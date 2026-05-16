@@ -3716,20 +3716,34 @@ body.workspace-analytics #section-allocation {
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%) translateY(100px);
-  background: var(--text);
-  color: var(--bg);
-  padding: 12px 22px;
+  background: #2a2a2a;
+  color: #fff;
+  padding: 14px 26px;
   border-radius: 10px;
   font-size: 13px;
   font-weight: 600;
   z-index: 2000;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.28);
   transition: transform 0.3s cubic-bezier(0.32, 1.4, 0.64, 1);
   pointer-events: none;
+  border: 1px solid rgba(255,255,255,0.08);
 }
 .cockpit-toast.show { transform: translateX(-50%) translateY(0); }
-.cockpit-toast.success { background: var(--c-green); color: #fff; }
-.cockpit-toast.error { background: var(--c-red); color: #fff; }
+.cockpit-toast.success {
+  background: #4d6d3a;
+  color: #fff;
+  border-color: rgba(255,255,255,0.15);
+}
+.cockpit-toast.error {
+  background: #b34141;
+  color: #fff;
+  border-color: rgba(255,255,255,0.15);
+}
+.cockpit-toast.warn {
+  background: #b8731e;
+  color: #fff;
+  border-color: rgba(255,255,255,0.15);
+}
 
 /* Animation count-up */
 @keyframes cockpit-flash {
@@ -4524,7 +4538,7 @@ body.workspace-analytics #section-allocation {
                 <span class="scope-chip" data-type="DB" onclick="cockpitSetType('DB')">Điểm bán</span>
                 <span class="scope-chip" data-type="DOISALE" onclick="cockpitSetType('DOISALE')">Đội sale</span>
               </div>
-              <div class="cockpit-scope-row-label" style="margin-top:14px">Đã chọn <strong id="cockpit-store-count">0</strong> điểm bán</div>
+              <div class="cockpit-scope-row-label" style="margin-top:14px">Đã chọn <strong id="cockpit-store-count">0</strong> <span id="cockpit-store-noun">điểm bán</span></div>
               <button class="cockpit-btn-ghost" style="margin-top:6px" onclick="cockpitOpenStorePicker()">Chọn cụ thể CH...</button>
             </div>
           </div>
@@ -4567,7 +4581,7 @@ body.workspace-analytics #section-allocation {
           <div class="cockpit-card-title">Kết quả AI điều phối</div>
           <div class="cockpit-bignum">
             <div class="cockpit-bignum-value" id="cockpit-bignum">0</div>
-            <div class="cockpit-bignum-label" id="cockpit-bignum-label">sản phẩm chia về cửa hàng</div>
+            <div class="cockpit-bignum-label" id="cockpit-bignum-label">sản phẩm chia về điểm bán</div>
           </div>
           <div class="cockpit-bignum-sub">
             <span><strong id="cockpit-coverage-pct">0%</strong> sức bán được đáp ứng</span>
@@ -10204,14 +10218,26 @@ function cockpitRebuildStoreScope() {
   COCKPIT.scope.storeIds = new Set(stores.map(s => s.maCh));
 }
 
+function cockpitGetStoreNoun() {
+  // Trả về danh từ phù hợp với filter type hiện tại
+  const t = COCKPIT.scope.type;
+  if (t === 'CH') return 'cửa hàng';
+  if (t === 'DB') return 'điểm bán';
+  if (t === 'DOISALE') return 'đội sale';
+  return 'điểm bán';  // "Tất cả" → từ chung
+}
+
 function cockpitUpdateScopeSummary() {
   const info = WAREHOUSE_MAP[COCKPIT.scope.warehouse];
   document.getElementById('cockpit-warehouse-label').textContent = info
     ? `${info.name} (${COCKPIT.scope.warehouse})`
     : '— Chọn kho —';
   document.getElementById('cockpit-date-label').textContent = `${COCKPIT.scope.dateFrom} → ${COCKPIT.scope.dateTo}`;
-  document.getElementById('cockpit-store-label').textContent = `${COCKPIT.scope.storeIds.size} điểm bán`;
+  const noun = cockpitGetStoreNoun();
+  document.getElementById('cockpit-store-label').textContent = `${COCKPIT.scope.storeIds.size} ${noun}`;
   document.getElementById('cockpit-store-count').textContent = COCKPIT.scope.storeIds.size;
+  const nounEl = document.getElementById('cockpit-store-noun');
+  if (nounEl) nounEl.textContent = noun;
 }
 
 // ====== STORE PICKER (chi tiết) ======
@@ -10440,7 +10466,7 @@ function cockpitBuildSalesByGroup() {
 function cockpitAutoAllocate() {
   if (!cockpitCanUse()) return;
   if (COCKPIT.scope.storeIds.size === 0) {
-    cockpitToast('Chưa có cửa hàng nào trong scope. Mở "Chi tiết" để kiểm tra.', 'error');
+    cockpitToast(`Chưa có ${cockpitGetStoreNoun()} nào trong phạm vi. Mở "Chi tiết" để kiểm tra.`, 'error');
     return;
   }
 
@@ -10604,7 +10630,7 @@ function cockpitAutoAllocate() {
     cockpitShowFooter();
 
     if (btn) { btn.textContent = '⚡ AI chia hàng tự động'; btn.disabled = false; }
-    cockpitToast(`AI đã chia ${formatNumber(cockpitTotalQty())} sản phẩm cho ${cockpitStoresWithAlloc()} cửa hàng.`, 'success');
+    cockpitToast(`AI đã chia ${formatNumber(cockpitTotalQty())} sản phẩm cho ${cockpitStoresWithAlloc()} ${cockpitGetStoreNoun()}.`, 'success');
   }, 50);
 }
 
@@ -10835,7 +10861,7 @@ function cockpitRenderHero() {
   document.getElementById('cockpit-stores-short').textContent = storesShort;
 
   document.getElementById('cockpit-bignum-label').textContent = total > 0
-    ? `sản phẩm chia ${cockpitStoresWithAlloc()} cửa hàng`
+    ? `sản phẩm chia ${cockpitStoresWithAlloc()} ${cockpitGetStoreNoun()}`
     : 'Bấm "AI chia hàng tự động" để bắt đầu';
 
   // Warnings
