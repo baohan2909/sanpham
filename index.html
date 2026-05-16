@@ -2836,6 +2836,23 @@ body.workspace-analytics #section-allocation {
   font-size: 14px;
 }
 .cockpit-scope-sep { color: var(--text-soft); opacity: 0.6; }
+.cockpit-scope-summary-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cockpit-version-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: rgba(106, 119, 82, 0.1);
+  color: #5d6a47;
+  border: 1px solid rgba(106, 119, 82, 0.3);
+  border-radius: 5px;
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
 .cockpit-scope-body {
   display: none;
   border-top: 1px solid var(--line);
@@ -4470,6 +4487,7 @@ body.workspace-analytics #section-allocation {
             <span class="cockpit-scope-value" id="cockpit-store-label">0</span>
           </div>
           <div class="cockpit-scope-summary-right">
+            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v10.5 · N1=7d N2=14d N3=21d</span>
             <button class="cockpit-btn-ghost" id="cockpit-scope-toggle">⚙ Mở chi tiết</button>
           </div>
         </div>
@@ -10784,7 +10802,7 @@ function cockpitGenerateWarnings() {
       type: 'over_cap',
       severity: 'critical',
       icon: '⚠',
-      title: `${overCapStores.length} CH vượt trần`,
+      title: `${overCapStores.length} CH vượt tồn kho tối đa`,
       desc: `Top: ${overCapStores[0].store.ten} (${overCapStores[0].after}/${overCapStores[0].max})`,
       data: overCapStores
     });
@@ -11050,7 +11068,7 @@ function cockpitRenderStoreList(list, filter) {
     const issueClass = isCritical ? 'has-issue-critical' : (isIssue ? 'has-issue' : '');
     const groupTag = s.store && s.store.nhomCh ? `<span class="cockpit-row-tag">N${s.store.nhomCh}</span>` : '';
     const issueLabels = [];
-    if (s.issueTypes.includes('over_cap')) issueLabels.push('⚠ Vượt trần');
+    if (s.issueTypes.includes('over_cap')) issueLabels.push('⚠ Vượt tồn kho tối đa');
     if (s.issueTypes.includes('overstocked')) issueLabels.push('Tồn dư cao');
     if (s.issueTypes.includes('slow_movers')) issueLabels.push('Nhiều mã bán chậm');
     if (s.deficit > 0) issueLabels.push(`Thiếu ${s.deficit}`);
@@ -11265,7 +11283,7 @@ function cockpitRenderSidePanel(storeCode) {
       <div class="sp-capbar">
         <div class="sp-capbar-label">Tồn ${capInfo.label} sau chia</div>
         <div class="sp-capbar-value" style="color:${valColor}">${after} <span style="color:var(--text-soft);font-weight:500">/ ${capInfo.cap.max}</span></div>
-        <div style="font-size:11px;color:var(--text-soft);margin-top:2px">Tồn hiện tại ${onHand} + chia thêm ${qty} · Sàn ${capInfo.cap.min} · Trần ${capInfo.cap.max} · Còn <strong>${Math.max(0, slot)}</strong> chỗ trống</div>
+        <div style="font-size:11px;color:var(--text-soft);margin-top:2px">Tồn hiện tại ${onHand} + chia thêm ${qty} · Tối thiểu ${capInfo.cap.min} · Tồn kho tối đa ${capInfo.cap.max} · Còn <strong>${Math.max(0, slot)}</strong> chỗ trống</div>
         <div class="sp-capbar-track"><div class="sp-capbar-fill ${fillCls}" style="width:${pct}%"></div></div>
       </div>
     `;
@@ -11309,7 +11327,7 @@ function cockpitRenderSidePanel(storeCode) {
       </div>
       ${capInfo ? `
         <div class="sp-narrative-conclusion">
-          Trần ${capInfo.label} <strong>${capInfo.cap.max}</strong> · Đã có <strong>${onHand}</strong>
+          Tồn kho tối đa ${capInfo.label} <strong>${capInfo.cap.max}</strong> · Đã có <strong>${onHand}</strong>
           → còn <strong style="color:${slotsLeft === 0 ? 'var(--c-red)' : 'var(--c-green)'}">${slotsLeft}</strong> chỗ trống
           ${slotsLeft === 0
             ? ' · <span style="color:var(--c-red);font-weight:600">CH đã chạm trần — AI không cấp được mã nào</span>'
@@ -11366,7 +11384,7 @@ function cockpitRenderSidePanel(storeCode) {
       <div class="sp-sortable" onclick="cockpitSpSetSort('onHand')">Tồn CH ${arrow('onHand')}</div>
       <div class="sp-sortable" onclick="cockpitSpSetSort('daysOfStock')">Đủ bán ${arrow('daysOfStock')}</div>
       <div class="sp-sortable" onclick="cockpitSpSetSort('warehouseStock')">Kho ${arrow('warehouseStock')}</div>
-      <div class="sp-sortable" onclick="cockpitSpSetSort('cap')" title="Trần = số tối đa AI có thể chia">Trần ${arrow('cap')}</div>
+      <div class="sp-sortable" onclick="cockpitSpSetSort('cap')" title="Tồn tối đa = số tối đa AI có thể chia (= sold × 120-160% − tồn hiện tại)">Tồn tối đa ${arrow('cap')}</div>
       <div class="sp-sortable" onclick="cockpitSpSetSort('qty')">Chia ${arrow('qty')}</div>
     </div>
   `;
@@ -11431,7 +11449,7 @@ function cockpitRenderSidePanel(storeCode) {
         <div class="sp-num${a.warehouseStock === 0 ? ' zero' : ''}">${formatNumber(a.warehouseStock)}</div>
         <div class="sp-num" style="${capStyle}">${capText}</div>
         <input type="number" class="${inputCls}" value="${a.qty}" min="0"
-          title="AI đề xuất: ${a.suggested} · Trần: ${capValue} · Nhập 0 để bỏ chia."
+          title="AI đề xuất: ${a.suggested} · Tồn tối đa: ${capValue} · Nhập 0 để bỏ chia."
           onchange="cockpitChangeQty('${a.storeCode}','${a.maSp}',this.value)">
       </div>
     `;
