@@ -3173,6 +3173,30 @@ body.workspace-analytics #section-allocation {
   max-height: 700px;
   overflow-y: auto;
 }
+
+/* Header sticky cho main list */
+.cockpit-row.cockpit-list-head {
+  background: var(--bg);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 10px 18px;
+  cursor: default;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-bottom: 1px solid var(--line);
+}
+.cockpit-row.cockpit-list-head:hover { background: var(--bg); }
+.cockpit-row.cockpit-list-head .cockpit-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+.cockpit-row.cockpit-list-head .cockpit-sortable:hover { color: var(--accent); }
+.cockpit-row.cockpit-list-head .cockpit-th-num { text-align: right; }
+
 .cockpit-row {
   display: grid;
   grid-template-columns: 1fr 100px 90px 90px 110px 110px;
@@ -3299,8 +3323,9 @@ body.workspace-analytics #section-allocation {
 .cockpit-sidepanel-body {
   flex: 1;
   overflow-y: auto;
-  padding: 18px 22px;
+  padding: 0 22px 18px;
 }
+.cockpit-sidepanel-body > :first-child { margin-top: 18px; }
 
 /* Side panel content */
 .sp-mini-stats {
@@ -3393,38 +3418,57 @@ body.workspace-analytics #section-allocation {
   gap: 4px;
 }
 
+/* Grid 7 cột: ảnh | tên | bán | tồn | đủ bán | kho | chia */
+.sp-product-head,
+.sp-product-row {
+  display: grid;
+  grid-template-columns: 44px minmax(170px, 1fr) 58px 64px 58px 70px 64px;
+  gap: 8px;
+  align-items: center;
+}
+
 /* Header bảng sản phẩm (sticky) */
 .sp-product-head {
-  display: grid;
-  grid-template-columns: 44px 1fr 70px 70px 70px 86px 56px;
-  gap: 10px;
-  padding: 8px 12px;
+  padding: 9px 12px;
   background: var(--bg-elevated);
   border-radius: 6px;
   font-size: 10px;
   font-weight: 700;
   color: var(--text-soft);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 3;
   border: 1px solid var(--line);
+  margin-bottom: 4px;
 }
-.sp-product-head .sp-num,
-.sp-product-head > div {
+.sp-product-head > div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sp-product-head > div:nth-child(3),
+.sp-product-head > div:nth-child(4),
+.sp-product-head > div:nth-child(5),
+.sp-product-head > div:nth-child(6),
+.sp-product-head > div:nth-child(7) {
   text-align: right;
 }
-.sp-product-head > div:nth-child(1),
-.sp-product-head > div:nth-child(2) {
-  text-align: left;
+.sp-sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.12s;
 }
+.sp-sortable:hover { color: var(--accent); }
+.sp-arrow {
+  display: inline-block;
+  margin-left: 2px;
+  font-size: 8px;
+  opacity: 0.45;
+  color: var(--text-soft);
+  vertical-align: middle;
+}
+.sp-arrow.active { opacity: 1; color: var(--accent); }
 
+/* Row */
 .sp-product-row {
-  display: grid;
-  grid-template-columns: 44px 1fr 70px 70px 70px 86px 56px;
-  align-items: center;
-  gap: 10px;
   padding: 8px 12px;
   border-radius: 6px;
   background: var(--bg);
@@ -3433,12 +3477,13 @@ body.workspace-analytics #section-allocation {
   transition: background 0.12s;
 }
 .sp-product-row:hover { background: var(--bg-elevated); }
-.sp-product-row.has-alloc { background: rgba(106, 119, 82, 0.08); border-color: rgba(106, 119, 82, 0.3); }
-.sp-product-row.has-alloc:hover { background: rgba(106, 119, 82, 0.14); }
+.sp-product-row.has-alloc { background: rgba(106, 119, 82, 0.07); border-color: rgba(106, 119, 82, 0.25); }
+.sp-product-row.has-alloc:hover { background: rgba(106, 119, 82, 0.12); }
 .sp-product-row.dead {
-  background: rgba(150, 150, 150, 0.06);
-  opacity: 0.65;
+  background: rgba(150, 150, 150, 0.05);
+  opacity: 0.78;
 }
+
 .sp-product-img {
   width: 44px;
   height: 44px;
@@ -3453,19 +3498,30 @@ body.workspace-analytics #section-allocation {
   color: var(--text);
   word-break: break-all;
   line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
+
+/* Tag (pastel mới) */
 .sp-product-tag {
   display: inline-block;
-  margin-left: 6px;
-  padding: 1px 6px;
-  border-radius: 3px;
-  font-size: 9px;
-  font-weight: 700;
-  vertical-align: middle;
+  padding: 1.5px 7px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
-.sp-product-tag.dead { background: rgba(200, 74, 74, 0.15); color: var(--c-red); }
-.sp-product-tag.over { background: rgba(184, 115, 30, 0.15); color: var(--c-orange); }
-.sp-product-tag.fast { background: rgba(106, 119, 82, 0.18); color: var(--c-green); }
+.sp-product-tag.fast-soft { background: #e7efd9; color: #5d6a47; }
+.sp-product-tag.over-soft { background: #fdf2d6; color: #8c6418; }
+.sp-product-tag.dead-soft { background: #fde5e9; color: #a13c4d; }
+.sp-product-tag.fast { background: #e7efd9; color: #5d6a47; }
+.sp-product-tag.over { background: #fdf2d6; color: #8c6418; }
+.sp-product-tag.dead { background: #fde5e9; color: #a13c4d; }
+
+/* Numbers + input */
 .sp-num {
   text-align: right;
   font-family: 'SF Mono', Menlo, monospace;
@@ -3474,21 +3530,10 @@ body.workspace-analytics #section-allocation {
   color: var(--text);
 }
 .sp-num.zero { color: var(--text-soft); font-weight: 400; }
-.sp-num-suggested {
-  text-align: right;
-  display: inline-block;
-  padding: 3px 9px;
-  background: var(--accent-soft, rgba(168, 86, 48, 0.1));
-  color: var(--accent);
-  border-radius: 5px;
-  font-family: 'SF Mono', Menlo, monospace;
-  font-size: 12px;
-  font-weight: 700;
-  min-width: 50px;
-}
+
 .sp-input {
-  width: 56px;
-  padding: 5px 8px;
+  width: 100%;
+  padding: 5px 6px;
   border: 1.5px solid var(--line);
   border-radius: 6px;
   font-size: 13px;
@@ -3506,10 +3551,120 @@ body.workspace-analytics #section-allocation {
 }
 .sp-input.changed {
   border-color: var(--accent);
-  background: rgba(168, 86, 48, 0.05);
+  background: rgba(168, 86, 48, 0.06);
   color: var(--accent);
 }
-.sp-input.has-alloc { border-color: var(--c-green); color: var(--c-green); }
+.sp-input.has-alloc {
+  border-color: var(--c-green);
+  color: var(--c-green);
+  background: rgba(106, 119, 82, 0.04);
+}
+
+/* ===== Narrative box ===== */
+.sp-narrative {
+  margin: 18px 0 14px;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, var(--bg) 0%, var(--bg-elevated) 100%);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  border-left: 3px solid var(--accent);
+}
+.sp-narrative-title {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.sp-narrative-body {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.sp-narrative-body strong {
+  font-weight: 700;
+  color: var(--accent);
+  font-family: 'SF Mono', Menlo, monospace;
+  font-feature-settings: 'tnum';
+}
+
+/* 4 segments */
+.sp-narrative-segments {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.sp-seg-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  min-width: 0;
+  position: relative;
+}
+.sp-seg-icon {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+.sp-seg-count {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: 'SF Mono', Menlo, monospace;
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.sp-seg-label {
+  font-size: 10px;
+  color: var(--text-soft);
+  margin-top: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  line-height: 1.3;
+}
+.sp-seg-detail {
+  font-size: 9.5px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-soft);
+  opacity: 0.7;
+}
+.sp-seg-item.sp-seg-running { border-color: #5d6a47; background: rgba(106, 119, 82, 0.04); }
+.sp-seg-item.sp-seg-running .sp-seg-count { color: #5d6a47; }
+.sp-seg-item.sp-seg-normal .sp-seg-count { color: var(--accent); }
+.sp-seg-item.sp-seg-enough { border-color: rgba(31, 78, 121, 0.3); background: rgba(31, 78, 121, 0.03); }
+.sp-seg-item.sp-seg-enough .sp-seg-count { color: var(--c-blue); }
+.sp-seg-item.sp-seg-sleeping { border-color: rgba(184, 115, 30, 0.3); background: rgba(184, 115, 30, 0.03); }
+.sp-seg-item.sp-seg-sleeping .sp-seg-count { color: var(--c-orange); }
+
+.sp-narrative-conclusion {
+  padding: 10px 12px;
+  background: rgba(168, 86, 48, 0.05);
+  border: 1px solid rgba(168, 86, 48, 0.2);
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.sp-narrative-conclusion strong {
+  font-weight: 700;
+  font-family: 'SF Mono', Menlo, monospace;
+}
+
+@media (max-width: 720px) {
+  .sp-narrative-segments { grid-template-columns: 1fr 1fr; }
+  .sp-product-head, .sp-product-row {
+    grid-template-columns: 36px minmax(120px, 1fr) 48px 54px 50px 60px 56px;
+    gap: 6px;
+  }
+}
 
 .sp-section-head {
   display: flex;
@@ -4440,7 +4595,7 @@ body.workspace-analytics #section-allocation {
         <div class="cockpit-footer-info" id="cockpit-footer-info">—</div>
         <div class="cockpit-footer-actions">
           <button class="cockpit-btn-ghost" onclick="cockpitSaveDraft()">⬇ Lưu nháp</button>
-          <button class="cockpit-btn-primary cockpit-btn-export" onclick="cockpitExportOdoo()">⬇ Xuất CSV cho Odoo</button>
+          <button class="cockpit-btn-primary cockpit-btn-export" onclick="cockpitExportOdoo()">⬇ Xuất Excel cho Odoo</button>
         </div>
       </div>
     </div>
@@ -9886,7 +10041,9 @@ const COCKPIT = {
     daysOfStockDead: 60                // > 60 ngày = mã chết
   },
   sidePanel: { storeCode: null },
-  storePicker: { tempSelected: new Set() }
+  storePicker: { tempSelected: new Set() },
+  listSort: { col: 'default', dir: 'desc' },  // sort cho bảng chính
+  spSort: { col: 'qty', dir: 'desc' }          // sort cho side panel (override sau)
 };
 
 const WAREHOUSE_MAP = {
@@ -10116,6 +10273,7 @@ function cockpitBuildEngineData() {
   d.warehouseStockByCode = new Map();
   d.productMeta = new Map();
   d.storeShareByCap3 = new Map();
+  d.lastSaleByStoreCode = new Map();  // Map<storeCode, Map<ma, lastSaleDate>> — dùng cho "Tồn xx ngày"
 
   const selectedStoreSet = new Set(COCKPIT.scope.storeIds);
   const from = COCKPIT.scope.dateFrom;
@@ -10129,12 +10287,10 @@ function cockpitBuildEngineData() {
     }
   }
 
-  // 1. Sales từ RAW_DATA
+  // 1. Sales từ RAW_DATA + track ngày bán cuối (kể cả ngoài scope)
   if (typeof RAW_DATA !== 'undefined') {
     for (const r of RAW_DATA) {
       if (!r.maThamChieu) continue;
-      if (from && r.ngay && r.ngay < from) continue;
-      if (to && r.ngay && r.ngay > to) continue;
 
       let code = '';
       if (r.maKho) code = String(r.maKho).toUpperCase();
@@ -10143,6 +10299,18 @@ function cockpitBuildEngineData() {
 
       const ma = r.maThamChieu;
       const qty = r.soLuong || 0;
+
+      // Track ngày bán cuối (toàn bộ RAW_DATA, không giới hạn scope)
+      if (selectedStoreSet.has(code) && r.ngay && qty > 0) {
+        if (!d.lastSaleByStoreCode.has(code)) d.lastSaleByStoreCode.set(code, new Map());
+        const lm = d.lastSaleByStoreCode.get(code);
+        const cur = lm.get(ma);
+        if (!cur || r.ngay > cur) lm.set(ma, r.ngay);
+      }
+
+      // Filter theo scope cho sales aggregation
+      if (from && r.ngay && r.ngay < from) continue;
+      if (to && r.ngay && r.ngay > to) continue;
 
       if (selectedStoreSet.has(code)) {
         if (!d.salesByStoreCode.has(code)) d.salesByStoreCode.set(code, new Map());
@@ -10314,7 +10482,7 @@ function cockpitAutoAllocate() {
     cockpitShowFooter();
 
     if (btn) { btn.textContent = '⚡ Chia lại'; btn.disabled = false; }
-    cockpitToast(`AI đã chia ${formatNumber(cockpitTotalQty())} cái cho ${cockpitStoresWithAlloc()} cửa hàng.`, 'success');
+    cockpitToast(`AI đã chia ${formatNumber(cockpitTotalQty())} sản phẩm cho ${cockpitStoresWithAlloc()} cửa hàng.`, 'success');
   }, 50);
 }
 
@@ -10336,6 +10504,18 @@ function cockpitStoresWithAlloc() {
   const s = new Set();
   for (const a of COCKPIT.allocations.values()) if (a.qty > 0) s.add(a.storeCode);
   return s.size;
+}
+
+// Tính số ngày từ ngày bán cuối đến hôm nay (cho mã có tồn nhưng không bán trong scope)
+function cockpitDaysSinceLastSale(storeCode, maSp) {
+  const map = COCKPIT.data.lastSaleByStoreCode.get(storeCode);
+  if (!map) return null;
+  const lastDate = map.get(maSp);
+  if (!lastDate) return null;
+  const today = new Date();
+  const last = new Date(lastDate);
+  const diff = Math.floor((today - last) / (1000 * 60 * 60 * 24));
+  return diff >= 0 ? diff : null;
 }
 
 // ====== WARNINGS ======
@@ -10529,7 +10709,7 @@ function cockpitRenderHero() {
   document.getElementById('cockpit-stores-short').textContent = storesShort;
 
   document.getElementById('cockpit-bignum-label').textContent = total > 0
-    ? `cái sẽ chia cho ${cockpitStoresWithAlloc()} cửa hàng`
+    ? `sản phẩm chia ${cockpitStoresWithAlloc()} cửa hàng`
     : 'Bấm "AI chia hàng tự động" để bắt đầu';
 
   // Warnings
@@ -10543,7 +10723,7 @@ function cockpitRenderWarnings() {
     if (COCKPIT.allocations.size === 0) {
       list.innerHTML = '<div class="cockpit-empty-warning">Chưa có dữ liệu. Bấm "AI chia hàng tự động" để bắt đầu.</div>';
     } else {
-      list.innerHTML = '<div class="cockpit-empty-warning" style="border-color:var(--c-green);color:var(--c-green)">✓ Không có cảnh báo nào. Sẵn sàng xuất CSV.</div>';
+      list.innerHTML = '<div class="cockpit-empty-warning" style="border-color:var(--c-green);color:var(--c-green)">✓ Không có cảnh báo nào. Sẵn sàng xuất Excel.</div>';
     }
     return;
   }
@@ -10638,15 +10818,15 @@ function cockpitRenderStoreList(list, filter) {
   // Build rows
   let stores = [...COCKPIT.scope.storeIds].map(code => {
     const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === code) : null;
-    const list = byStore.get(code) || [];
-    const sold = list.reduce((s, a) => s + a.sold, 0);
-    const onHand = list.reduce((s, a) => s + a.onHand, 0);
-    const qty = list.reduce((s, a) => s + a.qty, 0);
-    const suggested = list.reduce((s, a) => s + a.suggested, 0);
+    const storeList = byStore.get(code) || [];
+    const sold = storeList.reduce((s, a) => s + a.sold, 0);
+    const onHand = storeList.reduce((s, a) => s + a.onHand, 0);
+    const qty = storeList.reduce((s, a) => s + a.qty, 0);
+    const suggested = storeList.reduce((s, a) => s + a.suggested, 0);
     const deficit = Math.max(0, suggested - qty);
     const issueList = issues.get(code) || [];
     return {
-      code, store, list, sold, onHand, qty, suggested, deficit,
+      code, store, sold, onHand, qty, suggested, deficit,
       issueTypes: issueList.map(w => w.type)
     };
   });
@@ -10662,24 +10842,57 @@ function cockpitRenderStoreList(list, filter) {
     );
   }
 
-  // Sort: critical first, then by qty desc
-  stores.sort((a, b) => {
-    const aCrit = a.issueTypes.includes('over_cap') ? 2 : (a.issueTypes.length > 0 || a.deficit > 0 ? 1 : 0);
-    const bCrit = b.issueTypes.includes('over_cap') ? 2 : (b.issueTypes.length > 0 || b.deficit > 0 ? 1 : 0);
-    if (aCrit !== bCrit) return bCrit - aCrit;
-    return b.qty - a.qty;
-  });
+  // Sort: theo state cockpit.listSort (mặc định critical first, qty desc)
+  const sortCol = COCKPIT.listSort.col;
+  const desc = COCKPIT.listSort.dir === 'desc';
+  if (sortCol === 'default') {
+    stores.sort((a, b) => {
+      const aCrit = a.issueTypes.includes('over_cap') ? 2 : (a.issueTypes.length > 0 || a.deficit > 0 ? 1 : 0);
+      const bCrit = b.issueTypes.includes('over_cap') ? 2 : (b.issueTypes.length > 0 || b.deficit > 0 ? 1 : 0);
+      if (aCrit !== bCrit) return bCrit - aCrit;
+      return b.qty - a.qty;
+    });
+  } else if (sortCol === 'name') {
+    stores.sort((a, b) => {
+      const an = a.store ? a.store.ten : a.code;
+      const bn = b.store ? b.store.ten : b.code;
+      return desc ? -an.localeCompare(bn) : an.localeCompare(bn);
+    });
+  } else {
+    stores.sort((a, b) => {
+      const va = a[sortCol] || 0;
+      const vb = b[sortCol] || 0;
+      return desc ? (vb - va) : (va - vb);
+    });
+  }
+
+  // Header sortable
+  const arrow = (col) => {
+    if (COCKPIT.listSort.col !== col) return '<span class="sort-arrow">⇅</span>';
+    return COCKPIT.listSort.dir === 'desc' ? '<span class="sort-arrow active">▼</span>' : '<span class="sort-arrow active">▲</span>';
+  };
+
+  const header = `
+    <div class="cockpit-row cockpit-list-head">
+      <div class="cockpit-sortable" onclick="cockpitListSetSort('name')">Cửa hàng ${arrow('name')}</div>
+      <div class="cockpit-sortable cockpit-th-num" onclick="cockpitListSetSort('sold')">Bán ${arrow('sold')}</div>
+      <div class="cockpit-sortable cockpit-th-num" onclick="cockpitListSetSort('onHand')">Tồn ${arrow('onHand')}</div>
+      <div class="cockpit-sortable cockpit-th-num" onclick="cockpitListSetSort('suggested')">Đề xuất ${arrow('suggested')}</div>
+      <div class="cockpit-sortable cockpit-th-num" onclick="cockpitListSetSort('qty')">Chia ${arrow('qty')}</div>
+      <div>Cảnh báo</div>
+    </div>
+  `;
 
   if (stores.length === 0) {
-    list.innerHTML = `<div class="cockpit-list-empty">
+    list.innerHTML = header + `<div class="cockpit-list-empty">
       <div class="cockpit-list-empty-icon">✓</div>
       <div class="cockpit-list-empty-title">${COCKPIT.currentTab === 'issues' ? 'Không có vấn đề nào' : 'Không có CH nào'}</div>
-      <div style="font-size:11px;color:var(--text-soft)">${COCKPIT.currentTab === 'issues' ? 'Tất cả CH đều ổn — sẵn sàng xuất CSV' : 'Thử thay đổi bộ lọc'}</div>
+      <div style="font-size:11px;color:var(--text-soft)">${COCKPIT.currentTab === 'issues' ? 'Tất cả CH đều ổn — sẵn sàng xuất file' : 'Thử thay đổi bộ lọc'}</div>
     </div>`;
     return;
   }
 
-  list.innerHTML = stores.map(s => {
+  list.innerHTML = header + stores.map(s => {
     const isCritical = s.issueTypes.includes('over_cap');
     const isIssue = s.issueTypes.length > 0 || s.deficit > 0;
     const issueClass = isCritical ? 'has-issue-critical' : (isIssue ? 'has-issue' : '');
@@ -10773,23 +10986,100 @@ function cockpitCloseSidePanel() {
   COCKPIT.sidePanel.storeCode = null;
 }
 
+// State sort cho main list + side panel đã được init trong COCKPIT global
+
+function cockpitListSetSort(col) {
+  if (COCKPIT.listSort.col === col) {
+    COCKPIT.listSort.dir = COCKPIT.listSort.dir === 'desc' ? 'asc' : 'desc';
+  } else {
+    COCKPIT.listSort.col = col;
+    COCKPIT.listSort.dir = (col === 'name') ? 'asc' : 'desc';
+  }
+  cockpitRenderList();
+}
+
+function cockpitSpSetSort(col) {
+  if (COCKPIT.spSort.col === col) {
+    COCKPIT.spSort.dir = COCKPIT.spSort.dir === 'desc' ? 'asc' : 'desc';
+  } else {
+    COCKPIT.spSort.col = col;
+    COCKPIT.spSort.dir = (col === 'maSp') ? 'asc' : 'desc';
+  }
+  if (COCKPIT.sidePanel.storeCode) cockpitRenderSidePanel(COCKPIT.sidePanel.storeCode);
+}
+
+function cockpitSortSidePanel(items) {
+  const col = COCKPIT.spSort.col;
+  const desc = COCKPIT.spSort.dir === 'desc';
+  items.sort((a, b) => {
+    if (col === 'maSp') {
+      const r = String(a.maSp).localeCompare(String(b.maSp));
+      return desc ? -r : r;
+    }
+    let va, vb;
+    switch (col) {
+      case 'sold': va = a.sold; vb = b.sold; break;
+      case 'onHand': va = a.onHand; vb = b.onHand; break;
+      case 'daysOfStock': va = a._daysOfStock; vb = b._daysOfStock; break;
+      case 'warehouseStock': va = a.warehouseStock; vb = b.warehouseStock; break;
+      case 'qty':
+      default:
+        va = a.qty; vb = b.qty;
+        if (va === 0 && vb === 0) return (b.warehouseStock || 0) - (a.warehouseStock || 0);
+        break;
+    }
+    return desc ? (vb - va) : (va - vb);
+  });
+}
+
 function cockpitRenderSidePanel(storeCode) {
   const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === storeCode) : null;
   document.getElementById('cockpit-sp-title').textContent = store ? store.ten : storeCode;
   const groupTxt = store && store.nhomCh ? `Nhóm ${store.nhomCh}` : '—';
   document.getElementById('cockpit-sp-sub').textContent = `${storeCode} · ${store ? store.khuVuc : ''} · ${groupTxt}`;
 
-  // Stats
+  // Số ngày trong scope
+  const fromD = new Date(COCKPIT.scope.dateFrom);
+  const toD = new Date(COCKPIT.scope.dateTo);
+  const scopeDays = Math.max(1, Math.round((toD - fromD) / (1000 * 60 * 60 * 24)) + 1);
+
+  // Build full items list
   const items = [];
   for (const a of COCKPIT.allocations.values()) {
-    if (a.storeCode === storeCode) items.push(a);
+    if (a.storeCode === storeCode) {
+      // Compute helpful derived values
+      const velocity = a.sold / scopeDays;  // SP/ngày
+      const daysOfStock = velocity > 0 ? Math.round(a.onHand / velocity) : (a.onHand > 0 ? 999 : 0);
+      const daysSinceLast = cockpitDaysSinceLastSale(storeCode, a.maSp);
+      items.push({
+        ...a,
+        _velocity: velocity,
+        _daysOfStock: daysOfStock,
+        _daysSinceLast: daysSinceLast
+      });
+    }
   }
   const sold = items.reduce((s, a) => s + a.sold, 0);
   const onHand = items.reduce((s, a) => s + a.onHand, 0);
   const qty = items.reduce((s, a) => s + a.qty, 0);
   const suggested = items.reduce((s, a) => s + a.suggested, 0);
 
-  // Tính status cho từng stat dựa trên cap
+  // Segment các mã
+  const seg = { running: [], normal: [], enough: [], sleeping: [], hasAlloc: 0 };
+  for (const item of items) {
+    if (item.qty > 0) seg.hasAlloc++;
+    if (item.sold === 0 && item.onHand > 0) {
+      seg.sleeping.push(item);
+    } else if (item._daysOfStock >= 30 && item.sold > 0) {
+      seg.enough.push(item);
+    } else if (item._daysOfStock < 7 && item.sold > 0) {
+      seg.running.push(item);
+    } else {
+      seg.normal.push(item);
+    }
+  }
+
+  // Cap info
   let capInfo = null;
   if (store) {
     const isSale = COCKPIT.scope.isSale, cat = COCKPIT.scope.cat;
@@ -10801,7 +11091,6 @@ function cockpitRenderSidePanel(storeCode) {
     if (cap && cap.max > 0) capInfo = { cap, label };
   }
 
-  // Status mini-stats
   const after = onHand + qty;
   let onHandStatus = 'ok', afterStatus = 'ok';
   if (capInfo) {
@@ -10818,20 +11107,74 @@ function cockpitRenderSidePanel(storeCode) {
     let fillCls = 'ok', valColor = 'var(--c-green)';
     if (after > capInfo.cap.max) { fillCls = 'over'; valColor = 'var(--c-red)'; }
     else if (after < capInfo.cap.min) { fillCls = 'warn'; valColor = 'var(--c-orange)'; }
+    const slot = capInfo.cap.max - onHand;
     capHtml = `
       <div class="sp-capbar">
         <div class="sp-capbar-label">Tồn ${capInfo.label} sau chia</div>
         <div class="sp-capbar-value" style="color:${valColor}">${after} <span style="color:var(--text-soft);font-weight:500">/ ${capInfo.cap.max}</span></div>
-        <div style="font-size:11px;color:var(--text-soft);margin-top:2px">Tồn hiện tại ${onHand} + chia thêm ${qty} · Sàn ${capInfo.cap.min} · Trần ${capInfo.cap.max}</div>
+        <div style="font-size:11px;color:var(--text-soft);margin-top:2px">Tồn hiện tại ${onHand} + chia thêm ${qty} · Sàn ${capInfo.cap.min} · Trần ${capInfo.cap.max} · Còn <strong>${Math.max(0, slot)}</strong> chỗ trống</div>
         <div class="sp-capbar-track"><div class="sp-capbar-fill ${fillCls}" style="width:${pct}%"></div></div>
       </div>
     `;
   }
 
+  // Tóm tắt CH tự động (narrative)
+  const velocityTotal = sold / scopeDays;
+  const totalDaysOfStock = velocityTotal > 0 ? Math.round(onHand / velocityTotal) : null;
+  const slotsLeft = capInfo ? Math.max(0, capInfo.cap.max - onHand) : null;
+  const slotsAfter = capInfo ? Math.max(0, capInfo.cap.max - after) : null;
+
+  const segmentSummary = `
+    <div class="sp-narrative">
+      <div class="sp-narrative-title">📊 Tóm tắt tình hình CH</div>
+      <div class="sp-narrative-body">
+        Trong <strong>${scopeDays} ngày qua</strong>, CH bán <strong>${formatNumber(sold)} cái</strong>
+        (≈ <strong>${velocityTotal.toFixed(1)}</strong> cái/ngày).
+        Hiện tồn <strong>${formatNumber(onHand)} cái</strong>${totalDaysOfStock !== null ? ` = đủ bán <strong>${totalDaysOfStock} ngày</strong> nữa` : ''}.
+      </div>
+      <div class="sp-narrative-segments">
+        <div class="sp-seg-item sp-seg-running">
+          <span class="sp-seg-icon">🔥</span>
+          <span class="sp-seg-count">${seg.running.length}</span>
+          <span class="sp-seg-label">mã đang chạy mạnh<br><span class="sp-seg-detail">tồn &lt; 7 ngày bán → ưu tiên cấp</span></span>
+        </div>
+        <div class="sp-seg-item sp-seg-normal">
+          <span class="sp-seg-icon">⚖</span>
+          <span class="sp-seg-count">${seg.normal.length}</span>
+          <span class="sp-seg-label">mã cấp chuẩn<br><span class="sp-seg-detail">tồn 7-30 ngày bán</span></span>
+        </div>
+        <div class="sp-seg-item sp-seg-enough">
+          <span class="sp-seg-icon">✓</span>
+          <span class="sp-seg-count">${seg.enough.length}</span>
+          <span class="sp-seg-label">mã đủ tồn<br><span class="sp-seg-detail">tồn ≥ 30 ngày → không cấp thêm</span></span>
+        </div>
+        <div class="sp-seg-item sp-seg-sleeping">
+          <span class="sp-seg-icon">💤</span>
+          <span class="sp-seg-count">${seg.sleeping.length}</span>
+          <span class="sp-seg-label">mã đang ngủ<br><span class="sp-seg-detail">có tồn nhưng không bán</span></span>
+        </div>
+      </div>
+      ${capInfo ? `
+        <div class="sp-narrative-conclusion">
+          Trần ${capInfo.label} <strong>${capInfo.cap.max}</strong> · Đã có <strong>${onHand}</strong>
+          → còn <strong style="color:${slotsLeft === 0 ? 'var(--c-red)' : 'var(--c-green)'}">${slotsLeft}</strong> chỗ trống
+          ${slotsLeft === 0
+            ? ' · <span style="color:var(--c-red);font-weight:600">CH đã chạm trần — AI không cấp được mã nào</span>'
+            : (qty > 0 ? ` · AI đang đề xuất chia <strong style="color:var(--accent)">${qty}</strong> cái → sau chia còn <strong>${slotsAfter}</strong> chỗ trống` : '')}
+        </div>
+      ` : ''}
+      ${qty === 0 && capInfo && slotsLeft > 0 ? `
+        <div class="sp-narrative-conclusion" style="border-color:var(--c-orange);background:rgba(184,115,30,0.05)">
+          <strong style="color:var(--c-orange)">Lý do không cấp:</strong> Tất cả mã CH đang bán đều còn đủ tồn ≥ 30 ngày, hoặc không có mã nào hết tồn cần bổ sung gấp.
+        </div>
+      ` : ''}
+    </div>
+  `;
+
   let body = `
     <div class="sp-mini-stats">
       <div class="sp-mini-stat">
-        <div class="sp-mini-stat-label">Đã bán (${COCKPIT.scope.dateFrom.slice(5)} → ${COCKPIT.scope.dateTo.slice(5)})</div>
+        <div class="sp-mini-stat-label">Đã bán (${scopeDays}d)</div>
         <div class="sp-mini-stat-value">${formatNumber(sold)}</div>
       </div>
       <div class="sp-mini-stat ${onHandStatus}">
@@ -10839,8 +11182,8 @@ function cockpitRenderSidePanel(storeCode) {
         <div class="sp-mini-stat-value">${formatNumber(onHand)}</div>
       </div>
       <div class="sp-mini-stat">
-        <div class="sp-mini-stat-label">Đề xuất chia</div>
-        <div class="sp-mini-stat-value" style="color:var(--accent)">${formatNumber(suggested)}</div>
+        <div class="sp-mini-stat-label">AI đề xuất</div>
+        <div class="sp-mini-stat-value" style="color:var(--accent)">${formatNumber(qty)}</div>
       </div>
       <div class="sp-mini-stat ${afterStatus}">
         <div class="sp-mini-stat-label">Sau chia tổng tồn</div>
@@ -10848,28 +11191,33 @@ function cockpitRenderSidePanel(storeCode) {
       </div>
     </div>
     ${capHtml}
+    ${segmentSummary}
 
     <div class="sp-section-head">
       <div class="sp-section-title">Chi tiết theo mã sản phẩm</div>
       <div class="sp-section-sub">${items.length} mã · ô "Chia" có thể chỉnh tay</div>
     </div>
+  `;
 
+  // Header sortable
+  const arrow = (col) => {
+    if (COCKPIT.spSort.col !== col) return '<span class="sp-arrow">⇅</span>';
+    return COCKPIT.spSort.dir === 'desc' ? '<span class="sp-arrow active">▼</span>' : '<span class="sp-arrow active">▲</span>';
+  };
+
+  body += `
     <div class="sp-product-head">
       <div></div>
-      <div>Mã tham chiếu</div>
-      <div>Bán</div>
-      <div>Tồn CH</div>
-      <div>Kho TP/SA</div>
-      <div>Đề xuất</div>
-      <div>Chia</div>
+      <div class="sp-sortable" onclick="cockpitSpSetSort('maSp')">Sản phẩm ${arrow('maSp')}</div>
+      <div class="sp-sortable" onclick="cockpitSpSetSort('sold')">Bán ${arrow('sold')}</div>
+      <div class="sp-sortable" onclick="cockpitSpSetSort('onHand')">Tồn CH ${arrow('onHand')}</div>
+      <div class="sp-sortable" onclick="cockpitSpSetSort('daysOfStock')">Đủ bán ${arrow('daysOfStock')}</div>
+      <div class="sp-sortable" onclick="cockpitSpSetSort('warehouseStock')">Kho ${arrow('warehouseStock')}</div>
+      <div class="sp-sortable" onclick="cockpitSpSetSort('qty')">Chia ${arrow('qty')}</div>
     </div>
   `;
 
-  // Items list — sort by qty desc, ties by warehouseStock desc
-  items.sort((a, b) => {
-    if (a.qty !== b.qty) return b.qty - a.qty;
-    return (b.warehouseStock || 0) - (a.warehouseStock || 0);
-  });
+  cockpitSortSidePanel(items);
 
   body += '<div class="sp-product-list">' + items.map(a => {
     const imgUrl = (typeof IMAGE_MAP !== 'undefined' && IMAGE_MAP[a.maSp]) ? IMAGE_MAP[a.maSp] : '';
@@ -10878,12 +11226,33 @@ function cockpitRenderSidePanel(storeCode) {
       : `<div class="sp-product-img" style="display:flex;align-items:center;justify-content:center;color:var(--text-soft);font-size:10px">—</div>`;
     const isChanged = a.qty !== a.suggested;
     const isDead = a.skipReason === 'dead';
+    const isOverstocked = a.skipReason === 'overstocked';
     const rowCls = isDead ? 'dead' : (a.qty > 0 ? 'has-alloc' : '');
 
+    // Tag mới
     let tag = '';
-    if (a.skipReason === 'dead') tag = '<span class="sp-product-tag dead">CHẾT</span>';
-    else if (a.skipReason === 'overstocked') tag = '<span class="sp-product-tag over">DƯ</span>';
-    else if (a.daysOfStock < 7 && a.sold > 0) tag = '<span class="sp-product-tag fast">CHẠY</span>';
+    if (isDead) {
+      const ds = a._daysSinceLast;
+      const tagText = ds !== null && ds > 0 ? `Tồn ${ds} ngày` : 'Chưa bán';
+      tag = `<span class="sp-product-tag dead-soft">${tagText}</span>`;
+    } else if (isOverstocked) {
+      tag = '<span class="sp-product-tag over-soft">Dư tồn</span>';
+    } else if (a._daysOfStock < 7 && a.sold > 0) {
+      tag = '<span class="sp-product-tag fast-soft">Chạy mạnh</span>';
+    }
+
+    // Đủ bán column
+    let dosText = '—';
+    let dosStyle = 'color:var(--text-soft)';
+    if (a.sold > 0) {
+      if (a._daysOfStock < 7) { dosText = a._daysOfStock + 'd'; dosStyle = 'color:var(--c-red);font-weight:700'; }
+      else if (a._daysOfStock < 14) { dosText = a._daysOfStock + 'd'; dosStyle = 'color:var(--c-orange);font-weight:600'; }
+      else if (a._daysOfStock < 30) { dosText = a._daysOfStock + 'd'; }
+      else if (a._daysOfStock < 999) { dosText = a._daysOfStock + 'd'; dosStyle = 'color:var(--c-green);font-weight:600'; }
+      else dosText = '∞';
+    } else if (a.onHand > 0 && a._daysSinceLast) {
+      dosText = a._daysSinceLast + 'd'; dosStyle = 'color:var(--c-red);font-style:italic;font-size:10px';
+    }
 
     const inputCls = `sp-input${isChanged ? ' changed' : ''}${a.qty > 0 && !isChanged ? ' has-alloc' : ''}`;
 
@@ -10895,9 +11264,10 @@ function cockpitRenderSidePanel(storeCode) {
         </div>
         <div class="sp-num${a.sold === 0 ? ' zero' : ''}">${formatNumber(a.sold)}</div>
         <div class="sp-num${a.onHand === 0 ? ' zero' : ''}">${formatNumber(a.onHand)}</div>
+        <div class="sp-num" style="${dosStyle}">${dosText}</div>
         <div class="sp-num${a.warehouseStock === 0 ? ' zero' : ''}">${formatNumber(a.warehouseStock)}</div>
-        <div><span class="sp-num-suggested">${a.suggested}</span></div>
         <input type="number" class="${inputCls}" value="${a.qty}" min="0"
+          title="AI đề xuất: ${a.suggested}. Nhập 0 để bỏ chia."
           onchange="cockpitChangeQty('${a.storeCode}','${a.maSp}',this.value)">
       </div>
     `;
@@ -10924,7 +11294,7 @@ function cockpitShowFooter() {
   const storeCount = cockpitStoresWithAlloc();
   const info = WAREHOUSE_MAP[COCKPIT.scope.warehouse];
   document.getElementById('cockpit-footer-info').innerHTML = `
-    Sẵn sàng xuất <strong>${formatNumber(total)}</strong> cái cho <strong>${storeCount}</strong> CH · Từ kho <strong>${COCKPIT.scope.warehouse}</strong> (${info ? info.name : ''})
+    Sẵn sàng xuất <strong>${formatNumber(total)}</strong> sản phẩm cho <strong>${storeCount}</strong> CH · Từ kho <strong>${COCKPIT.scope.warehouse}</strong> (${info ? info.name : ''})
   `;
   document.getElementById('cockpit-footer').style.display = '';
 }
@@ -10933,14 +11303,83 @@ function cockpitExportOdoo() {
   const lines = [];
   for (const a of COCKPIT.allocations.values()) {
     if (a.qty <= 0) continue;
-    lines.push({ from: COCKPIT.scope.warehouse, to: a.storeCode, sku: a.maSp, qty: a.qty });
+    lines.push({
+      kho_nguon: COCKPIT.scope.warehouse,
+      kho_dich: a.storeCode,
+      sku_barcode: a.maSp,
+      so_luong: a.qty
+    });
   }
   if (lines.length === 0) {
     cockpitToast('Chưa có dòng nào để xuất.', 'error');
     return;
   }
+  if (typeof XLSX === 'undefined') {
+    cockpitToast('Thư viện XLSX chưa load — dùng CSV fallback', 'warn');
+    cockpitExportCsvFallback(lines);
+    return;
+  }
+
+  // Sort theo CH đích cho gọn
+  lines.sort((a, b) => a.kho_dich.localeCompare(b.kho_dich) || a.sku_barcode.localeCompare(b.sku_barcode));
+
+  // Build sheet 1: dữ liệu Odoo (4 cột chuẩn)
+  const data = [
+    ['kho_nguon', 'kho_dich', 'sku_barcode', 'so_luong'],
+    ...lines.map(l => [l.kho_nguon, l.kho_dich, l.sku_barcode, l.so_luong])
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{ wch: 12 }, { wch: 12 }, { wch: 28 }, { wch: 10 }];
+  // Style header (SheetJS community ko support nhiều, nhưng vẫn để frozen)
+  ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+
+  // Sheet 2: tổng quan
+  const info = WAREHOUSE_MAP[COCKPIT.scope.warehouse] || {};
+  const totalQty = lines.reduce((s, l) => s + l.so_luong, 0);
+  const uniqueStores = new Set(lines.map(l => l.kho_dich)).size;
+  const uniqueSku = new Set(lines.map(l => l.sku_barcode)).size;
+  const summary = [
+    ['BÁO CÁO ĐIỀU CHUYỂN HÀNG HÓA'],
+    [],
+    ['Kho nguồn', `${COCKPIT.scope.warehouse} — ${info.name || ''}`],
+    ['Ngành hàng', info.cat === 'BH' ? 'Mũ bảo hiểm' : 'Nón vải'],
+    ['Loại hàng', info.isSale ? 'Sale' : 'Chính'],
+    ['Khoảng tính sức bán', `${COCKPIT.scope.dateFrom} → ${COCKPIT.scope.dateTo}`],
+    ['Ngày tạo file', new Date().toLocaleString('vi-VN')],
+    [],
+    ['THỐNG KÊ'],
+    ['Tổng dòng điều chuyển', lines.length],
+    ['Tổng sản phẩm chia', totalQty],
+    ['Số cửa hàng nhận', uniqueStores],
+    ['Số mã SP khác nhau', uniqueSku],
+    [],
+    ['HƯỚNG DẪN'],
+    ['1. Tab "Điều chuyển" chứa 4 cột chuẩn để import Odoo.'],
+    ['2. Cột kho_nguon = mã kho gửi (luôn là 1 kho cho cả file).'],
+    ['3. Cột kho_dich = mã CH đích.'],
+    ['4. Cột sku_barcode = mã tham chiếu SP.'],
+    ['5. Cột so_luong = số lượng cần chuyển.']
+  ];
+  const wsSummary = XLSX.utils.aoa_to_sheet(summary);
+  wsSummary['!cols'] = [{ wch: 28 }, { wch: 50 }];
+
+  // Build workbook
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Điều chuyển');
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Tổng quan');
+
+  const filename = `dieu-chuyen-${COCKPIT.scope.warehouse}-${todayString()}.xlsx`;
+  try {
+    XLSX.writeFile(wb, filename);
+    cockpitToast(`Đã xuất ${lines.length} dòng cho Odoo (${totalQty.toLocaleString('vi-VN')} cái).`, 'success');
+  } catch (e) {
+    cockpitToast('Lỗi xuất Excel: ' + e.message, 'error');
+  }
+}
+
+function cockpitExportCsvFallback(lines) {
   const csv = ['kho_nguon,kho_dich,sku_barcode,so_luong']
-    .concat(lines.map(l => `${l.from},${l.to},${l.sku},${l.qty}`))
+    .concat(lines.map(l => `${l.kho_nguon},${l.kho_dich},${l.sku_barcode},${l.so_luong}`))
     .join('\n');
   const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
@@ -10951,7 +11390,7 @@ function cockpitExportOdoo() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  cockpitToast(`Đã xuất ${lines.length} dòng cho Odoo.`, 'success');
+  cockpitToast(`Đã xuất ${lines.length} dòng (CSV).`, 'success');
 }
 
 function cockpitSaveDraft() {
