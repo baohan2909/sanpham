@@ -3418,13 +3418,27 @@ body.workspace-analytics #section-allocation {
   gap: 4px;
 }
 
-/* Grid 7 cột: ảnh | tên | bán | tồn | đủ bán | kho | chia */
+/* Grid 8 cột: ảnh | tên | bán | tồn | đủ bán | kho | trần | chia */
 .sp-product-head,
 .sp-product-row {
   display: grid;
-  grid-template-columns: 44px minmax(170px, 1fr) 58px 64px 58px 70px 64px;
-  gap: 8px;
+  grid-template-columns: 44px minmax(160px, 1fr) 52px 58px 52px 64px 52px 60px;
+  gap: 6px;
   align-items: center;
+}
+
+.sp-thsub {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text-soft);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.sp-input.over-cap {
+  border-color: var(--c-red);
+  background: rgba(200, 74, 74, 0.06);
+  color: var(--c-red);
 }
 
 /* Header bảng sản phẩm (sticky) */
@@ -3661,8 +3675,8 @@ body.workspace-analytics #section-allocation {
 @media (max-width: 720px) {
   .sp-narrative-segments { grid-template-columns: 1fr 1fr; }
   .sp-product-head, .sp-product-row {
-    grid-template-columns: 36px minmax(120px, 1fr) 48px 54px 50px 60px 56px;
-    gap: 6px;
+    grid-template-columns: 36px minmax(110px, 1fr) 42px 46px 42px 52px 42px 50px;
+    gap: 4px;
   }
 }
 
@@ -10368,6 +10382,61 @@ function cockpitBuildEngineData() {
 }
 
 // ====== ENGINE: AI AUTO-ALLOCATE ======
+// ====== HELPER: Cấu hình nhóm CH ======
+const GROUP_CONFIG = {
+  '1': { days: 7,  coverageTarget: 1.6, coverageMin: 1.2, priority: 3, label: 'N1 (7d)' },
+  '2': { days: 14, coverageTarget: 1.4, coverageMin: 1.2, priority: 2, label: 'N2 (14d)' },
+  '3': { days: 21, coverageTarget: 1.2, coverageMin: 1.0, priority: 1, label: 'N3 (21d)' }
+};
+function cockpitGetGroupConfig(store) {
+  const g = store && store.nhomCh ? String(store.nhomCh) : '2';
+  return GROUP_CONFIG[g] || GROUP_CONFIG['2'];
+}
+
+// Build map sales theo nhóm-CH-specific window (single pass)
+// Returns: Map<storeCode, Map<maSp, soldQty>> với mỗi store dùng window riêng
+function cockpitBuildSalesByGroup() {
+  const result = new Map();  // storeCode → Map<maSp, qty>
+  if (typeof RAW_DATA === 'undefined' || typeof STORES_DATA === 'undefined') return result;
+
+  // Build map storeCode → fromStr (ngày bắt đầu tính)
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const toStr = fmt(yesterday);
+
+  const storeFromDate = new Map();  // code → fromStr
+  for (const code of COCKPIT.scope.storeIds) {
+    const store = STORES_DATA.find(s => s.maCh === code);
+    const cfg = cockpitGetGroupConfig(store);
+    const fromD = new Date(yesterday);
+    fromD.setDate(fromD.getDate() - cfg.days + 1);
+    storeFromDate.set(code, fmt(fromD));
+    result.set(code, new Map());
+  }
+
+  // Name → code cache
+  const nameToCode = new Map();
+  for (const s of STORES_DATA) {
+    if (s.ten && s.maCh) nameToCode.set(s.ten.trim().toLowerCase(), s.maCh.toUpperCase());
+  }
+
+  // Single pass through RAW_DATA
+  for (const r of RAW_DATA) {
+    if (!r.maThamChieu || !r.ngay) continue;
+    let code = r.maKho ? String(r.maKho).toUpperCase() : '';
+    if (!code && r.cuaHang) code = nameToCode.get(String(r.cuaHang).trim().toLowerCase()) || '';
+    if (!code) continue;
+    const fromStr = storeFromDate.get(code);
+    if (!fromStr) continue;  // Store không trong scope
+    if (r.ngay < fromStr || r.ngay > toStr) continue;
+    const map = result.get(code);
+    map.set(r.maThamChieu, (map.get(r.maThamChieu) || 0) + (r.soLuong || 0));
+  }
+  return result;
+}
+
 function cockpitAutoAllocate() {
   if (!cockpitCanUse()) return;
   if (COCKPIT.scope.storeIds.size === 0) {
@@ -10381,107 +10450,160 @@ function cockpitAutoAllocate() {
   // Slight delay để hiện loading state
   setTimeout(() => {
     cockpitBuildEngineData();
-
     COCKPIT.allocations = new Map();
 
-    // Số ngày trong scope (để tính velocity)
-    const fromD = new Date(COCKPIT.scope.dateFrom);
-    const toD = new Date(COCKPIT.scope.dateTo);
-    const days = Math.max(1, Math.round((toD - fromD) / (1000 * 60 * 60 * 24)));
+    // Build sales theo nhóm (single pass)
+    const salesByGroup = cockpitBuildSalesByGroup();
 
-    // Track kho còn lại (greedy allocation)
+    // Track kho còn lại
     const warehouseRemaining = new Map();
     for (const [ma, q] of COCKPIT.data.warehouseStockByCode) warehouseRemaining.set(ma, q);
 
-    // Build list các (store, ma) cần xem xét, sort theo priority
+    // ============================================================
+    // BƯỚC 1: BUILD CANDIDATES
+    // Mỗi candidate có sold-theo-nhóm + target_min (120% sàn) + target_max (160% trần)
+    // ============================================================
     const candidates = [];
     for (const storeCode of COCKPIT.scope.storeIds) {
       const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === storeCode) : null;
-      const groupPriority = store && store.nhomCh ? (4 - parseInt(store.nhomCh)) : 1.5;  // nhóm 1 = 3, nhóm 3 = 1
+      const cfg = cockpitGetGroupConfig(store);
 
-      const salesMap = COCKPIT.data.salesByStoreCode.get(storeCode) || new Map();
       const stockMap = COCKPIT.data.stockByStoreCode.get(storeCode) || new Map();
-      const allMa = new Set([...salesMap.keys(), ...stockMap.keys()]);
+      const salesMapGroup = salesByGroup.get(storeCode) || new Map();
+      const allMa = new Set([...stockMap.keys(), ...salesMapGroup.keys()]);
 
       for (const ma of allMa) {
         const meta = COCKPIT.data.productMeta.get(ma);
         if (!cockpitMatchesScope(meta)) continue;
-        const sold = salesMap.get(ma) || 0;
+
         const onHand = stockMap.get(ma) || 0;
+        // Sales lấy từ salesByGroup (đã tính theo nhóm CH N1=7d, N2=14d, N3=21d)
+        const sold = salesMapGroup.get(ma) || 0;
+        const wh = COCKPIT.data.warehouseStockByCode.get(ma) || 0;
 
-        // AI engine: hệ số phủ adaptive theo velocity
-        const velocity = sold / days;  // SP/ngày
-        const daysOfStock = velocity > 0 ? (onHand / velocity) : (onHand > 0 ? 999 : 0);
+        const velocity = sold / cfg.days;
+        const daysOfStock = velocity > 0 ? Math.round(onHand / velocity) : (onHand > 0 ? 999 : 0);
 
-        let coverage = COCKPIT.ai.coverageDefault;
+        if (sold === 0 && onHand === 0) continue;
+
         let skipReason = null;
-
-        if (sold === 0 && onHand === 0) {
-          continue;  // Skip hoàn toàn
-        }
-
-        // Mã chết: có tồn nhưng không bán → bỏ qua
         if (sold === 0 && onHand > 0) {
-          skipReason = 'dead';  // skip allocation nhưng vẫn track
-        } else if (daysOfStock >= COCKPIT.ai.daysOfStockSlow) {
-          // Tồn đã đủ trên 30 ngày → không cấp thêm
+          skipReason = 'dead';
+        } else if (sold > 0 && daysOfStock >= 30) {
           skipReason = 'overstocked';
-        } else if (daysOfStock >= 14) {
-          coverage = COCKPIT.ai.coverageSlow;  // cấp ít
-        } else if (daysOfStock < COCKPIT.ai.daysOfStockFast) {
-          coverage = COCKPIT.ai.coverageFast;  // cấp đủ
         }
 
-        // Bonus theo nhóm CH (CH lớn ưu tiên)
-        if (groupPriority >= 3) coverage = Math.max(coverage, 1.3);
-
-        const target = Math.round(sold * coverage);
-        let suggested = Math.max(0, target - onHand);
-        if (skipReason) suggested = 0;
-
-        const score = sold * groupPriority + (onHand === 0 && sold > 0 ? 100 : 0);  // ưu tiên CH bán mạnh, CH hết tồn
+        const targetMin = Math.round(sold * cfg.coverageMin);
+        const targetMax = Math.round(sold * cfg.coverageTarget);
+        const needMin = Math.max(0, targetMin - onHand);
+        const needMax = Math.max(0, targetMax - onHand);
 
         candidates.push({
-          storeCode, maSp: ma, sold, onHand, suggested,
-          velocity, daysOfStock, target,
-          warehouseStock: COCKPIT.data.warehouseStockByCode.get(ma) || 0,
-          score, skipReason,
-          groupPriority,
+          storeCode, maSp: ma, sold, onHand, warehouseStock: wh,
+          velocity, daysOfStock, skipReason,
+          group: store && store.nhomCh ? String(store.nhomCh) : '2',
+          priority: cfg.priority,
+          targetMin, targetMax,
+          needMin, needMax,
+          daysScope: cfg.days,
+          coverageMin: cfg.coverageMin,
+          coverageMax: cfg.coverageTarget,
+          allocated: 0,
           meta
         });
       }
     }
 
-    // Greedy phân bổ: sort score desc, cấp tới hết kho
-    candidates.sort((a, b) => b.score - a.score);
+    // ============================================================
+    // BƯỚC 2 — PHA 1: CẤP TỐI THIỂU (120%)
+    // ============================================================
+    const candidatesByProduct = new Map();
     for (const c of candidates) {
-      const available = warehouseRemaining.get(c.maSp) || 0;
-      const actualQty = Math.min(c.suggested, available);
-      if (actualQty > 0) {
-        warehouseRemaining.set(c.maSp, available - actualQty);
+      if (c.skipReason) continue;
+      if (c.needMin <= 0) continue;
+      if (!candidatesByProduct.has(c.maSp)) candidatesByProduct.set(c.maSp, []);
+      candidatesByProduct.get(c.maSp).push(c);
+    }
+
+    const shortagesPhase1 = new Map();
+
+    for (const [ma, list] of candidatesByProduct) {
+      let supply = warehouseRemaining.get(ma) || 0;
+      const totalNeed = list.reduce((s, c) => s + c.needMin, 0);
+
+      if (totalNeed <= supply) {
+        for (const c of list) {
+          c.allocated = c.needMin;
+          supply -= c.needMin;
+        }
+        warehouseRemaining.set(ma, supply);
+      } else {
+        shortagesPhase1.set(ma, { totalNeed, supply, shortage: totalNeed - supply });
+        // Sort theo priority desc (N1 trước)
+        list.sort((a, b) => b.priority - a.priority || b.sold - a.sold);
+        for (const c of list) {
+          if (supply <= 0) break;
+          const give = Math.min(c.needMin, supply);
+          c.allocated = give;
+          supply -= give;
+        }
+        warehouseRemaining.set(ma, supply);
       }
+    }
+
+    // ============================================================
+    // BƯỚC 3 — PHA 2: DỰ PHÒNG (TARGET 140-160%)
+    // ============================================================
+    for (const [ma, list] of candidatesByProduct) {
+      let supply = warehouseRemaining.get(ma) || 0;
+      if (supply <= 0) continue;
+      const sorted = [...list].sort((a, b) => b.priority - a.priority || b.sold - a.sold);
+      for (const c of sorted) {
+        if (supply <= 0) break;
+        const extraWanted = Math.max(0, c.needMax - c.allocated);
+        if (extraWanted <= 0) continue;
+        const give = Math.min(extraWanted, supply);
+        c.allocated += give;
+        supply -= give;
+      }
+      warehouseRemaining.set(ma, supply);
+    }
+
+    // ============================================================
+    // BƯỚC 4: Ghi allocations
+    // ============================================================
+    for (const c of candidates) {
       COCKPIT.allocations.set(`${c.storeCode}|${c.maSp}`, {
         storeCode: c.storeCode,
         maSp: c.maSp,
         sold: c.sold,
         onHand: c.onHand,
-        suggested: c.suggested,
-        qty: actualQty,
+        suggested: c.skipReason ? 0 : c.needMin,
+        targetMax: c.targetMax,
+        cap: c.needMax,
+        qty: c.allocated,
         warehouseStock: c.warehouseStock,
         daysOfStock: c.daysOfStock,
         velocity: c.velocity,
         skipReason: c.skipReason,
+        group: c.group,
+        priority: c.priority,
+        daysScope: c.daysScope,
+        coverageMin: c.coverageMin,
+        coverageMax: c.coverageMax,
         meta: c.meta,
         locked: false
       });
     }
+
+    COCKPIT._phase1Shortages = shortagesPhase1;
 
     cockpitGenerateWarnings();
     cockpitRenderHero();
     cockpitRenderTableSection();
     cockpitShowFooter();
 
-    if (btn) { btn.textContent = '⚡ Chia lại'; btn.disabled = false; }
+    if (btn) { btn.textContent = '⚡ AI chia hàng tự động'; btn.disabled = false; }
     cockpitToast(`AI đã chia ${formatNumber(cockpitTotalQty())} sản phẩm cho ${cockpitStoresWithAlloc()} cửa hàng.`, 'success');
   }, 50);
 }
@@ -10536,25 +10658,29 @@ function cockpitGenerateWarnings() {
     byProduct.get(a.maSp).push(a);
   }
 
-  // 1. Mã thiếu nguồn
+  // 1. KHO THIẾU PHA 1 — không đủ cung cấp mức tối thiểu 120%
   const shortItems = [];
   for (const [ma, list] of byProduct) {
-    const totalSuggested = list.reduce((s, a) => s + a.suggested, 0);
-    const supply = list[0].warehouseStock;
+    const totalNeedMin = list.reduce((s, a) => s + (a.skipReason ? 0 : a.suggested), 0);  // need 120%
     const totalAlloc = list.reduce((s, a) => s + a.qty, 0);
-    const deficit = totalSuggested - totalAlloc;
-    if (deficit > 0 && totalSuggested > supply) {
-      shortItems.push({ ma, suggested: totalSuggested, supply, deficit, alloc: totalAlloc });
+    const supply = list[0].warehouseStock;
+    const deficit = totalNeedMin - totalAlloc;
+    if (deficit > 0 && totalNeedMin > supply) {
+      // Đếm CH bị giảm phần (chia tỷ lệ)
+      const storesCut = list.filter(a => !a.skipReason && a.suggested > 0 && a.qty < a.suggested).length;
+      const storesFull = list.filter(a => !a.skipReason && a.suggested > 0 && a.qty >= a.suggested).length;
+      shortItems.push({ ma, needMin: totalNeedMin, supply, deficit, alloc: totalAlloc, storesCut, storesFull });
     }
   }
   if (shortItems.length > 0) {
     shortItems.sort((a, b) => b.deficit - a.deficit);
+    const totalDeficit = shortItems.reduce((s, x) => s + x.deficit, 0);
     W.push({
       type: 'short_supply',
       severity: 'critical',
       icon: '⊘',
-      title: `${shortItems.length} mã thiếu nguồn`,
-      desc: `Tổng thiếu ${formatNumber(shortItems.reduce((s, x) => s + x.deficit, 0))} cái · Top: ${shortItems[0].ma} thiếu ${shortItems[0].deficit}`,
+      title: `${shortItems.length} mã kho không đủ`,
+      desc: `Tổng thiếu ${formatNumber(totalDeficit)} cái so với nhu cầu tối thiểu · Top: ${shortItems[0].ma} thiếu ${shortItems[0].deficit} (đã ưu tiên CH nhóm 1)`,
       data: shortItems
     });
   }
@@ -11022,6 +11148,7 @@ function cockpitSortSidePanel(items) {
       case 'onHand': va = a.onHand; vb = b.onHand; break;
       case 'daysOfStock': va = a._daysOfStock; vb = b._daysOfStock; break;
       case 'warehouseStock': va = a.warehouseStock; vb = b.warehouseStock; break;
+      case 'cap': va = a.cap || 0; vb = b.cap || 0; break;
       case 'qty':
       default:
         va = a.qty; vb = b.qty;
@@ -11038,17 +11165,17 @@ function cockpitRenderSidePanel(storeCode) {
   const groupTxt = store && store.nhomCh ? `Nhóm ${store.nhomCh}` : '—';
   document.getElementById('cockpit-sp-sub').textContent = `${storeCode} · ${store ? store.khuVuc : ''} · ${groupTxt}`;
 
-  // Số ngày trong scope
-  const fromD = new Date(COCKPIT.scope.dateFrom);
-  const toD = new Date(COCKPIT.scope.dateTo);
-  const scopeDays = Math.max(1, Math.round((toD - fromD) / (1000 * 60 * 60 * 24)) + 1);
+  // Số ngày theo nhóm CH (N1=7d, N2=14d, N3=21d)
+  const cfg = cockpitGetGroupConfig(store);
+  const groupDays = cfg.days;
 
   // Build full items list
   const items = [];
   for (const a of COCKPIT.allocations.values()) {
     if (a.storeCode === storeCode) {
-      // Compute helpful derived values
-      const velocity = a.sold / scopeDays;  // SP/ngày
+      // Velocity tính theo daysScope của CH này (= groupDays)
+      const days = a.daysScope || groupDays;
+      const velocity = a.sold / days;
       const daysOfStock = velocity > 0 ? Math.round(a.onHand / velocity) : (a.onHand > 0 ? 999 : 0);
       const daysSinceLast = cockpitDaysSinceLastSale(storeCode, a.maSp);
       items.push({
@@ -11119,7 +11246,7 @@ function cockpitRenderSidePanel(storeCode) {
   }
 
   // Tóm tắt CH tự động (narrative)
-  const velocityTotal = sold / scopeDays;
+  const velocityTotal = sold / groupDays;
   const totalDaysOfStock = velocityTotal > 0 ? Math.round(onHand / velocityTotal) : null;
   const slotsLeft = capInfo ? Math.max(0, capInfo.cap.max - onHand) : null;
   const slotsAfter = capInfo ? Math.max(0, capInfo.cap.max - after) : null;
@@ -11128,7 +11255,7 @@ function cockpitRenderSidePanel(storeCode) {
     <div class="sp-narrative">
       <div class="sp-narrative-title">📊 Tóm tắt tình hình CH</div>
       <div class="sp-narrative-body">
-        Trong <strong>${scopeDays} ngày qua</strong>, CH bán <strong>${formatNumber(sold)} cái</strong>
+        Trong <strong>${groupDays} ngày qua</strong> (theo nhóm ${cfg.label.split(' ')[0]}), CH bán <strong>${formatNumber(sold)} cái</strong>
         (≈ <strong>${velocityTotal.toFixed(1)}</strong> cái/ngày).
         Hiện tồn <strong>${formatNumber(onHand)} cái</strong>${totalDaysOfStock !== null ? ` = đủ bán <strong>${totalDaysOfStock} ngày</strong> nữa` : ''}.
       </div>
@@ -11174,7 +11301,7 @@ function cockpitRenderSidePanel(storeCode) {
   let body = `
     <div class="sp-mini-stats">
       <div class="sp-mini-stat">
-        <div class="sp-mini-stat-label">Đã bán (${scopeDays}d)</div>
+        <div class="sp-mini-stat-label">Đã bán (${groupDays}d)</div>
         <div class="sp-mini-stat-value">${formatNumber(sold)}</div>
       </div>
       <div class="sp-mini-stat ${onHandStatus}">
@@ -11209,10 +11336,11 @@ function cockpitRenderSidePanel(storeCode) {
     <div class="sp-product-head">
       <div></div>
       <div class="sp-sortable" onclick="cockpitSpSetSort('maSp')">Sản phẩm ${arrow('maSp')}</div>
-      <div class="sp-sortable" onclick="cockpitSpSetSort('sold')">Bán ${arrow('sold')}</div>
+      <div class="sp-sortable" onclick="cockpitSpSetSort('sold')">Bán (${COCKPIT.spSort.col === 'sold' ? '' : ''}<span class="sp-thsub">${items[0] ? items[0].daysScope + 'd' : ''}</span>) ${arrow('sold')}</div>
       <div class="sp-sortable" onclick="cockpitSpSetSort('onHand')">Tồn CH ${arrow('onHand')}</div>
       <div class="sp-sortable" onclick="cockpitSpSetSort('daysOfStock')">Đủ bán ${arrow('daysOfStock')}</div>
       <div class="sp-sortable" onclick="cockpitSpSetSort('warehouseStock')">Kho ${arrow('warehouseStock')}</div>
+      <div class="sp-sortable" onclick="cockpitSpSetSort('cap')" title="Trần = số tối đa AI có thể chia">Trần ${arrow('cap')}</div>
       <div class="sp-sortable" onclick="cockpitSpSetSort('qty')">Chia ${arrow('qty')}</div>
     </div>
   `;
@@ -11254,7 +11382,16 @@ function cockpitRenderSidePanel(storeCode) {
       dosText = a._daysSinceLast + 'd'; dosStyle = 'color:var(--c-red);font-style:italic;font-size:10px';
     }
 
-    const inputCls = `sp-input${isChanged ? ' changed' : ''}${a.qty > 0 && !isChanged ? ' has-alloc' : ''}`;
+    // Trần (cap = số tối đa engine có thể chia thêm)
+    // = min(targetMax − onHand, warehouseStock còn lại)
+    const capValue = a.skipReason && a.skipReason !== 'overstocked' ? 0 : (a.cap || 0);
+    let capText = capValue > 0 ? formatNumber(capValue) : '—';
+    let capStyle = 'color:var(--text-soft)';
+    if (capValue > 0) capStyle = 'color:var(--text)';
+    // Cảnh báo nếu qty vượt cap
+    const isOverCap = a.qty > capValue && capValue > 0;
+
+    const inputCls = `sp-input${isChanged ? ' changed' : ''}${a.qty > 0 && !isChanged ? ' has-alloc' : ''}${isOverCap ? ' over-cap' : ''}`;
 
     return `
       <div class="sp-product-row ${rowCls}">
@@ -11266,8 +11403,9 @@ function cockpitRenderSidePanel(storeCode) {
         <div class="sp-num${a.onHand === 0 ? ' zero' : ''}">${formatNumber(a.onHand)}</div>
         <div class="sp-num" style="${dosStyle}">${dosText}</div>
         <div class="sp-num${a.warehouseStock === 0 ? ' zero' : ''}">${formatNumber(a.warehouseStock)}</div>
+        <div class="sp-num" style="${capStyle}">${capText}</div>
         <input type="number" class="${inputCls}" value="${a.qty}" min="0"
-          title="AI đề xuất: ${a.suggested}. Nhập 0 để bỏ chia."
+          title="AI đề xuất: ${a.suggested} · Trần: ${capValue} · Nhập 0 để bỏ chia."
           onchange="cockpitChangeQty('${a.storeCode}','${a.maSp}',this.value)">
       </div>
     `;
