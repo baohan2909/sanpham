@@ -2682,204 +2682,10 @@ body.workspace-analytics #section-allocation {
 
 
 /* ============================================================
-   ĐIỀU PHỐI HÀNG HÓA — Bàn chia hàng (v9)
+   ĐIỀU PHỐI HÀNG HÓA — Cockpit (v10)
    ============================================================ */
 
-/* Separator + tab DPHH highlight */
-.tab-sep {
-  display: inline-block;
-  width: 1px;
-  height: 24px;
-  background: var(--line);
-  margin: 0 8px;
-  align-self: center;
-}
-.tab.tab-dphh {
-  background: var(--accent-soft, rgba(168, 86, 48, 0.08));
-  border-color: var(--accent);
-  color: var(--accent);
-  font-weight: 600;
-}
-.tab.tab-dphh.active {
-  background: var(--accent);
-  color: #fff;
-}
-
-/* Allocation desk root */
-#section-allocation {
-  background: var(--bg);
-}
-.alloc-desk {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-/* Stepper */
-.alloc-stepper {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
-  background: var(--bg-elevated);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 4px;
-  margin-bottom: 16px;
-  overflow-x: auto;
-}
-.alloc-step {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 18px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-soft);
-  cursor: pointer;
-  border-radius: 8px;
-  white-space: nowrap;
-  transition: all 0.18s;
-  border: none;
-  background: transparent;
-  position: relative;
-}
-.alloc-step:hover { background: var(--accent-soft); color: var(--text); }
-.alloc-step.active {
-  background: var(--accent);
-  color: #fff;
-}
-.alloc-step.done {
-  color: var(--olive, #6a7752);
-}
-.alloc-step.done .alloc-step-num {
-  background: var(--olive, #6a7752);
-  color: #fff;
-}
-.alloc-step-num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--line);
-  color: var(--text-soft);
-  font-size: 12px;
-  font-weight: 700;
-}
-.alloc-step.active .alloc-step-num {
-  background: rgba(255,255,255,0.25);
-  color: #fff;
-}
-.alloc-step-arrow {
-  align-self: center;
-  color: var(--text-soft);
-  opacity: 0.4;
-  font-size: 14px;
-  padding: 0 2px;
-}
-
-/* Step panels */
-.alloc-panel {
-  display: none;
-  background: var(--bg-elevated);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 20px;
-  min-height: 400px;
-}
-.alloc-panel.active { display: block; }
-.alloc-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--line);
-  gap: 16px;
-  flex-wrap: wrap;
-}
-.alloc-panel-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.01em;
-}
-.alloc-panel-subtitle {
-  font-size: 12px;
-  color: var(--text-soft);
-  margin-top: 4px;
-}
-
-/* Step actions */
-.alloc-step-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.alloc-btn {
-  padding: 10px 18px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-  background: var(--bg);
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.18s;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.alloc-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
-.alloc-btn.primary {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-}
-.alloc-btn.primary:hover { background: var(--accent-strong, #8a4426); filter: brightness(0.92); }
-.alloc-btn.ghost {
-  background: transparent;
-  border-color: transparent;
-  color: var(--text-soft);
-}
-.alloc-btn.ghost:hover { background: var(--accent-soft); color: var(--text); }
-.alloc-btn.danger {
-  background: transparent;
-  border-color: #c84a4a;
-  color: #c84a4a;
-}
-.alloc-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-/* === STEP 1: SCOPE PICKER === */
-.scope-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 18px;
-}
-@media (max-width: 920px) {
-  .scope-grid { grid-template-columns: 1fr; }
-}
-.scope-card {
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 16px;
-}
-.scope-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-soft);
-  margin-bottom: 10px;
-}
+/* ===== SHARED (giữ lại từ phiên bản cũ) ===== */
 .scope-input {
   width: 100%;
   padding: 9px 12px;
@@ -2891,17 +2697,8 @@ body.workspace-analytics #section-allocation {
   font-family: inherit;
 }
 .scope-input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
-.scope-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.scope-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
-}
+.scope-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.scope-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .scope-chip {
   padding: 6px 12px;
   border-radius: 16px;
@@ -2920,24 +2717,11 @@ body.workspace-analytics #section-allocation {
   border-color: var(--accent);
 }
 
-/* Chip phân biệt loại CHÍNH/SALE màu khác accent */
-.alloc-loai-chips .scope-chip.alloc-chip-chinh.active {
-  background: #1f4e79;
-  border-color: #1f4e79;
-  color: #fff;
-}
-.alloc-loai-chips .scope-chip.alloc-chip-sale.active {
-  background: #c84a4a;
-  border-color: #c84a4a;
-  color: #fff;
-}
-
-/* Card 4 kho nguồn */
+/* 4 nút kho nguồn (giữ nguyên style từ v9) */
 .scope-warehouses {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 10px;
-  margin-top: 6px;
 }
 .scope-warehouse-btn {
   display: flex;
@@ -2974,20 +2758,9 @@ body.workspace-analytics #section-allocation {
   background: rgba(31, 78, 121, 0.06);
   box-shadow: 0 0 0 1px #1f4e79;
 }
-.scope-wh-name {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1.3;
-}
-.scope-wh-meta {
-  font-size: 10px;
-  color: var(--text-soft);
-}
-.scope-wh-code {
-  font-family: 'SF Mono', Menlo, monospace;
-  font-weight: 600;
-}
+.scope-wh-name { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.scope-wh-meta { font-size: 10px; color: var(--text-soft); }
+.scope-wh-code { font-family: 'SF Mono', Menlo, monospace; font-weight: 600; }
 .scope-wh-stock {
   font-size: 11px;
   font-weight: 600;
@@ -2998,399 +2771,11 @@ body.workspace-analytics #section-allocation {
 .scope-warehouse-btn.active .scope-wh-stock { color: var(--accent); }
 .scope-warehouse-btn[data-issale="true"].active .scope-wh-stock { color: #c84a4a; }
 .scope-warehouse-btn[data-issale="false"].active .scope-wh-stock { color: #1f4e79; }
-@media (max-width: 768px) {
-  .scope-warehouses { grid-template-columns: 1fr; }
-}
-
-/* Stores list (step 1 result) */
-.scope-stores-wrap {
-  margin-top: 18px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--bg);
-  overflow: hidden;
-}
-.scope-stores-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
-  background: var(--bg-elevated);
-  border-bottom: 1px solid var(--line);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-}
-.scope-stores-body {
-  max-height: 360px;
-  overflow-y: auto;
-}
-.scope-store-row {
-  display: grid;
-  grid-template-columns: 28px 1fr 70px 100px 100px 80px;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--line);
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.12s;
-}
-.scope-store-row:last-child { border-bottom: none; }
-.scope-store-row:hover { background: var(--accent-soft); }
-.scope-store-row.selected { background: var(--accent-soft); }
-.scope-store-name { font-weight: 600; color: var(--text); }
-.scope-store-code { font-family: 'SF Mono', Menlo, monospace; font-size: 11px; color: var(--text-soft); margin-top: 2px; }
-.scope-store-mini { font-size: 11px; color: var(--text-soft); text-align: center; }
-.scope-store-group-1 { color: #c84a4a; font-weight: 700; }
-.scope-store-group-2 { color: var(--accent); font-weight: 600; }
-.scope-store-group-3 { color: var(--text-soft); }
-
-/* === STEP 2: BÀN CHIA HÀNG === */
-.alloc-mode-switch {
-  display: inline-flex;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  overflow: hidden;
-  background: var(--bg);
-}
-.alloc-mode-btn {
-  padding: 8px 16px;
-  font-size: 12px;
-  font-weight: 500;
-  background: transparent;
-  border: none;
-  color: var(--text-soft);
-  cursor: pointer;
-  transition: all 0.18s;
-}
-.alloc-mode-btn.active {
-  background: var(--accent);
-  color: #fff;
-}
-
-.alloc-workspace {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 16px;
-  margin-top: 16px;
-}
 @media (max-width: 1100px) {
-  .alloc-workspace { grid-template-columns: 1fr; }
+  .scope-warehouses { grid-template-columns: 1fr 1fr; }
 }
 
-/* Sidebar (store/product list) */
-.alloc-sidebar {
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  max-height: 700px;
-  overflow-y: auto;
-}
-.alloc-sidebar-header {
-  position: sticky;
-  top: 0;
-  background: var(--bg-elevated);
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--line);
-  z-index: 2;
-}
-.alloc-sidebar-search {
-  width: 100%;
-  padding: 7px 10px;
-  font-size: 12px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: var(--bg);
-  color: var(--text);
-}
-.alloc-sidebar-item {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--line);
-  cursor: pointer;
-  font-size: 12px;
-  transition: background 0.12s;
-}
-.alloc-sidebar-item:hover { background: var(--accent-soft); }
-.alloc-sidebar-item.active {
-  background: var(--accent-soft);
-  border-left: 3px solid var(--accent);
-  padding-left: 9px;
-}
-.alloc-sidebar-item-name { font-weight: 600; color: var(--text); }
-.alloc-sidebar-item-meta {
-  font-size: 11px;
-  color: var(--text-soft);
-  margin-top: 3px;
-  display: flex;
-  gap: 8px;
-}
-.alloc-sidebar-item-badge {
-  display: inline-block;
-  padding: 1px 6px;
-  background: var(--line);
-  border-radius: 8px;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text);
-}
-.alloc-sidebar-item-badge.urgent { background: #fde0e0; color: #c84a4a; }
-.alloc-sidebar-item-badge.warn { background: #fff0d6; color: #b8731e; }
-
-/* Main area */
-.alloc-main {
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  overflow: hidden;
-}
-.alloc-main-header {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--line);
-  background: var(--bg-elevated);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.alloc-main-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text);
-}
-.alloc-main-sub {
-  font-size: 11px;
-  color: var(--text-soft);
-  font-family: 'SF Mono', Menlo, monospace;
-  margin-top: 2px;
-}
-
-/* Capacity bar (mức trần) */
-.cap-bars {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 10px;
-  padding: 12px 16px;
-  background: var(--bg-elevated);
-  border-bottom: 1px solid var(--line);
-}
-.cap-bars.cap-bars-single {
-  grid-template-columns: 1fr;
-}
-.cap-bars.cap-bars-single .cap-bar {
-  padding: 14px 18px;
-}
-.cap-bars.cap-bars-single .cap-bar-value {
-  font-size: 22px;
-}
-@media (max-width: 768px) {
-  .cap-bars { grid-template-columns: 1fr 1fr; }
-  .cap-bars.cap-bars-single { grid-template-columns: 1fr; }
-}
-.cap-bar {
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 10px 12px;
-}
-.cap-bar-label {
-  font-size: 11px;
-  color: var(--text-soft);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 6px;
-}
-.cap-bar-value {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text);
-  font-family: 'SF Mono', Menlo, monospace;
-}
-.cap-bar-range {
-  font-size: 11px;
-  color: var(--text-soft);
-  margin-top: 2px;
-}
-.cap-bar-track {
-  height: 4px;
-  background: var(--line);
-  border-radius: 2px;
-  margin-top: 6px;
-  overflow: hidden;
-  position: relative;
-}
-.cap-bar-fill {
-  height: 100%;
-  background: var(--accent);
-  transition: width 0.3s;
-}
-.cap-bar-fill.ok { background: #6a7752; }
-.cap-bar-fill.under { background: #c69428; }
-.cap-bar-fill.over { background: #c84a4a; }
-.cap-bar.alert .cap-bar-value { color: #c84a4a; }
-.cap-bar.under-alert .cap-bar-value { color: #b8731e; }
-
-/* Allocation row table */
-.alloc-table-wrap {
-  max-height: 600px;
-  overflow: auto;
-}
-.alloc-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-.alloc-table thead {
-  position: sticky;
-  top: 0;
-  background: var(--bg-elevated);
-  z-index: 2;
-}
-.alloc-table th {
-  text-align: left;
-  padding: 10px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-soft);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  border-bottom: 1px solid var(--line);
-  background: var(--bg-elevated);
-  white-space: nowrap;
-}
-.alloc-table th.num, .alloc-table td.num { text-align: right; font-family: 'SF Mono', Menlo, monospace; }
-.alloc-table td {
-  padding: 9px 10px;
-  border-bottom: 1px solid var(--line);
-  vertical-align: middle;
-}
-.alloc-table tbody tr:hover { background: var(--accent-soft); }
-.alloc-table tbody tr.has-warning { background: rgba(200, 74, 74, 0.04); }
-.alloc-table tbody tr.has-warning:hover { background: rgba(200, 74, 74, 0.09); }
-.alloc-table tbody tr.has-alloc { background: rgba(106, 119, 82, 0.10); }
-.alloc-table tbody tr.has-alloc:hover { background: rgba(106, 119, 82, 0.18); }
-.alloc-table tbody tr.has-alloc.has-warning {
-  background: linear-gradient(90deg, rgba(106, 119, 82, 0.10), rgba(200, 74, 74, 0.10));
-}
-
-/* Sortable headers */
-.alloc-table th.sortable {
-  cursor: pointer;
-  user-select: none;
-  transition: color 0.12s;
-}
-.alloc-table th.sortable:hover { color: var(--accent); }
-.sort-arrow {
-  display: inline-block;
-  margin-left: 4px;
-  font-size: 9px;
-  color: var(--text-soft);
-  opacity: 0.5;
-  vertical-align: middle;
-}
-.sort-arrow.active { opacity: 1; color: var(--accent); }
-
-/* Dòng tổng (sticky dưới header) */
-.alloc-table-totals {
-  position: sticky;
-  top: 38px;
-  background: var(--bg-elevated);
-  z-index: 1;
-}
-.alloc-table-totals td {
-  padding: 8px 10px !important;
-  font-size: 12px;
-  font-family: 'SF Mono', Menlo, monospace;
-  font-weight: 700;
-  color: var(--accent);
-  border-bottom: 2px solid var(--accent) !important;
-  border-top: 1px solid var(--line);
-  background: var(--accent-soft, rgba(168, 86, 48, 0.06));
-}
-.alloc-table-totals td:first-child {
-  font-family: inherit;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: 0.02em;
-}
-.alloc-table-totals .totals-label {
-  text-transform: uppercase;
-  font-size: 10px;
-  letter-spacing: 0.06em;
-}
-.alloc-table-totals td strong {
-  font-size: 13px;
-}
-
-.alloc-product-cell {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.alloc-product-img {
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
-  object-fit: cover;
-  background: var(--line);
-  flex-shrink: 0;
-}
-.alloc-product-info { min-width: 0; }
-.alloc-product-code {
-  font-family: 'SF Mono', Menlo, monospace;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text);
-}
-.alloc-product-meta {
-  font-size: 10px;
-  color: var(--text-soft);
-  margin-top: 2px;
-  display: flex;
-  gap: 6px;
-}
-
-.alloc-input {
-  width: 64px;
-  padding: 5px 8px;
-  text-align: right;
-  font-size: 12px;
-  font-family: 'SF Mono', Menlo, monospace;
-  font-weight: 600;
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  background: var(--bg);
-  color: var(--text);
-}
-.alloc-input:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: -1px;
-  border-color: var(--accent);
-}
-.alloc-input.changed { background: rgba(168, 86, 48, 0.08); border-color: var(--accent); }
-.alloc-input.zero { color: var(--text-soft); }
-
-.alloc-suggestion {
-  display: inline-block;
-  padding: 1px 6px;
-  background: var(--accent-soft);
-  border-radius: 3px;
-  font-size: 10px;
-  color: var(--accent);
-  margin-left: 4px;
-}
-.alloc-warning-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #c84a4a;
-  margin-right: 4px;
-}
-
+/* Loại pill */
 .alloc-loai-pill {
   display: inline-block;
   padding: 2px 7px;
@@ -3401,240 +2786,694 @@ body.workspace-analytics #section-allocation {
 .alloc-loai-pill.chinh { background: rgba(31, 78, 121, 0.12); color: #1f4e79; }
 .alloc-loai-pill.sale { background: rgba(200, 74, 74, 0.12); color: #c84a4a; }
 
-/* Health bar (real-time during allocation) */
-.alloc-health {
+/* ===== COCKPIT ROOT ===== */
+.cockpit {
+  --c-blue: #1f4e79;
+  --c-red: #c84a4a;
+  --c-green: #6a7752;
+  --c-orange: #b8731e;
+  --c-gold: #c69428;
   display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 10px 16px;
-  background: var(--bg-elevated);
-  border-bottom: 1px solid var(--line);
-  font-size: 12px;
+  flex-direction: column;
+  gap: 16px;
 }
-.alloc-health-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.alloc-health-num {
-  font-weight: 700;
-  font-family: 'SF Mono', Menlo, monospace;
-}
-.alloc-health-num.alert { color: #c84a4a; }
-.alloc-health-num.warn { color: #b8731e; }
-.alloc-health-num.ok { color: #6a7752; }
-.alloc-health-label { color: var(--text-soft); }
 
-/* Coverage controls */
-.alloc-coverage {
+/* ===== LỚP 1: PHẠM VI ===== */
+.cockpit-scope {
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.cockpit-scope-summary {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 10px 14px;
+  justify-content: space-between;
+  padding: 14px 18px;
+  cursor: pointer;
+  gap: 16px;
+  flex-wrap: wrap;
+  transition: background 0.18s;
 }
-.alloc-coverage-label {
+.cockpit-scope-summary:hover { background: var(--bg); }
+.cockpit-scope-summary-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+}
+.cockpit-scope-label {
   font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--text-soft);
+  font-weight: 600;
+}
+.cockpit-scope-value {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 14px;
+}
+.cockpit-scope-sep { color: var(--text-soft); opacity: 0.6; }
+.cockpit-scope-body {
+  display: none;
+  border-top: 1px solid var(--line);
+  padding: 18px;
+  background: var(--bg);
+}
+.cockpit-scope.open .cockpit-scope-body { display: block; }
+.cockpit-scope.open .cockpit-scope-summary { border-bottom: 1px solid var(--line); }
+.cockpit-scope-row { margin-bottom: 16px; }
+.cockpit-scope-row:last-child { margin-bottom: 0; }
+.cockpit-scope-row-label {
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-}
-.alloc-coverage-input {
-  width: 56px;
-  padding: 4px 8px;
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  font-size: 12px;
-  font-weight: 600;
-  text-align: center;
-  background: var(--bg-elevated);
-  color: var(--text);
-}
-
-/* === Substitute / Replacement modal === */
-.alloc-sub-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.45);
-  z-index: 1000;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-.alloc-sub-modal-backdrop.active { display: flex; }
-.alloc-sub-modal {
-  background: var(--bg-elevated);
-  border-radius: 12px;
-  max-width: 720px;
-  width: 100%;
-  max-height: 80vh;
-  overflow-y: auto;
-  padding: 24px;
-}
-.alloc-sub-modal-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-.alloc-sub-modal-sub { font-size: 12px; color: var(--text-soft); margin-bottom: 18px; }
-.alloc-sub-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
-}
-.alloc-sub-card {
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 12px;
-  cursor: pointer;
-  transition: all 0.18s;
-  background: var(--bg);
-}
-.alloc-sub-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-.alloc-sub-card img {
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
-  border-radius: 6px;
-  background: var(--line);
+  letter-spacing: 0.05em;
+  color: var(--text-soft);
   margin-bottom: 8px;
 }
-.alloc-sub-card-code {
-  font-family: 'SF Mono', Menlo, monospace;
-  font-size: 11px;
+.cockpit-scope-row-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 18px;
+}
+@media (max-width: 1000px) {
+  .cockpit-scope-row-filters { grid-template-columns: 1fr; }
+}
+.cockpit-scope-col { min-width: 0; }
+
+/* ===== BUTTONS ===== */
+.cockpit-btn-primary {
+  padding: 11px 22px;
+  border-radius: 10px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
   font-weight: 600;
-  word-break: break-all;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+  transition: all 0.18s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
-.alloc-sub-card-meta {
-  font-size: 10px;
-  color: var(--text-soft);
-  margin-top: 4px;
+.cockpit-btn-primary:hover {
+  filter: brightness(0.94);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(168, 86, 48, 0.2);
 }
-.alloc-sub-score {
-  display: inline-block;
-  padding: 1px 6px;
-  background: var(--accent-soft);
+.cockpit-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.cockpit-btn-ghost {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.18s;
+}
+.cockpit-btn-ghost:hover {
+  background: var(--bg-elevated);
+  border-color: var(--accent);
   color: var(--accent);
-  border-radius: 3px;
-  font-size: 10px;
-  font-weight: 600;
-  margin-top: 4px;
+}
+.cockpit-btn-export {
+  padding: 13px 30px;
+  font-size: 14px;
 }
 
-/* Empty state */
-.alloc-empty {
+/* ===== LỚP 2: HERO 3 CỘT ===== */
+.cockpit-hero {
+  display: grid;
+  grid-template-columns: 280px 1fr 320px;
+  gap: 16px;
+}
+@media (max-width: 1200px) {
+  .cockpit-hero { grid-template-columns: 1fr; }
+}
+.cockpit-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.cockpit-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent);
+  opacity: 0.5;
+}
+.cockpit-card-source::before { background: var(--c-blue); }
+.cockpit-card-main::before { background: var(--accent); }
+.cockpit-card-warnings::before { background: var(--c-orange); }
+
+.cockpit-card-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  margin-bottom: 14px;
+}
+
+/* === Donut === */
+.cockpit-donut-wrap {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin: 8px auto 14px;
+}
+.cockpit-donut {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.cockpit-donut-track {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 9;
+}
+.cockpit-donut-fill {
+  fill: none;
+  stroke: var(--c-blue);
+  stroke-width: 9;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.cockpit-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.cockpit-donut-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+  font-feature-settings: 'tnum';
+  letter-spacing: -0.02em;
+}
+.cockpit-donut-label {
+  font-size: 10px;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+.cockpit-card-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.cockpit-stat-label {
+  font-size: 10px;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 3px;
+}
+.cockpit-stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'SF Mono', Menlo, monospace;
+  color: var(--text);
+}
+.cockpit-stat-out { color: var(--c-blue); }
+.cockpit-stat-remaining { color: var(--c-green); }
+
+/* === Big number === */
+.cockpit-bignum {
+  text-align: center;
+  margin: 18px 0 8px;
+}
+.cockpit-bignum-value {
+  font-size: 64px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--accent), #d57a45);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-feature-settings: 'tnum';
+}
+.cockpit-bignum-label {
+  font-size: 13px;
+  color: var(--text-soft);
+  margin-top: 6px;
+}
+.cockpit-bignum-sub {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--text-soft);
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  margin: 8px 0 16px;
+}
+.cockpit-bignum-sub strong { color: var(--text); font-weight: 700; }
+.cockpit-sep { opacity: 0.4; }
+.cockpit-actions-main {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: auto;
+}
+
+/* === Warnings === */
+.cockpit-warnings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  max-height: 320px;
+}
+.cockpit-empty-warning {
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 12px;
+  padding: 30px 20px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+}
+.cockpit-warning-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--c-orange);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cockpit-warning-item:hover {
+  background: var(--bg-elevated);
+  transform: translateX(2px);
+}
+.cockpit-warning-item.warning-critical { border-left-color: var(--c-red); background: rgba(200, 74, 74, 0.04); }
+.cockpit-warning-item.warning-info { border-left-color: var(--c-blue); }
+.cockpit-warning-item.warning-medium { border-left-color: var(--c-orange); background: rgba(184, 115, 30, 0.04); }
+.cockpit-warning-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.cockpit-warning-body { flex: 1; min-width: 0; }
+.cockpit-warning-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.cockpit-warning-desc {
+  font-size: 11px;
+  color: var(--text-soft);
+  line-height: 1.45;
+}
+.cockpit-warning-count {
+  display: inline-block;
+  padding: 1px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(200, 74, 74, 0.12);
+  color: var(--c-red);
+  border-radius: 8px;
+  margin-left: 4px;
+}
+
+/* ===== LỚP 3: BẢNG ===== */
+.cockpit-table-wrap {
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.cockpit-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.cockpit-tab-btn {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.18s;
+}
+.cockpit-tab-btn:hover { color: var(--text); background: var(--bg-elevated); }
+.cockpit-tab-btn.active {
+  background: var(--accent-soft, rgba(168, 86, 48, 0.1));
+  color: var(--accent);
+  border-color: rgba(168, 86, 48, 0.2);
+}
+.cockpit-tabs-search { margin-left: auto; min-width: 240px; }
+.cockpit-tabs-search input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 12px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-family: inherit;
+}
+
+.cockpit-list {
+  max-height: 700px;
+  overflow-y: auto;
+}
+.cockpit-row {
+  display: grid;
+  grid-template-columns: 1fr 100px 90px 90px 110px 110px;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.12s;
+  cursor: pointer;
+}
+.cockpit-row:hover { background: var(--bg); }
+.cockpit-row.has-issue { border-left: 3px solid var(--c-orange); padding-left: 15px; }
+.cockpit-row.has-issue-critical { border-left-color: var(--c-red); background: rgba(200, 74, 74, 0.02); }
+.cockpit-row-name {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+.cockpit-row-sub {
+  font-size: 11px;
+  color: var(--text-soft);
+}
+.cockpit-row-tag {
+  display: inline-block;
+  padding: 1px 7px;
+  background: var(--line);
+  border-radius: 8px;
+  font-size: 10px;
+  margin-right: 4px;
+}
+.cockpit-row-num {
+  font-family: 'SF Mono', Menlo, monospace;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+  text-align: right;
+}
+.cockpit-row-num.cockpit-num-suggested { color: var(--accent); }
+.cockpit-row-num.cockpit-num-zero { color: var(--text-soft); font-weight: 500; }
+.cockpit-row-issue {
+  font-size: 11px;
+  color: var(--c-orange);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cockpit-row-issue.critical { color: var(--c-red); font-weight: 600; }
+
+.cockpit-list-empty {
   padding: 60px 20px;
   text-align: center;
   color: var(--text-soft);
 }
-.alloc-empty-icon {
-  font-size: 32px;
-  margin-bottom: 12px;
-  opacity: 0.3;
-}
-.alloc-empty-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 4px;
-}
+.cockpit-list-empty-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.4; }
+.cockpit-list-empty-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
 
-/* Draft saved indicator */
-.alloc-draft-indicator {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  background: var(--accent-soft);
-  border-radius: 12px;
-  font-size: 11px;
-  color: var(--accent);
-  font-weight: 500;
-}
-.alloc-draft-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-}
-
-/* Source warning step 4 */
-.alloc-source-card {
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 14px 16px;
-  margin-bottom: 10px;
-}
-.alloc-source-card.short {
-  border-left: 3px solid #c84a4a;
-}
-.alloc-source-card-head {
+/* ===== LỚP 4: FOOTER ===== */
+.cockpit-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-  gap: 14px;
+  padding: 18px 22px;
+  background: linear-gradient(135deg, var(--bg-elevated), var(--bg));
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  position: sticky;
+  bottom: 12px;
+  z-index: 5;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
   flex-wrap: wrap;
+  gap: 12px;
 }
-.alloc-source-name { font-weight: 600; font-size: 13px; }
-.alloc-source-deficit {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 10px;
-  background: rgba(200, 74, 74, 0.12);
-  color: #c84a4a;
+.cockpit-footer-info {
+  font-size: 13px;
+  color: var(--text);
 }
-.alloc-source-bar {
-  height: 8px;
-  background: var(--line);
-  border-radius: 4px;
-  overflow: hidden;
-  margin: 4px 0;
-  position: relative;
+.cockpit-footer-info strong { color: var(--accent); font-weight: 700; }
+.cockpit-footer-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+/* ===== SIDE PANEL ===== */
+.cockpit-sidepanel-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 990;
+  display: none;
 }
-.alloc-source-bar-supply {
-  height: 100%;
-  background: #6a7752;
-  position: absolute;
-  left: 0;
-  top: 0;
+.cockpit-sidepanel-backdrop.active { display: block; }
+.cockpit-sidepanel {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 520px;
+  max-width: 92vw;
+  background: var(--bg-elevated);
+  z-index: 1000;
+  transform: translateX(110%);
+  transition: transform 0.28s cubic-bezier(0.32, 0.72, 0.24, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -16px 0 40px rgba(0,0,0,0.18);
 }
-.alloc-source-bar-demand {
-  height: 100%;
-  background: rgba(200, 74, 74, 0.3);
-  position: absolute;
-  right: 0;
-  top: 0;
-  border-left: 2px solid #c84a4a;
+.cockpit-sidepanel.active { transform: translateX(0); }
+.cockpit-sidepanel-wide { width: 720px; }
+.cockpit-sidepanel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.cockpit-sidepanel-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.cockpit-sidepanel-sub {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-top: 2px;
+}
+.cockpit-sidepanel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 22px;
 }
 
-/* Pro-rate hint */
-.alloc-prorate-hint {
+/* Side panel content */
+.sp-mini-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.sp-mini-stat {
+  padding: 10px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  text-align: center;
+}
+.sp-mini-stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-soft);
+}
+.sp-mini-stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 2px;
+  font-family: 'SF Mono', Menlo, monospace;
+}
+.sp-mini-stat.alert .sp-mini-stat-value { color: var(--c-red); }
+.sp-mini-stat.warn .sp-mini-stat-value { color: var(--c-orange); }
+.sp-mini-stat.ok .sp-mini-stat-value { color: var(--c-green); }
+
+.sp-capbar {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+.sp-capbar-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-soft);
+  margin-bottom: 6px;
+}
+.sp-capbar-value {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'SF Mono', Menlo, monospace;
+}
+.sp-capbar-track {
+  height: 6px;
+  background: var(--line);
+  border-radius: 3px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.sp-capbar-fill {
+  height: 100%;
+  transition: width 0.4s;
+}
+.sp-capbar-fill.ok { background: var(--c-green); }
+.sp-capbar-fill.warn { background: var(--c-orange); }
+.sp-capbar-fill.over { background: var(--c-red); }
+
+.sp-product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sp-product-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 80px 80px 80px 70px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  font-size: 12px;
+}
+.sp-product-row.has-alloc { background: rgba(106, 119, 82, 0.08); }
+.sp-product-row.dead {
+  background: rgba(150, 150, 150, 0.06);
+  opacity: 0.7;
+}
+.sp-product-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  object-fit: cover;
+  background: var(--line);
+}
+.sp-product-code {
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 11px;
+  font-weight: 600;
+}
+.sp-product-meta { font-size: 10px; color: var(--text-soft); }
+.sp-num { text-align: right; font-family: 'SF Mono', Menlo, monospace; font-size: 12px; font-weight: 600; }
+.sp-num-suggested { color: var(--accent); }
+.sp-input {
+  width: 60px;
+  padding: 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  font-size: 12px;
+  font-family: 'SF Mono', Menlo, monospace;
+  font-weight: 600;
+  text-align: right;
+  background: var(--bg-elevated);
+  color: var(--text);
+}
+.sp-input.changed { border-color: var(--accent); background: rgba(168, 86, 48, 0.05); }
+
+.sp-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 18px 0 8px;
+}
+.sp-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.sp-section-sub {
   font-size: 11px;
   color: var(--text-soft);
-  font-style: italic;
-  padding: 6px 10px;
-  background: var(--bg-elevated);
-  border-radius: 5px;
-  margin-top: 6px;
 }
 
-/* Sync stores admin panel */
-.alloc-sync-card {
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 16px;
-  margin-top: 16px;
-  display: flex;
+/* Store picker rows */
+.cockpit-storepicker-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 80px 100px 80px;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
   align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  flex-wrap: wrap;
+  cursor: pointer;
+  font-size: 12px;
 }
-.alloc-sync-info { font-size: 12px; color: var(--text-soft); }
-.alloc-sync-info strong { color: var(--text); }
+.cockpit-storepicker-row:hover { background: var(--bg); }
+.cockpit-storepicker-row.selected { background: var(--accent-soft, rgba(168, 86, 48, 0.06)); }
+
+/* Toast notification */
+.cockpit-toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--text);
+  color: var(--bg);
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 2000;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  transition: transform 0.3s cubic-bezier(0.32, 1.4, 0.64, 1);
+  pointer-events: none;
+}
+.cockpit-toast.show { transform: translateX(-50%) translateY(0); }
+.cockpit-toast.success { background: var(--c-green); color: #fff; }
+.cockpit-toast.error { background: var(--c-red); color: #fff; }
+
+/* Animation count-up */
+@keyframes cockpit-flash {
+  0% { transform: scale(1.15); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.cockpit-flash { animation: cockpit-flash 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
 </style>
 </head>
@@ -4338,247 +4177,210 @@ body.workspace-analytics #section-allocation {
 
   <!-- ============ SECTION: ĐIỀU PHỐI HÀNG HÓA (DPHH) ============ -->
   <div class="section" id="section-allocation">
-    <div class="alloc-desk">
-      <!-- Stepper -->
-      <div class="alloc-stepper" id="alloc-stepper">
-        <button class="alloc-step active" data-step="1" onclick="allocGotoStep(1)">
-          <span class="alloc-step-num">1</span> Phạm vi
-        </button>
-        <span class="alloc-step-arrow">›</span>
-        <button class="alloc-step" data-step="2" onclick="allocGotoStep(2)">
-          <span class="alloc-step-num">2</span> Bàn chia
-        </button>
-        <span class="alloc-step-arrow">›</span>
-        <button class="alloc-step" data-step="3" onclick="allocGotoStep(3)">
-          <span class="alloc-step-num">3</span> Hàng mới
-        </button>
-        <span class="alloc-step-arrow">›</span>
-        <button class="alloc-step" data-step="4" onclick="allocGotoStep(4)">
-          <span class="alloc-step-num">4</span> Cân đối nguồn
-        </button>
-        <span class="alloc-step-arrow">›</span>
-        <button class="alloc-step" data-step="5" onclick="allocGotoStep(5)">
-          <span class="alloc-step-num">5</span> Xuất Odoo
-        </button>
-      </div>
+    <div class="cockpit">
 
-      <!-- STEP 1: SCOPE -->
-      <div class="alloc-panel active" id="alloc-panel-1">
-        <div class="alloc-panel-header">
-          <div>
-            <div class="alloc-panel-title">Chọn phạm vi chia hàng</div>
-            <div class="alloc-panel-subtitle">Khoanh vùng cửa hàng cần đi hàng trong chu kỳ này. Hệ thống sẽ tính sức bán theo khoảng ngày bạn chọn.</div>
+      <!-- LỚP 1: PHẠM VI (panel có thể mở/đóng) -->
+      <div class="cockpit-scope" id="cockpit-scope">
+        <div class="cockpit-scope-summary" onclick="cockpitToggleScope()">
+          <div class="cockpit-scope-summary-left">
+            <span class="cockpit-scope-label">Kho nguồn</span>
+            <span class="cockpit-scope-value" id="cockpit-warehouse-label">— Chọn kho —</span>
+            <span class="cockpit-scope-sep">·</span>
+            <span class="cockpit-scope-label">Sức bán</span>
+            <span class="cockpit-scope-value" id="cockpit-date-label">14 ngày qua</span>
+            <span class="cockpit-scope-sep">·</span>
+            <span class="cockpit-scope-label">Cửa hàng</span>
+            <span class="cockpit-scope-value" id="cockpit-store-label">0</span>
           </div>
-          <div id="alloc-draft-indicator-1"></div>
+          <div class="cockpit-scope-summary-right">
+            <button class="cockpit-btn-ghost" id="cockpit-scope-toggle">⚙ Mở chi tiết</button>
+          </div>
         </div>
-
-        <div class="scope-grid">
-          <div class="scope-card">
-            <div class="scope-label">Khoảng tính sức bán</div>
-            <div class="scope-row">
-              <input type="date" id="alloc-date-from" class="scope-input">
-              <input type="date" id="alloc-date-to" class="scope-input">
-            </div>
-            <div class="scope-chips" style="margin-top:10px">
-              <span class="scope-chip" onclick="allocSetDateRange(7)">7 ngày</span>
-              <span class="scope-chip" onclick="allocSetDateRange(14)">14 ngày</span>
-              <span class="scope-chip" onclick="allocSetDateRange(21)">21 ngày</span>
-              <span class="scope-chip" onclick="allocSetDateRange(30)">30 ngày</span>
-            </div>
-
-            <div class="scope-label" style="margin-top:18px">Kho nguồn</div>
-            <div class="scope-warehouses" id="alloc-warehouses">
-              <button class="scope-warehouse-btn active" data-warehouse="TP05006" data-cat="BH" data-issale="false" onclick="allocSetWarehouse('TP05006')">
+        <div class="cockpit-scope-body" id="cockpit-scope-body">
+          <!-- Warehouses -->
+          <div class="cockpit-scope-row">
+            <div class="cockpit-scope-row-label">Kho nguồn</div>
+            <div class="scope-warehouses cockpit-warehouses" id="cockpit-warehouses">
+              <button class="scope-warehouse-btn active" data-warehouse="TP05006" data-cat="BH" data-issale="false" onclick="cockpitSetWarehouse('TP05006')">
                 <div class="scope-wh-name">Kho xuất Nón Bảo hiểm</div>
                 <div class="scope-wh-meta"><span class="scope-wh-code">TP05006</span> · Hàng chính · Bảo hiểm</div>
                 <div class="scope-wh-stock" id="wh-stock-TP05006">Tồn: —</div>
               </button>
-              <button class="scope-warehouse-btn" data-warehouse="TP05002" data-cat="NV" data-issale="false" onclick="allocSetWarehouse('TP05002')">
+              <button class="scope-warehouse-btn" data-warehouse="TP05002" data-cat="NV" data-issale="false" onclick="cockpitSetWarehouse('TP05002')">
                 <div class="scope-wh-name">Kho TP Nón vải</div>
                 <div class="scope-wh-meta"><span class="scope-wh-code">TP05002</span> · Hàng chính · Nón vải</div>
                 <div class="scope-wh-stock" id="wh-stock-TP05002">Tồn: —</div>
               </button>
-              <button class="scope-warehouse-btn" data-warehouse="SA05001" data-cat="BH" data-issale="true" onclick="allocSetWarehouse('SA05001')">
+              <button class="scope-warehouse-btn" data-warehouse="SA05001" data-cat="BH" data-issale="true" onclick="cockpitSetWarehouse('SA05001')">
                 <div class="scope-wh-name">Kho Sale BH Offline</div>
                 <div class="scope-wh-meta"><span class="scope-wh-code">SA05001</span> · Hàng sale · Bảo hiểm</div>
                 <div class="scope-wh-stock" id="wh-stock-SA05001">Tồn: —</div>
               </button>
-              <button class="scope-warehouse-btn" data-warehouse="SA05002" data-cat="NV" data-issale="true" onclick="allocSetWarehouse('SA05002')">
+              <button class="scope-warehouse-btn" data-warehouse="SA05002" data-cat="NV" data-issale="true" onclick="cockpitSetWarehouse('SA05002')">
                 <div class="scope-wh-name">Kho Sale Nón vải</div>
                 <div class="scope-wh-meta"><span class="scope-wh-code">SA05002</span> · Hàng sale · Nón vải</div>
                 <div class="scope-wh-stock" id="wh-stock-SA05002">Tồn: —</div>
               </button>
             </div>
-            <div style="font-size:11px;color:var(--text-soft);margin-top:6px;font-style:italic" id="alloc-loai-hint">
-              Mỗi phiên chia 1 kho nguồn (= 1 phiếu Odoo). Hệ thống tự lọc đúng ngành hàng và loại chính/sale.
-            </div>
           </div>
 
-          <div class="scope-card">
-            <div class="scope-label">Khu vực</div>
-            <select id="alloc-region" class="scope-input" onchange="allocRenderStoreList()">
-              <option value="">— Tất cả khu vực —</option>
-            </select>
-            <div class="scope-label" style="margin-top:14px">Nhóm đi hàng</div>
-            <div class="scope-chips">
-              <span class="scope-chip active" data-group="all" onclick="allocSetGroup('all')">Tất cả</span>
-              <span class="scope-chip" data-group="1" onclick="allocSetGroup('1')">Nhóm 1 (tuần)</span>
-              <span class="scope-chip" data-group="2" onclick="allocSetGroup('2')">Nhóm 2 (2 tuần)</span>
-              <span class="scope-chip" data-group="3" onclick="allocSetGroup('3')">Nhóm 3 (3 tuần)</span>
-            </div>
-            <div class="scope-label" style="margin-top:14px">Loại điểm bán</div>
-            <div class="scope-chips">
-              <span class="scope-chip active" data-type="all" onclick="allocSetType('all')">Tất cả</span>
-              <span class="scope-chip" data-type="CH" onclick="allocSetType('CH')">Cửa hàng</span>
-              <span class="scope-chip" data-type="DB" onclick="allocSetType('DB')">Điểm bán</span>
-              <span class="scope-chip" data-type="DOISALE" onclick="allocSetType('DOISALE')">Đội sale</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="scope-stores-wrap">
-          <div class="scope-stores-header">
-            <span>Cửa hàng / Điểm bán phù hợp: <strong id="alloc-store-count">0</strong></span>
-            <span style="font-size:11px;color:var(--text-soft)">Bấm chọn các CH cần chia (mặc định chọn tất cả)</span>
-          </div>
-          <div class="scope-stores-body" id="alloc-store-list"></div>
-        </div>
-
-        <!-- Admin sync card -->
-        <div class="alloc-sync-card" id="alloc-sync-card">
-          <div class="alloc-sync-info">
-            <div><strong>Đồng bộ danh sách cửa hàng</strong></div>
-            <div style="margin-top:3px">Tự động từ file gốc lúc 2h sáng · hoặc bấm ngay bên cạnh</div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <span id="alloc-sync-status" style="font-size:11px;color:var(--text-soft)"></span>
-            <button class="alloc-btn" onclick="allocSyncStoresManual()">↻ Đồng bộ ngay</button>
-          </div>
-        </div>
-
-        <div class="alloc-step-actions">
-          <span></span>
-          <button class="alloc-btn primary" onclick="allocGotoStep(2)">Tiếp tục: Bàn chia hàng →</button>
-        </div>
-      </div>
-
-      <!-- STEP 2: BÀN CHIA -->
-      <div class="alloc-panel" id="alloc-panel-2">
-        <div class="alloc-panel-header">
-          <div>
-            <div class="alloc-panel-title">Bàn chia hàng</div>
-            <div class="alloc-panel-subtitle" id="alloc-step2-sub">Đề xuất tự động theo công thức (sức bán × hệ số phủ) − tồn hiện tại. Điều phối có thể chỉnh tay từng dòng.</div>
-          </div>
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-            <div class="alloc-coverage">
-              <span class="alloc-coverage-label">Hệ số phủ mặc định</span>
-              <input type="number" id="alloc-coverage-default" class="alloc-coverage-input" value="120" min="100" max="200" step="5" onchange="allocRecomputeAll()">
-              <span style="font-size:11px;color:var(--text-soft)">%</span>
-            </div>
-            <div class="alloc-mode-switch">
-              <button class="alloc-mode-btn active" data-mode="store" onclick="allocSetMode('store')">Theo cửa hàng</button>
-              <button class="alloc-mode-btn" data-mode="product" onclick="allocSetMode('product')">Theo sản phẩm</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Health bar (overall) -->
-        <div class="alloc-health" id="alloc-health-bar">
-          <div class="alloc-health-item"><span class="alloc-health-label">Tổng SP đề xuất:</span> <span class="alloc-health-num" id="health-total">0</span></div>
-          <div class="alloc-health-item"><span class="alloc-health-label">CH vượt trần:</span> <span class="alloc-health-num alert" id="health-over">0</span></div>
-          <div class="alloc-health-item"><span class="alloc-health-label">CH dưới sàn:</span> <span class="alloc-health-num warn" id="health-under">0</span></div>
-          <div class="alloc-health-item"><span class="alloc-health-label">Mã thiếu nguồn:</span> <span class="alloc-health-num alert" id="health-short">0</span></div>
-          <div class="alloc-health-item" style="margin-left:auto">
-            <div class="alloc-draft-indicator" id="alloc-draft-indicator-2" style="display:none">
-              <span class="alloc-draft-dot"></span> <span id="alloc-draft-text">Đã lưu nháp</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="alloc-workspace">
-          <div class="alloc-sidebar" id="alloc-sidebar">
-            <div class="alloc-sidebar-header">
-              <input type="text" class="alloc-sidebar-search" id="alloc-sidebar-search" placeholder="Tìm cửa hàng / mã SP..." oninput="allocFilterSidebar()">
-            </div>
-            <div id="alloc-sidebar-body"></div>
-          </div>
-
-          <div class="alloc-main" id="alloc-main">
-            <div class="alloc-main-header">
-              <div>
-                <div class="alloc-main-title" id="alloc-main-title">— Chọn cửa hàng —</div>
-                <div class="alloc-main-sub" id="alloc-main-sub"></div>
+          <div class="cockpit-scope-row cockpit-scope-row-filters">
+            <div class="cockpit-scope-col">
+              <div class="cockpit-scope-row-label">Khoảng sức bán</div>
+              <div class="scope-row">
+                <input type="date" id="cockpit-date-from" class="scope-input" onchange="cockpitOnScopeChange()">
+                <input type="date" id="cockpit-date-to" class="scope-input" onchange="cockpitOnScopeChange()">
               </div>
-              <div style="display:flex;gap:8px">
-                <button class="alloc-btn" onclick="allocFillSuggested()" title="Điền lại theo đề xuất hệ thống">↺ Điền đề xuất</button>
-                <button class="alloc-btn ghost" onclick="allocClearCurrentStore()" title="Bỏ chia cho CH này">Bỏ chia CH</button>
+              <div class="scope-chips" style="margin-top:8px">
+                <span class="scope-chip" onclick="cockpitSetDateRange(7)">7 ngày</span>
+                <span class="scope-chip" onclick="cockpitSetDateRange(14)">14 ngày</span>
+                <span class="scope-chip" onclick="cockpitSetDateRange(21)">21 ngày</span>
+                <span class="scope-chip" onclick="cockpitSetDateRange(30)">30 ngày</span>
               </div>
             </div>
-            <div id="alloc-cap-bars-wrap"></div>
-            <div class="alloc-table-wrap" id="alloc-table-wrap">
-              <div class="alloc-empty">
-                <div class="alloc-empty-icon">◯</div>
-                <div class="alloc-empty-title">Chưa chọn cửa hàng</div>
-                <div>Bấm vào một cửa hàng bên trái để bắt đầu chia hàng.</div>
+
+            <div class="cockpit-scope-col">
+              <div class="cockpit-scope-row-label">Khu vực</div>
+              <select id="cockpit-region" class="scope-input" onchange="cockpitOnScopeChange()">
+                <option value="">— Tất cả khu vực —</option>
+              </select>
+              <div class="cockpit-scope-row-label" style="margin-top:10px">Nhóm đi hàng</div>
+              <div class="scope-chips">
+                <span class="scope-chip active" data-group="all" onclick="cockpitSetGroup('all')">Tất cả</span>
+                <span class="scope-chip" data-group="1" onclick="cockpitSetGroup('1')">Nhóm 1</span>
+                <span class="scope-chip" data-group="2" onclick="cockpitSetGroup('2')">Nhóm 2</span>
+                <span class="scope-chip" data-group="3" onclick="cockpitSetGroup('3')">Nhóm 3</span>
               </div>
+            </div>
+
+            <div class="cockpit-scope-col">
+              <div class="cockpit-scope-row-label">Loại điểm bán</div>
+              <div class="scope-chips">
+                <span class="scope-chip active" data-type="all" onclick="cockpitSetType('all')">Tất cả</span>
+                <span class="scope-chip" data-type="CH" onclick="cockpitSetType('CH')">Cửa hàng</span>
+                <span class="scope-chip" data-type="DB" onclick="cockpitSetType('DB')">Điểm bán</span>
+                <span class="scope-chip" data-type="DOISALE" onclick="cockpitSetType('DOISALE')">Đội sale</span>
+              </div>
+              <div class="cockpit-scope-row-label" style="margin-top:14px">Đã chọn <strong id="cockpit-store-count">0</strong> điểm bán</div>
+              <button class="cockpit-btn-ghost" style="margin-top:6px" onclick="cockpitOpenStorePicker()">Chọn cụ thể CH...</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LỚP 2: 3 KPI BLOCK CHÍNH -->
+      <div class="cockpit-hero">
+        <!-- KHO NGUỒN -->
+        <div class="cockpit-card cockpit-card-source">
+          <div class="cockpit-card-title">Kho nguồn</div>
+          <div class="cockpit-donut-wrap">
+            <svg class="cockpit-donut" id="cockpit-donut" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="50" class="cockpit-donut-track"/>
+              <circle cx="60" cy="60" r="50" class="cockpit-donut-fill" id="cockpit-donut-fill" stroke-dasharray="0 314"/>
+            </svg>
+            <div class="cockpit-donut-center">
+              <div class="cockpit-donut-value" id="cockpit-donut-pct">—</div>
+              <div class="cockpit-donut-label">đã chia</div>
+            </div>
+          </div>
+          <div class="cockpit-card-stats">
+            <div class="cockpit-stat">
+              <div class="cockpit-stat-label">Tồn ban đầu</div>
+              <div class="cockpit-stat-value" id="cockpit-source-initial">0</div>
+            </div>
+            <div class="cockpit-stat">
+              <div class="cockpit-stat-label">Đã chia</div>
+              <div class="cockpit-stat-value cockpit-stat-out" id="cockpit-source-used">0</div>
+            </div>
+            <div class="cockpit-stat">
+              <div class="cockpit-stat-label">Còn lại</div>
+              <div class="cockpit-stat-value cockpit-stat-remaining" id="cockpit-source-remaining">0</div>
             </div>
           </div>
         </div>
 
-        <div class="alloc-step-actions">
-          <button class="alloc-btn" onclick="allocGotoStep(1)">← Quay lại phạm vi</button>
-          <div style="display:flex;gap:8px">
-            <button class="alloc-btn" onclick="allocSaveDraft()">⬇ Lưu nháp</button>
-            <button class="alloc-btn primary" onclick="allocGotoStep(3)">Tiếp tục: Hàng mới →</button>
+        <!-- KẾT QUẢ CHIA AI -->
+        <div class="cockpit-card cockpit-card-main">
+          <div class="cockpit-card-title">Kết quả AI điều phối</div>
+          <div class="cockpit-bignum">
+            <div class="cockpit-bignum-value" id="cockpit-bignum">0</div>
+            <div class="cockpit-bignum-label" id="cockpit-bignum-label">cái sẽ chia về cửa hàng</div>
+          </div>
+          <div class="cockpit-bignum-sub">
+            <span><strong id="cockpit-coverage-pct">0%</strong> sức bán được đáp ứng</span>
+            <span class="cockpit-sep">·</span>
+            <span><strong id="cockpit-stores-ok">0</strong> CH đạt</span>
+            <span class="cockpit-sep">·</span>
+            <span><strong id="cockpit-stores-short">0</strong> CH thiếu</span>
+          </div>
+          <div class="cockpit-actions-main">
+            <button class="cockpit-btn-primary" id="cockpit-btn-autoallocate" onclick="cockpitAutoAllocate()">⚡ AI chia hàng tự động</button>
+            <button class="cockpit-btn-ghost" onclick="cockpitClearAllocations()">Xóa kết quả</button>
+          </div>
+        </div>
+
+        <!-- CẢNH BÁO -->
+        <div class="cockpit-card cockpit-card-warnings">
+          <div class="cockpit-card-title">Cảnh báo điều phối</div>
+          <div class="cockpit-warnings-list" id="cockpit-warnings-list">
+            <div class="cockpit-empty-warning">Chưa có dữ liệu. Bấm "AI chia hàng tự động" để bắt đầu.</div>
           </div>
         </div>
       </div>
 
-      <!-- STEP 3: HÀNG MỚI / TÁI BẢN -->
-      <div class="alloc-panel" id="alloc-panel-3">
-        <div class="alloc-panel-header">
-          <div>
-            <div class="alloc-panel-title">Hàng mới & tái bản</div>
-            <div class="alloc-panel-subtitle">Mã chưa từng có trong CH (hoặc tái bản) được chia theo tỷ trọng ngành cấp 3 mà CH đang bán mạnh.</div>
+      <!-- LỚP 3: BẢNG ĐIỀU KHIỂN -->
+      <div class="cockpit-table-wrap" id="cockpit-table-wrap" style="display:none">
+        <div class="cockpit-tabs">
+          <button class="cockpit-tab-btn active" data-ctab="issues" onclick="cockpitSetTab('issues')">⚠ Cần xử lý (<span id="cockpit-tab-issues-count">0</span>)</button>
+          <button class="cockpit-tab-btn" data-ctab="all" onclick="cockpitSetTab('all')">📦 Toàn bộ (<span id="cockpit-tab-all-count">0</span>)</button>
+          <button class="cockpit-tab-btn" data-ctab="products" onclick="cockpitSetTab('products')">📊 Theo sản phẩm (<span id="cockpit-tab-prod-count">0</span>)</button>
+          <div class="cockpit-tabs-search">
+            <input type="text" id="cockpit-search" placeholder="Tìm CH hoặc mã SP..." oninput="cockpitFilterList()">
           </div>
         </div>
-        <div id="alloc-newitems-body" style="min-height:300px"></div>
-        <div class="alloc-step-actions">
-          <button class="alloc-btn" onclick="allocGotoStep(2)">← Quay lại bàn chia</button>
-          <button class="alloc-btn primary" onclick="allocGotoStep(4)">Tiếp tục: Cân đối nguồn →</button>
-        </div>
+        <div class="cockpit-list" id="cockpit-list"></div>
       </div>
 
-      <!-- STEP 4: CÂN ĐỐI NGUỒN -->
-      <div class="alloc-panel" id="alloc-panel-4">
-        <div class="alloc-panel-header">
-          <div>
-            <div class="alloc-panel-title">Cân đối nguồn hàng</div>
-            <div class="alloc-panel-subtitle">Tổng nhu cầu vs tồn kho tổng (TP/SA). Mã thiếu được đề xuất chia tỷ lệ — ưu tiên CH lớn / nhóm 1.</div>
-          </div>
-        </div>
-        <div id="alloc-source-body" style="min-height:300px"></div>
-        <div class="alloc-step-actions">
-          <button class="alloc-btn" onclick="allocGotoStep(3)">← Quay lại hàng mới</button>
-          <button class="alloc-btn primary" onclick="allocGotoStep(5)">Tiếp tục: Xuất Odoo →</button>
-        </div>
-      </div>
-
-      <!-- STEP 5: EXPORT -->
-      <div class="alloc-panel" id="alloc-panel-5">
-        <div class="alloc-panel-header">
-          <div>
-            <div class="alloc-panel-title">Xuất file điều chuyển</div>
-            <div class="alloc-panel-subtitle">File CSV chuẩn 4 cột: kho nguồn, kho đích, SKU/Barcode, số lượng — import thẳng vào Odoo.</div>
-          </div>
-        </div>
-        <div id="alloc-export-body" style="min-height:300px"></div>
-        <div class="alloc-step-actions">
-          <button class="alloc-btn" onclick="allocGotoStep(4)">← Quay lại cân đối</button>
-          <button class="alloc-btn primary" onclick="allocExportOdoo()">⬇ Xuất CSV cho Odoo</button>
+      <!-- LỚP 4: EXPORT FOOTER -->
+      <div class="cockpit-footer" id="cockpit-footer" style="display:none">
+        <div class="cockpit-footer-info" id="cockpit-footer-info">—</div>
+        <div class="cockpit-footer-actions">
+          <button class="cockpit-btn-ghost" onclick="cockpitSaveDraft()">⬇ Lưu nháp</button>
+          <button class="cockpit-btn-primary cockpit-btn-export" onclick="cockpitExportOdoo()">⬇ Xuất CSV cho Odoo</button>
         </div>
       </div>
     </div>
+
+    <!-- SIDE PANEL: Sửa CH -->
+    <div class="cockpit-sidepanel-backdrop" id="cockpit-sidepanel-backdrop" onclick="if(event.target===this)cockpitCloseSidePanel()"></div>
+    <aside class="cockpit-sidepanel" id="cockpit-sidepanel">
+      <div class="cockpit-sidepanel-head">
+        <div>
+          <div class="cockpit-sidepanel-title" id="cockpit-sp-title">—</div>
+          <div class="cockpit-sidepanel-sub" id="cockpit-sp-sub">—</div>
+        </div>
+        <button class="cockpit-btn-ghost" onclick="cockpitCloseSidePanel()">✕</button>
+      </div>
+      <div class="cockpit-sidepanel-body" id="cockpit-sp-body"></div>
+    </aside>
+
+    <!-- STORE PICKER MODAL -->
+    <div class="cockpit-sidepanel-backdrop" id="cockpit-storepicker-backdrop" onclick="if(event.target===this)cockpitCloseStorePicker()"></div>
+    <aside class="cockpit-sidepanel cockpit-sidepanel-wide" id="cockpit-storepicker">
+      <div class="cockpit-sidepanel-head">
+        <div>
+          <div class="cockpit-sidepanel-title">Chọn cửa hàng cụ thể</div>
+          <div class="cockpit-sidepanel-sub" id="cockpit-sp-storepicker-sub">—</div>
+        </div>
+        <button class="cockpit-btn-ghost" onclick="cockpitCloseStorePicker()">✕</button>
+      </div>
+      <div style="padding:12px 16px;border-bottom:1px solid var(--line);display:flex;gap:8px">
+        <input type="text" id="cockpit-storepicker-search" placeholder="Tìm CH..." class="scope-input" oninput="cockpitStorePickerFilter()">
+        <button class="cockpit-btn-ghost" onclick="cockpitStorePickerSelectAll(true)">Chọn tất cả</button>
+        <button class="cockpit-btn-ghost" onclick="cockpitStorePickerSelectAll(false)">Bỏ chọn</button>
+      </div>
+      <div class="cockpit-sidepanel-body" id="cockpit-storepicker-body"></div>
+    </aside>
   </div>
 
   <!-- Substitute modal -->
@@ -9954,218 +9756,102 @@ if (typeof _origLoadData === 'function') {
 
 
 // ╔══════════════════════════════════════════════════════════════╗
-// ║  ĐIỀU PHỐI HÀNG HÓA — BÀN CHIA HÀNG (v9)                     ║
-// ║  Engine: chia hàng tự động + manual override + export Odoo  ║
+// ║  ĐIỀU PHỐI HÀNG HÓA — COCKPIT (v10)                          ║
+// ║  AI tự chia + cảnh báo thông minh + side panel                ║
 // ╚══════════════════════════════════════════════════════════════╝
 
 // ====== STATE ======
-const ALLOC = {
-  step: 1,
-  mode: 'store',  // 'store' | 'product'
+const COCKPIT = {
   scope: {
+    warehouse: 'TP05006',
+    cat: 'BH',
+    isSale: false,
     dateFrom: null,
     dateTo: null,
     region: '',
-    group: 'all',          // 'all' | '1' | '2' | '3'
-    type: 'all',           // 'all' | 'CH' | 'DB' | 'DOISALE'
-    warehouse: 'TP05006',  // mã kho nguồn (1 trong 4)
-    cat: 'BH',             // 'BH' | 'NV' (derived from warehouse)
-    isSale: false,         // true | false (derived from warehouse)
-    storeIds: new Set()    // selected mã CH
+    group: 'all',
+    type: 'all',
+    storeIds: new Set()
   },
-  // Master data computed cho scope hiện tại
   data: {
-    salesByStoreCode: new Map(),   // Map<storeCode, Map<maSp, qtySold>>
-    stockByStoreCode: new Map(),   // Map<storeCode, Map<maSp, qtyOnHand>>
-    warehouseStockByCode: new Map(), // Map<maSp, totalTPSA>
-    productMeta: new Map(),        // Map<maSp, {nganhCap1, nganhCap3, giaNiemYet, isSale, ten}>
-    totalSoldByCap3: new Map(),    // Map<nganhCap3, totalQty> (toàn hệ thống trong scope)
-    storeShareByCap3: new Map()    // Map<"storeCode|nganhCap3", share 0-1>
+    salesByStoreCode: new Map(),      // Map<store, Map<ma, qty>>
+    stockByStoreCode: new Map(),       // Map<store, Map<ma, qty>>
+    warehouseStockByCode: new Map(),   // Map<ma, qty>
+    productMeta: new Map(),            // Map<ma, {nganhCap1, nganhCap3, giaNiemYet, isSale}>
+    storeShareByCap3: new Map()        // Map<"store|cap3", normalized share within scope>
   },
-  // Kết quả chia hàng — KEY: `${storeCode}|${maSp}` → { suggested, qty, locked, note }
-  allocations: new Map(),
-  selectedStore: null,    // current store in step 2 'store' mode
-  selectedProduct: null,  // current product in step 2 'product' mode
-  // Coverage defaults
-  coverageDefault: 120,    // %
-  // Sort state
-  sortBy: 'chia',          // 'product' | 'loai' | 'sold' | 'onHand' | 'warehouseStock' | 'suggested' | 'chia'
-  sortDir: 'desc',         // 'asc' | 'desc'
-  draftSaved: false,
-  draftSavedAt: null
+  allocations: new Map(),              // Map<"store|ma", {storeCode, maSp, sold, onHand, suggested, qty, ...}>
+  warnings: [],                        // Array of warning objects
+  currentTab: 'issues',                // 'issues' | 'all' | 'products'
+  ai: {
+    coverageDefault: 1.2,
+    coverageSlow: 0.8,                 // < 0.8x nếu daysOfStock cao
+    coverageFast: 1.5,
+    daysOfStockSlow: 30,               // > 30 ngày tồn = bán chậm
+    daysOfStockFast: 7,
+    daysOfStockDead: 60                // > 60 ngày = mã chết
+  },
+  sidePanel: { storeCode: null },
+  storePicker: { tempSelected: new Set() }
 };
 
-// ====== KIỂM TRA QUYỀN ======
-function allocCanUse() {
+const WAREHOUSE_MAP = {
+  'TP05006': { cat: 'BH', isSale: false, name: 'Kho xuất Nón Bảo hiểm' },
+  'TP05002': { cat: 'NV', isSale: false, name: 'Kho TP Nón vải' },
+  'SA05001': { cat: 'BH', isSale: true,  name: 'Kho Sale BH Offline' },
+  'SA05002': { cat: 'NV', isSale: true,  name: 'Kho Sale Nón vải' }
+};
+
+function cockpitCanUse() {
   if (!CURRENT_USER) return false;
   const lv = CURRENT_USER.permLevel || 'manager';
   return lv === 'admin' || lv === 'dphh';
 }
 
-// ====== STEP NAVIGATION ======
-function allocGotoStep(step) {
-  if (!allocCanUse()) return;
+// ====== INIT ======
+let _cockpitInitialized = false;
+function cockpitInit() {
+  if (_cockpitInitialized) return;
+  if (!cockpitCanUse()) return;
+  _cockpitInitialized = true;
 
-  // Khi rời step 1 → lock scope: bỏ check các CH không còn trong storeIds
-  if (ALLOC.step === 1 && step > 1) {
-    if (ALLOC.scope.storeIds.size === 0) {
-      alert('Vui lòng chọn ít nhất 1 cửa hàng ở Bước 1.');
-      return;
-    }
-    // Reset allocations để build lại theo scope mới
-    ALLOC.allocations = new Map();
-  }
-
-  ALLOC.step = step;
-
-  document.querySelectorAll('.alloc-step').forEach(el => {
-    const s = parseInt(el.dataset.step);
-    el.classList.toggle('active', s === step);
-    el.classList.toggle('done', s < step);
-  });
-  document.querySelectorAll('.alloc-panel').forEach(el => {
-    el.classList.toggle('active', el.id === `alloc-panel-${step}`);
-  });
-
-  // Re-render content per step
-  if (step === 1) allocRenderStoreList();
-  if (step === 2) allocRenderStep2();
-  if (step === 3) allocRenderStep3();
-  if (step === 4) allocRenderStep4();
-  if (step === 5) allocRenderStep5();
-}
-
-// ====== STEP 1: SCOPE ======
-function allocInitScope() {
-  // Default dateTo = today, dateFrom = 14 ngày trước
+  // Default dates: 14 ngày qua
   const today = new Date();
-  const fromD = new Date(today);
-  fromD.setDate(fromD.getDate() - 14);
-  const fmt = d => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const da = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${da}`;
-  };
-  const fromEl = document.getElementById('alloc-date-from');
-  const toEl = document.getElementById('alloc-date-to');
-  if (fromEl && !fromEl.value) {
-    fromEl.value = fmt(fromD);
-    fromEl.onchange = allocOnScopeChange;
-  }
-  if (toEl && !toEl.value) {
-    toEl.value = fmt(today);
-    toEl.onchange = allocOnScopeChange;
-  }
-  ALLOC.scope.dateFrom = fromEl ? fromEl.value : fmt(fromD);
-  ALLOC.scope.dateTo = toEl ? toEl.value : fmt(today);
+  const fromD = new Date(today); fromD.setDate(fromD.getDate() - 14);
+  const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const fromEl = document.getElementById('cockpit-date-from');
+  const toEl = document.getElementById('cockpit-date-to');
+  if (fromEl) fromEl.value = fmt(fromD);
+  if (toEl) toEl.value = fmt(today);
+  COCKPIT.scope.dateFrom = fmt(fromD);
+  COCKPIT.scope.dateTo = fmt(today);
 
   // Populate regions
-  const regionEl = document.getElementById('alloc-region');
-  if (regionEl && typeof STORES_DATA !== 'undefined' && STORES_DATA.length) {
+  const regionEl = document.getElementById('cockpit-region');
+  if (regionEl && typeof STORES_DATA !== 'undefined') {
     const regions = [...new Set(STORES_DATA.map(s => s.khuVuc).filter(Boolean))].sort();
     regionEl.innerHTML = '<option value="">— Tất cả khu vực —</option>' +
       regions.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
   }
 
-  // Hiển thị tồn 4 kho ở Step 1
-  allocUpdateWarehouseStockDisplay();
+  // Update warehouse stock display (retry until STOCK_DATA loaded)
+  cockpitUpdateWarehouseStockDisplay();
 
-  allocRenderStoreList();
+  // Auto-build store list from filters
+  cockpitRebuildStoreScope();
+  cockpitUpdateScopeSummary();
 }
 
-function allocSetDateRange(days) {
-  const today = new Date();
-  const fromD = new Date(today);
-  fromD.setDate(fromD.getDate() - days);
-  const fmt = d => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const da = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${da}`;
-  };
-  document.getElementById('alloc-date-from').value = fmt(fromD);
-  document.getElementById('alloc-date-to').value = fmt(today);
-  allocOnScopeChange();
-}
-
-function allocOnScopeChange() {
-  ALLOC.scope.dateFrom = document.getElementById('alloc-date-from').value;
-  ALLOC.scope.dateTo = document.getElementById('alloc-date-to').value;
-  ALLOC.scope.region = document.getElementById('alloc-region').value;
-  allocRenderStoreList();
-}
-
-function allocSetGroup(g) {
-  ALLOC.scope.group = g;
-  document.querySelectorAll('.scope-chip[data-group]').forEach(c => {
-    c.classList.toggle('active', c.dataset.group === g);
-  });
-  allocRenderStoreList();
-}
-function allocSetType(t) {
-  ALLOC.scope.type = t;
-  document.querySelectorAll('.scope-chip[data-type]').forEach(c => {
-    c.classList.toggle('active', c.dataset.type === t);
-  });
-  allocRenderStoreList();
-}
-
-// Check 1 sản phẩm có thuộc kho/loại đã chọn không
-function allocMatchesScope(meta) {
-  if (!meta) return false;
-  // Loại sale/chính
-  if (!!meta.isSale !== !!ALLOC.scope.isSale) return false;
-  // Ngành
-  const cat = (meta.nganhCap1 || '').toLowerCase();
-  const isBH = cat.includes('bảo hiểm') || cat.includes('bao hiem');
-  const isNV = cat.includes('nón vải') || cat.includes('non vai');
-  if (ALLOC.scope.cat === 'BH' && !isBH) return false;
-  if (ALLOC.scope.cat === 'NV' && !isNV) return false;
-  return true;
-}
-
-function allocSetWarehouse(wh) {
-  // Map kho → ngành + loại
-  const WAREHOUSE_MAP = {
-    'TP05006': { cat: 'BH', isSale: false, name: 'Kho xuất Nón Bảo hiểm' },
-    'TP05002': { cat: 'NV', isSale: false, name: 'Kho TP Nón vải' },
-    'SA05001': { cat: 'BH', isSale: true,  name: 'Kho Sale BH Offline' },
-    'SA05002': { cat: 'NV', isSale: true,  name: 'Kho Sale Nón vải' }
-  };
-  const info = WAREHOUSE_MAP[wh];
-  if (!info) return;
-
-  ALLOC.scope.warehouse = wh;
-  ALLOC.scope.cat = info.cat;
-  ALLOC.scope.isSale = info.isSale;
-
-  document.querySelectorAll('.scope-warehouse-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.warehouse === wh);
-  });
-  const hint = document.getElementById('alloc-loai-hint');
-  if (hint) {
-    const loaiTxt = info.isSale ? 'hàng sale' : 'hàng chính';
-    const catTxt = info.cat === 'BH' ? 'bảo hiểm' : 'nón vải';
-    hint.textContent = `Phiên này chia ${loaiTxt} · ngành ${catTxt} · xuất từ kho ${info.name} (${wh}).`;
-  }
-  // Đổi kho → reset allocations
-  ALLOC.allocations = new Map();
-}
-
-// Cập nhật tồn 4 kho ở Step 1 (gọi 1 lần khi vào tab DPHH)
-function allocUpdateWarehouseStockDisplay() {
-  // Retry nếu STOCK_DATA chưa load
+function cockpitUpdateWarehouseStockDisplay() {
   if (typeof STOCK_DATA === 'undefined' || !STOCK_DATA.length) {
-    setTimeout(allocUpdateWarehouseStockDisplay, 500);
+    setTimeout(cockpitUpdateWarehouseStockDisplay, 500);
     return;
   }
   const totals = { 'TP05006': 0, 'TP05002': 0, 'SA05001': 0, 'SA05002': 0 };
   const codes = Object.keys(totals);
   for (const s of STOCK_DATA) {
     const code = String(s.maKho || '').toUpperCase();
-    if (!codes.includes(code)) continue;
-    totals[code] += (s.tonHienTai || 0);
+    if (codes.includes(code)) totals[code] += (s.tonHienTai || 0);
   }
   for (const code of codes) {
     const el = document.getElementById('wh-stock-' + code);
@@ -10173,176 +9859,203 @@ function allocUpdateWarehouseStockDisplay() {
   }
 }
 
-function allocFilterStores() {
-  if (typeof STORES_DATA === 'undefined' || !Array.isArray(STORES_DATA)) return [];
+// ====== SCOPE PICKER ======
+function cockpitToggleScope() {
+  const el = document.getElementById('cockpit-scope');
+  el.classList.toggle('open');
+  const btn = document.getElementById('cockpit-scope-toggle');
+  if (btn) btn.textContent = el.classList.contains('open') ? '⚙ Thu gọn' : '⚙ Mở chi tiết';
+}
+
+function cockpitSetWarehouse(wh) {
+  const info = WAREHOUSE_MAP[wh];
+  if (!info) return;
+  COCKPIT.scope.warehouse = wh;
+  COCKPIT.scope.cat = info.cat;
+  COCKPIT.scope.isSale = info.isSale;
+  document.querySelectorAll('.scope-warehouse-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.warehouse === wh);
+  });
+  // Reset allocations
+  COCKPIT.allocations = new Map();
+  COCKPIT.warnings = [];
+  cockpitUpdateScopeSummary();
+  cockpitRenderHero();
+  cockpitRenderTableSection();
+}
+
+function cockpitSetDateRange(days) {
+  const today = new Date();
+  const fromD = new Date(today); fromD.setDate(fromD.getDate() - days);
+  const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  document.getElementById('cockpit-date-from').value = fmt(fromD);
+  document.getElementById('cockpit-date-to').value = fmt(today);
+  cockpitOnScopeChange();
+}
+
+function cockpitOnScopeChange() {
+  COCKPIT.scope.dateFrom = document.getElementById('cockpit-date-from').value;
+  COCKPIT.scope.dateTo = document.getElementById('cockpit-date-to').value;
+  COCKPIT.scope.region = document.getElementById('cockpit-region').value;
+  COCKPIT.allocations = new Map();
+  COCKPIT.warnings = [];
+  cockpitRebuildStoreScope();
+  cockpitUpdateScopeSummary();
+  cockpitRenderHero();
+  cockpitRenderTableSection();
+}
+
+function cockpitSetGroup(g) {
+  COCKPIT.scope.group = g;
+  document.querySelectorAll('.scope-chip[data-group]').forEach(c => c.classList.toggle('active', c.dataset.group === g));
+  COCKPIT.allocations = new Map();
+  cockpitRebuildStoreScope();
+  cockpitUpdateScopeSummary();
+  cockpitRenderHero();
+}
+function cockpitSetType(t) {
+  COCKPIT.scope.type = t;
+  document.querySelectorAll('.scope-chip[data-type]').forEach(c => c.classList.toggle('active', c.dataset.type === t));
+  COCKPIT.allocations = new Map();
+  cockpitRebuildStoreScope();
+  cockpitUpdateScopeSummary();
+  cockpitRenderHero();
+}
+
+function cockpitFilterStores() {
+  if (typeof STORES_DATA === 'undefined') return [];
   return STORES_DATA.filter(s => {
     if (!s.maCh) return false;
-    // chỉ điểm bán: CH, DB, DOISALE (kho TP/SA/PK loại ra)
     if (s.storeType === 'WAREHOUSE' || s.storeType === 'OTHER') return false;
-    if (ALLOC.scope.region && s.khuVuc !== ALLOC.scope.region) return false;
-    if (ALLOC.scope.type !== 'all' && s.storeType !== ALLOC.scope.type) return false;
-    if (ALLOC.scope.group !== 'all' && String(s.nhomCh || '') !== ALLOC.scope.group) return false;
+    if (COCKPIT.scope.region && s.khuVuc !== COCKPIT.scope.region) return false;
+    if (COCKPIT.scope.type !== 'all' && s.storeType !== COCKPIT.scope.type) return false;
+    if (COCKPIT.scope.group !== 'all' && String(s.nhomCh || '') !== COCKPIT.scope.group) return false;
     return true;
   });
 }
 
-function allocRenderStoreList() {
-  const wrap = document.getElementById('alloc-store-list');
-  const countEl = document.getElementById('alloc-store-count');
-  if (!wrap) return;
+function cockpitRebuildStoreScope() {
+  const stores = cockpitFilterStores();
+  COCKPIT.scope.storeIds = new Set(stores.map(s => s.maCh));
+}
 
-  const stores = allocFilterStores();
-  if (countEl) countEl.textContent = stores.length;
+function cockpitUpdateScopeSummary() {
+  const info = WAREHOUSE_MAP[COCKPIT.scope.warehouse];
+  document.getElementById('cockpit-warehouse-label').textContent = info
+    ? `${info.name} (${COCKPIT.scope.warehouse})`
+    : '— Chọn kho —';
+  document.getElementById('cockpit-date-label').textContent = `${COCKPIT.scope.dateFrom} → ${COCKPIT.scope.dateTo}`;
+  document.getElementById('cockpit-store-label').textContent = `${COCKPIT.scope.storeIds.size} điểm bán`;
+  document.getElementById('cockpit-store-count').textContent = COCKPIT.scope.storeIds.size;
+}
 
-  if (stores.length === 0) {
-    wrap.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-soft);font-size:13px">Không có CH nào khớp bộ lọc.</div>';
-    ALLOC.scope.storeIds = new Set();
-    return;
-  }
-
-  // Đồng bộ storeIds với store list hiện tại:
-  // - Bỏ các CH không còn trong filter
-  // - Nếu set rỗng (lần đầu hoặc sau khi đổi filter) → check all
-  const visibleSet = new Set(stores.map(s => s.maCh));
-  // Loại bỏ CH ngoài filter
-  for (const id of [...ALLOC.scope.storeIds]) {
-    if (!visibleSet.has(id)) ALLOC.scope.storeIds.delete(id);
-  }
-  // Nếu rỗng → auto-select all
-  if (ALLOC.scope.storeIds.size === 0) {
-    stores.forEach(s => ALLOC.scope.storeIds.add(s.maCh));
-  }
-
-  // Compute sức bán mỗi CH trong scope (preview)
-  const salesMap = allocComputeSalesByStore(stores);
-
-  wrap.innerHTML = stores.map(s => {
-    const checked = ALLOC.scope.storeIds.has(s.maCh);
-    const sales = salesMap.get(s.maCh) || 0;
-    const groupCls = s.nhomCh ? `scope-store-group-${s.nhomCh}` : '';
-    const groupLabel = s.nhomCh ? `Nhóm ${s.nhomCh}` : '—';
-    const typeLabel = s.storeType === 'DOISALE' ? 'Đội sale' : (s.storeType === 'DB' ? 'Điểm bán' : 'CH');
+// ====== STORE PICKER (chi tiết) ======
+function cockpitOpenStorePicker() {
+  COCKPIT.storePicker.tempSelected = new Set(COCKPIT.scope.storeIds);
+  document.getElementById('cockpit-storepicker').classList.add('active');
+  document.getElementById('cockpit-storepicker-backdrop').classList.add('active');
+  cockpitStorePickerRender();
+}
+function cockpitCloseStorePicker(save) {
+  document.getElementById('cockpit-storepicker').classList.remove('active');
+  document.getElementById('cockpit-storepicker-backdrop').classList.remove('active');
+}
+function cockpitStorePickerFilter() { cockpitStorePickerRender(); }
+function cockpitStorePickerSelectAll(all) {
+  const stores = cockpitFilterStores();
+  if (all) stores.forEach(s => COCKPIT.storePicker.tempSelected.add(s.maCh));
+  else COCKPIT.storePicker.tempSelected = new Set();
+  cockpitStorePickerRender();
+  // Apply ngay
+  COCKPIT.scope.storeIds = new Set(COCKPIT.storePicker.tempSelected);
+  cockpitUpdateScopeSummary();
+  COCKPIT.allocations = new Map();
+  cockpitRenderHero();
+}
+function cockpitStorePickerToggle(maCh) {
+  if (COCKPIT.storePicker.tempSelected.has(maCh)) COCKPIT.storePicker.tempSelected.delete(maCh);
+  else COCKPIT.storePicker.tempSelected.add(maCh);
+  COCKPIT.scope.storeIds = new Set(COCKPIT.storePicker.tempSelected);
+  cockpitUpdateScopeSummary();
+  cockpitStorePickerRender();
+}
+function cockpitStorePickerRender() {
+  const body = document.getElementById('cockpit-storepicker-body');
+  const filter = (document.getElementById('cockpit-storepicker-search')?.value || '').toLowerCase();
+  const stores = cockpitFilterStores().filter(s =>
+    !filter || (s.ten || '').toLowerCase().includes(filter) || s.maCh.toLowerCase().includes(filter)
+  );
+  document.getElementById('cockpit-sp-storepicker-sub').textContent = `${COCKPIT.storePicker.tempSelected.size}/${stores.length} đã chọn`;
+  body.innerHTML = stores.map(s => {
+    const checked = COCKPIT.storePicker.tempSelected.has(s.maCh);
     return `
-      <div class="scope-store-row ${checked ? 'selected' : ''}" onclick="allocToggleStore('${s.maCh}')">
-        <input type="checkbox" ${checked ? 'checked' : ''} onclick="event.stopPropagation();allocToggleStore('${s.maCh}')">
+      <div class="cockpit-storepicker-row ${checked ? 'selected' : ''}" onclick="cockpitStorePickerToggle('${s.maCh}')">
+        <input type="checkbox" ${checked ? 'checked' : ''} onclick="event.stopPropagation();cockpitStorePickerToggle('${s.maCh}')">
         <div>
-          <div class="scope-store-name">${escapeHtml(s.ten)}</div>
-          <div class="scope-store-code">${escapeHtml(s.maCh)} · ${escapeHtml(s.khuVuc || '—')}</div>
+          <div class="cockpit-row-name">${escapeHtml(s.ten)}</div>
+          <div class="cockpit-row-sub">${escapeHtml(s.maCh)} · ${escapeHtml(s.khuVuc || '—')}</div>
         </div>
-        <div class="scope-store-mini ${groupCls}">${groupLabel}</div>
-        <div class="scope-store-mini">${typeLabel}</div>
-        <div class="scope-store-mini">Bán: <strong>${formatNumber(sales)}</strong></div>
-        <div class="scope-store-mini">Trần BH: ${s.capBhChinh ? s.capBhChinh.max : '—'}</div>
+        <div class="cockpit-row-sub" style="text-align:center">${s.nhomCh ? 'N'+s.nhomCh : '—'}</div>
+        <div class="cockpit-row-sub" style="text-align:center">${s.storeType === 'DOISALE' ? 'Đội sale' : (s.storeType === 'DB' ? 'Điểm bán' : 'CH')}</div>
+        <div></div>
       </div>
     `;
   }).join('');
 }
 
-function allocToggleStore(maCh) {
-  if (ALLOC.scope.storeIds.has(maCh)) ALLOC.scope.storeIds.delete(maCh);
-  else ALLOC.scope.storeIds.add(maCh);
-  allocRenderStoreList();
+// ====== ENGINE: BUILD DATA ======
+function cockpitMatchesScope(meta) {
+  if (!meta) return false;
+  if (!!meta.isSale !== !!COCKPIT.scope.isSale) return false;
+  const cat = (meta.nganhCap1 || '').toLowerCase();
+  const isBH = cat.includes('bảo hiểm') || cat.includes('bao hiem');
+  const isNV = cat.includes('nón vải') || cat.includes('non vai');
+  if (COCKPIT.scope.cat === 'BH' && !isBH) return false;
+  if (COCKPIT.scope.cat === 'NV' && !isNV) return false;
+  return true;
 }
 
-function allocComputeSalesByStore(stores) {
-  const m = new Map();
-  if (typeof RAW_DATA === 'undefined' || !Array.isArray(RAW_DATA)) return m;
-  const from = ALLOC.scope.dateFrom;
-  const to = ALLOC.scope.dateTo;
-  const allowed = new Set(stores.map(s => s.maCh.toUpperCase()));
-
-  // Build name→maCh lookup
-  const nameToCode = new Map();
-  for (const s of stores) {
-    if (s.ten) nameToCode.set(s.ten.trim().toLowerCase(), s.maCh.toUpperCase());
-  }
-
-  for (const r of RAW_DATA) {
-    if (from && r.ngay && r.ngay < from) continue;
-    if (to && r.ngay && r.ngay > to) continue;
-
-    let code = '';
-    if (r.maKho) code = String(r.maKho).toUpperCase();
-    else if (r.cuaHang) code = nameToCode.get(String(r.cuaHang).trim().toLowerCase()) || '';
-    if (!code || !allowed.has(code)) continue;
-
-    m.set(code, (m.get(code) || 0) + (r.soLuong || 0));
-  }
-  return m;
-}
-
-// ====== SYNC STORES (manual) ======
-async function allocSyncStoresManual() {
-  const statusEl = document.getElementById('alloc-sync-status');
-  if (statusEl) statusEl.textContent = '⌛ Đang đồng bộ...';
-  try {
-    const res = await fetchEndpoint('sync-stores');
-    if (res && res.success) {
-      if (statusEl) statusEl.textContent = `✓ Đã đồng bộ ${res.inserted} CH (${res.durationMs}ms)`;
-      // Reload stores
-      await loadStoresData();
-      allocInitScope();
-    } else {
-      if (statusEl) statusEl.textContent = '✗ Lỗi: ' + (res && res.error ? res.error : 'unknown');
-    }
-  } catch (e) {
-    if (statusEl) statusEl.textContent = '✗ Lỗi: ' + e.message;
-  }
-}
-
-
-// ====== ENGINE: COMPUTE TỔNG HỢP CHO SCOPE ======
-function allocBuildEngineData() {
-  const d = ALLOC.data;
+function cockpitBuildEngineData() {
+  const d = COCKPIT.data;
   d.salesByStoreCode = new Map();
   d.stockByStoreCode = new Map();
   d.warehouseStockByCode = new Map();
   d.productMeta = new Map();
-  d.totalSoldByCap3 = new Map();
   d.storeShareByCap3 = new Map();
 
-  const selectedStoreSet = new Set(ALLOC.scope.storeIds);
-  const from = ALLOC.scope.dateFrom;
-  const to = ALLOC.scope.dateTo;
+  const selectedStoreSet = new Set(COCKPIT.scope.storeIds);
+  const from = COCKPIT.scope.dateFrom;
+  const to = COCKPIT.scope.dateTo;
 
-  // Build name→maCh lookup map (RAW_DATA dùng cuaHang = tên CH dài, không có maKho)
+  // Build name→maCh lookup (RAW dùng cuaHang)
   const nameToCode = new Map();
-  if (typeof STORES_DATA !== 'undefined' && Array.isArray(STORES_DATA)) {
+  if (typeof STORES_DATA !== 'undefined') {
     for (const s of STORES_DATA) {
-      if (s.ten && s.maCh) {
-        nameToCode.set(s.ten.trim().toLowerCase(), s.maCh.toUpperCase());
-      }
+      if (s.ten && s.maCh) nameToCode.set(s.ten.trim().toLowerCase(), s.maCh.toUpperCase());
     }
   }
 
-  // 1. Sales theo (store, maSp) trong scope + classify hàng chính/sale theo SALE_CODES
-  if (typeof RAW_DATA !== 'undefined' && Array.isArray(RAW_DATA)) {
+  // 1. Sales từ RAW_DATA
+  if (typeof RAW_DATA !== 'undefined') {
     for (const r of RAW_DATA) {
       if (!r.maThamChieu) continue;
       if (from && r.ngay && r.ngay < from) continue;
       if (to && r.ngay && r.ngay > to) continue;
 
-      // Resolve mã CH từ cuaHang (tên) hoặc maKho (nếu có)
       let code = '';
-      if (r.maKho) {
-        code = String(r.maKho).toUpperCase();
-      } else if (r.cuaHang) {
-        const key = String(r.cuaHang).trim().toLowerCase();
-        code = nameToCode.get(key) || '';
-      }
+      if (r.maKho) code = String(r.maKho).toUpperCase();
+      else if (r.cuaHang) code = nameToCode.get(String(r.cuaHang).trim().toLowerCase()) || '';
       if (!code) continue;
 
       const ma = r.maThamChieu;
       const qty = r.soLuong || 0;
 
-      // store sales (chỉ tính CH trong scope)
       if (selectedStoreSet.has(code)) {
         if (!d.salesByStoreCode.has(code)) d.salesByStoreCode.set(code, new Map());
         const sm = d.salesByStoreCode.get(code);
         sm.set(ma, (sm.get(ma) || 0) + qty);
       }
 
-      // product meta (first time seen)
       if (!d.productMeta.has(ma)) {
         const isSale = (typeof SALE_CODES !== 'undefined' && SALE_CODES.has(ma));
         d.productMeta.set(ma, {
@@ -10356,15 +10069,14 @@ function allocBuildEngineData() {
     }
   }
 
-  // 2. Enrich productMeta + tồn store từ STOCK_DATA
-  if (typeof STOCK_DATA !== 'undefined' && Array.isArray(STOCK_DATA)) {
+  // 2. Enrich productMeta + stock từ STOCK_DATA
+  if (typeof STOCK_DATA !== 'undefined') {
     for (const s of STOCK_DATA) {
       const ma = s.maThamChieu || s.sku;
       if (!ma) continue;
       const storeCode = String(s.maKho || '').toUpperCase();
       const qty = s.tonHienTai || 0;
 
-      // Update product meta
       if (!d.productMeta.has(ma)) {
         d.productMeta.set(ma, {
           ten: ma,
@@ -10380,8 +10092,8 @@ function allocBuildEngineData() {
         if (!meta.giaNiemYet && s.giaNiemYet) meta.giaNiemYet = s.giaNiemYet;
       }
 
-      // Tồn theo kho nguồn ĐÃ CHỌN (Step 1) — không gộp các kho khác
-      if (storeCode === ALLOC.scope.warehouse) {
+      // Tồn kho nguồn = chỉ tính từ kho đã chọn
+      if (storeCode === COCKPIT.scope.warehouse) {
         d.warehouseStockByCode.set(ma, (d.warehouseStockByCode.get(ma) || 0) + qty);
       }
       if (selectedStoreSet.has(storeCode)) {
@@ -10391,1186 +10103,725 @@ function allocBuildEngineData() {
       }
     }
   }
+}
 
-  // 3. Tổng bán theo nganhCap3 (toàn hệ thống trong scope) + share của từng CH
-  if (typeof RAW_DATA !== 'undefined' && Array.isArray(RAW_DATA)) {
-    const storeSalesByCap3 = new Map();  // Map<storeCode, Map<cap3, qty>>
-    for (const r of RAW_DATA) {
-      if (!r.maThamChieu) continue;
-      if (from && r.ngay && r.ngay < from) continue;
-      if (to && r.ngay && r.ngay > to) continue;
-      const meta = d.productMeta.get(r.maThamChieu);
-      const cap3 = meta && meta.nganhCap3 ? meta.nganhCap3 : '';
-      if (!cap3) continue;
-      const qty = r.soLuong || 0;
+// ====== ENGINE: AI AUTO-ALLOCATE ======
+function cockpitAutoAllocate() {
+  if (!cockpitCanUse()) return;
+  if (COCKPIT.scope.storeIds.size === 0) {
+    cockpitToast('Chưa có cửa hàng nào trong scope. Mở "Chi tiết" để kiểm tra.', 'error');
+    return;
+  }
 
-      // Resolve mã CH từ cuaHang
-      let code = '';
-      if (r.maKho) code = String(r.maKho).toUpperCase();
-      else if (r.cuaHang) code = nameToCode.get(String(r.cuaHang).trim().toLowerCase()) || '';
-      if (!code) continue;
+  const btn = document.getElementById('cockpit-btn-autoallocate');
+  if (btn) { btn.textContent = '⏳ Đang phân tích...'; btn.disabled = true; }
 
-      d.totalSoldByCap3.set(cap3, (d.totalSoldByCap3.get(cap3) || 0) + qty);
+  // Slight delay để hiện loading state
+  setTimeout(() => {
+    cockpitBuildEngineData();
 
-      if (!storeSalesByCap3.has(code)) storeSalesByCap3.set(code, new Map());
-      const sm = storeSalesByCap3.get(code);
-      sm.set(cap3, (sm.get(cap3) || 0) + qty);
-    }
+    COCKPIT.allocations = new Map();
 
-    // Compute share = storeSale / totalSale
-    for (const [code, capMap] of storeSalesByCap3) {
-      for (const [cap3, qty] of capMap) {
-        const total = d.totalSoldByCap3.get(cap3) || 0;
-        if (total > 0) {
-          d.storeShareByCap3.set(`${code}|${cap3}`, qty / total);
+    // Số ngày trong scope (để tính velocity)
+    const fromD = new Date(COCKPIT.scope.dateFrom);
+    const toD = new Date(COCKPIT.scope.dateTo);
+    const days = Math.max(1, Math.round((toD - fromD) / (1000 * 60 * 60 * 24)));
+
+    // Track kho còn lại (greedy allocation)
+    const warehouseRemaining = new Map();
+    for (const [ma, q] of COCKPIT.data.warehouseStockByCode) warehouseRemaining.set(ma, q);
+
+    // Build list các (store, ma) cần xem xét, sort theo priority
+    const candidates = [];
+    for (const storeCode of COCKPIT.scope.storeIds) {
+      const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === storeCode) : null;
+      const groupPriority = store && store.nhomCh ? (4 - parseInt(store.nhomCh)) : 1.5;  // nhóm 1 = 3, nhóm 3 = 1
+
+      const salesMap = COCKPIT.data.salesByStoreCode.get(storeCode) || new Map();
+      const stockMap = COCKPIT.data.stockByStoreCode.get(storeCode) || new Map();
+      const allMa = new Set([...salesMap.keys(), ...stockMap.keys()]);
+
+      for (const ma of allMa) {
+        const meta = COCKPIT.data.productMeta.get(ma);
+        if (!cockpitMatchesScope(meta)) continue;
+        const sold = salesMap.get(ma) || 0;
+        const onHand = stockMap.get(ma) || 0;
+
+        // AI engine: hệ số phủ adaptive theo velocity
+        const velocity = sold / days;  // SP/ngày
+        const daysOfStock = velocity > 0 ? (onHand / velocity) : (onHand > 0 ? 999 : 0);
+
+        let coverage = COCKPIT.ai.coverageDefault;
+        let skipReason = null;
+
+        if (sold === 0 && onHand === 0) {
+          continue;  // Skip hoàn toàn
         }
-      }
-    }
-  }
-}
 
-// ====== ENGINE: ĐỀ XUẤT SỐ LƯỢNG CHO 1 (store, sp) ======
-function allocComputeSuggestion(storeCode, maSp, opts) {
-  opts = opts || {};
-  const sold = (ALLOC.data.salesByStoreCode.get(storeCode) || new Map()).get(maSp) || 0;
-  const onHand = (ALLOC.data.stockByStoreCode.get(storeCode) || new Map()).get(maSp) || 0;
-  const meta = ALLOC.data.productMeta.get(maSp) || {};
+        // Mã chết: có tồn nhưng không bán → bỏ qua
+        if (sold === 0 && onHand > 0) {
+          skipReason = 'dead';  // skip allocation nhưng vẫn track
+        } else if (daysOfStock >= COCKPIT.ai.daysOfStockSlow) {
+          // Tồn đã đủ trên 30 ngày → không cấp thêm
+          skipReason = 'overstocked';
+        } else if (daysOfStock >= 14) {
+          coverage = COCKPIT.ai.coverageSlow;  // cấp ít
+        } else if (daysOfStock < COCKPIT.ai.daysOfStockFast) {
+          coverage = COCKPIT.ai.coverageFast;  // cấp đủ
+        }
 
-  // Hệ số phủ
-  let coverage = ALLOC.coverageDefault / 100;
-  // Rules tự động
-  if (meta.isSale === false) {
-    // hàng chính
-    if (sold >= 10) coverage = Math.max(coverage, 1.3);  // mã chạy
-  }
-  // CH nhóm 1 → cao hơn
-  const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === storeCode) : null;
-  if (store && String(store.nhomCh) === '1') {
-    coverage = Math.max(coverage, 1.25);
-  }
-  // Mã bán lẻ tẻ (kỳ chỉ bán 1 cái mà còn tồn) → coverage thấp hơn
-  if (sold <= 1 && onHand >= sold) {
-    coverage = 1.0;
-  }
+        // Bonus theo nhóm CH (CH lớn ưu tiên)
+        if (groupPriority >= 3) coverage = Math.max(coverage, 1.3);
 
-  const target = Math.round(sold * coverage);
-  let suggested = Math.max(0, target - onHand);
+        const target = Math.round(sold * coverage);
+        let suggested = Math.max(0, target - onHand);
+        if (skipReason) suggested = 0;
 
-  // Không suggest nếu không bán và không tồn
-  if (sold === 0 && onHand === 0) suggested = 0;
+        const score = sold * groupPriority + (onHand === 0 && sold > 0 ? 100 : 0);  // ưu tiên CH bán mạnh, CH hết tồn
 
-  // Cap suggest theo warehouse stock
-  const wh = ALLOC.data.warehouseStockByCode.get(maSp) || 0;
-  // không cap cứng — cảnh báo ở step 4
-
-  return {
-    sold, onHand, suggested, coverage,
-    target,
-    warehouseStock: wh,
-    isSale: !!meta.isSale,
-    nganhCap1: meta.nganhCap1 || '',
-    nganhCap3: meta.nganhCap3 || ''
-  };
-}
-
-// ====== ENGINE: TÍNH TOÀN BỘ ALLOCATIONS ======
-function allocRecomputeAll() {
-  const cov = parseFloat(document.getElementById('alloc-coverage-default').value) || 120;
-  ALLOC.coverageDefault = cov;
-
-  allocBuildEngineData();
-  ALLOC.allocations = new Map();
-
-  // Mọi cặp (store, sp đã bán hoặc có tồn ở store đó) — chỉ giữ đúng kho/loại/ngành
-  for (const storeCode of ALLOC.scope.storeIds) {
-    const salesMap = ALLOC.data.salesByStoreCode.get(storeCode) || new Map();
-    const stockMap = ALLOC.data.stockByStoreCode.get(storeCode) || new Map();
-    const allMa = new Set([...salesMap.keys(), ...stockMap.keys()]);
-    for (const ma of allMa) {
-      const meta = ALLOC.data.productMeta.get(ma);
-      if (!allocMatchesScope(meta)) continue;
-      const sug = allocComputeSuggestion(storeCode, ma);
-      if (sug.suggested > 0 || sug.sold > 0) {
-        ALLOC.allocations.set(`${storeCode}|${ma}`, {
-          storeCode, maSp: ma,
-          ...sug,
-          qty: sug.suggested,
-          locked: false,
-          note: ''
+        candidates.push({
+          storeCode, maSp: ma, sold, onHand, suggested,
+          velocity, daysOfStock, target,
+          warehouseStock: COCKPIT.data.warehouseStockByCode.get(ma) || 0,
+          score, skipReason,
+          groupPriority,
+          meta
         });
       }
     }
-  }
 
-  allocUpdateHealthBar();
-  allocRenderStep2();
-}
-
-// ====== HEALTH BAR ======
-function allocUpdateHealthBar() {
-  const totalEl = document.getElementById('health-total');
-  const overEl = document.getElementById('health-over');
-  const underEl = document.getElementById('health-under');
-  const shortEl = document.getElementById('health-short');
-  if (!totalEl) return;
-
-  let total = 0;
-  const sumByStoreCategory = new Map();  // Map<store|"BH_C"|"BH_S"|"NV_C"|"NV_S", qty>
-  const demandByProduct = new Map();
-
-  for (const a of ALLOC.allocations.values()) {
-    total += a.qty || 0;
-    const meta = ALLOC.data.productMeta.get(a.maSp) || {};
-    const cat = (meta.nganhCap1 || '').toLowerCase();
-    const isBH = cat.includes('bảo hiểm') || cat.includes('bao hiem');
-    const isNV = cat.includes('nón vải') || cat.includes('non vai');
-    const isSale = !!meta.isSale;
-    let key = null;
-    if (isBH && isSale) key = `${a.storeCode}|BH_S`;
-    else if (isBH) key = `${a.storeCode}|BH_C`;
-    else if (isNV && isSale) key = `${a.storeCode}|NV_S`;
-    else if (isNV) key = `${a.storeCode}|NV_C`;
-    if (key) {
-      // total = qty mới + tồn hiện tại của loại (gần đúng: dùng tổng on-hand theo loại sẽ tính lại trong cap-bars)
-      sumByStoreCategory.set(key, (sumByStoreCategory.get(key) || 0) + (a.qty || 0));
-    }
-    if (a.qty > 0) {
-      demandByProduct.set(a.maSp, (demandByProduct.get(a.maSp) || 0) + a.qty);
-    }
-  }
-
-  // Đếm CH vượt trần / dưới sàn theo các loại
-  let over = 0, under = 0;
-  if (typeof STORES_DATA !== 'undefined') {
-    for (const storeCode of ALLOC.scope.storeIds) {
-      const store = STORES_DATA.find(s => s.maCh === storeCode);
-      if (!store) continue;
-      const checks = [
-        { key: 'BH_C', cap: store.capBhChinh },
-        { key: 'BH_S', cap: store.capBhSale },
-        { key: 'NV_C', cap: store.capNvChinh },
-        { key: 'NV_S', cap: store.capNvSale }
-      ];
-      for (const c of checks) {
-        if (!c.cap || c.cap.max === 0) continue;
-        // tồn sau chia = on-hand cùng loại + qty chia loại này
-        const newQty = sumByStoreCategory.get(`${storeCode}|${c.key}`) || 0;
-        const onHand = allocGetOnHandByCategory(storeCode, c.key);
-        const totalAfter = onHand + newQty;
-        if (totalAfter > c.cap.max) over++;
-        else if (totalAfter < c.cap.min) under++;
+    // Greedy phân bổ: sort score desc, cấp tới hết kho
+    candidates.sort((a, b) => b.score - a.score);
+    for (const c of candidates) {
+      const available = warehouseRemaining.get(c.maSp) || 0;
+      const actualQty = Math.min(c.suggested, available);
+      if (actualQty > 0) {
+        warehouseRemaining.set(c.maSp, available - actualQty);
       }
-    }
-  }
-
-  // Mã thiếu nguồn
-  let shortCount = 0;
-  for (const [ma, demand] of demandByProduct) {
-    const supply = ALLOC.data.warehouseStockByCode.get(ma) || 0;
-    if (demand > supply) shortCount++;
-  }
-
-  totalEl.textContent = formatNumber(total);
-  overEl.textContent = over;
-  underEl.textContent = under;
-  shortEl.textContent = shortCount;
-}
-
-function allocGetOnHandByCategory(storeCode, catKey) {
-  // catKey: BH_C, BH_S, NV_C, NV_S
-  const stockMap = ALLOC.data.stockByStoreCode.get(storeCode) || new Map();
-  let total = 0;
-  for (const [ma, qty] of stockMap) {
-    const meta = ALLOC.data.productMeta.get(ma);
-    if (!meta) continue;
-    const cat = (meta.nganhCap1 || '').toLowerCase();
-    const isBH = cat.includes('bảo hiểm') || cat.includes('bao hiem');
-    const isNV = cat.includes('nón vải') || cat.includes('non vai');
-    const isSale = !!meta.isSale;
-    let k = null;
-    if (isBH && isSale) k = 'BH_S';
-    else if (isBH) k = 'BH_C';
-    else if (isNV && isSale) k = 'NV_S';
-    else if (isNV) k = 'NV_C';
-    if (k === catKey) total += qty;
-  }
-  return total;
-}
-
-
-// ====== STEP 2: BÀN CHIA - RENDER ======
-function allocRenderStep2() {
-  // Build engine nếu chưa có
-  if (ALLOC.allocations.size === 0) {
-    allocBuildEngineData();
-    // First-time auto compute suggestion — chỉ tạo cho mã đúng kho/ngành/loại đã chọn ở Step 1
-    for (const storeCode of ALLOC.scope.storeIds) {
-      const salesMap = ALLOC.data.salesByStoreCode.get(storeCode) || new Map();
-      const stockMap = ALLOC.data.stockByStoreCode.get(storeCode) || new Map();
-      const allMa = new Set([...salesMap.keys(), ...stockMap.keys()]);
-      for (const ma of allMa) {
-        const meta = ALLOC.data.productMeta.get(ma);
-        if (!allocMatchesScope(meta)) continue;
-        const sug = allocComputeSuggestion(storeCode, ma);
-        if (sug.suggested > 0 || sug.sold > 0) {
-          ALLOC.allocations.set(`${storeCode}|${ma}`, {
-            storeCode, maSp: ma,
-            ...sug, qty: sug.suggested, locked: false, note: ''
-          });
-        }
-      }
-    }
-    allocUpdateHealthBar();
-  }
-
-  allocRenderSidebar();
-
-  // Sub-title
-  const subEl = document.getElementById('alloc-step2-sub');
-  if (subEl) {
-    const dates = `${ALLOC.scope.dateFrom} → ${ALLOC.scope.dateTo}`;
-    const loaiTxt = ALLOC.scope.isSale ? 'hàng sale' : 'hàng chính';
-    const catTxt = ALLOC.scope.cat === 'BH' ? 'bảo hiểm' : 'nón vải';
-    subEl.textContent = `Phiên này chia ${loaiTxt} ngành ${catTxt} · Kho ${ALLOC.scope.warehouse} · ${ALLOC.scope.storeIds.size} điểm bán · Sức bán ${dates}`;
-  }
-}
-
-function allocSetMode(mode) {
-  ALLOC.mode = mode;
-  document.querySelectorAll('.alloc-mode-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.mode === mode);
-  });
-  ALLOC.selectedStore = null;
-  ALLOC.selectedProduct = null;
-  allocRenderSidebar();
-  allocRenderMainEmpty();
-}
-
-function allocRenderMainEmpty() {
-  const wrap = document.getElementById('alloc-table-wrap');
-  const capWrap = document.getElementById('alloc-cap-bars-wrap');
-  const titleEl = document.getElementById('alloc-main-title');
-  const subEl = document.getElementById('alloc-main-sub');
-  if (capWrap) capWrap.innerHTML = '';
-  if (titleEl) titleEl.textContent = ALLOC.mode === 'store' ? '— Chọn cửa hàng —' : '— Chọn sản phẩm —';
-  if (subEl) subEl.textContent = '';
-  if (wrap) {
-    wrap.innerHTML = `
-      <div class="alloc-empty">
-        <div class="alloc-empty-icon">◯</div>
-        <div class="alloc-empty-title">Chưa chọn ${ALLOC.mode === 'store' ? 'cửa hàng' : 'sản phẩm'}</div>
-        <div>Bấm vào một mục bên trái để bắt đầu.</div>
-      </div>
-    `;
-  }
-}
-
-function allocRenderSidebar() {
-  const body = document.getElementById('alloc-sidebar-body');
-  if (!body) return;
-  const filter = (document.getElementById('alloc-sidebar-search')?.value || '').toLowerCase().trim();
-
-  if (ALLOC.mode === 'store') {
-    // List các CH trong scope, có badge: số mã cần chia / số cảnh báo
-    const stats = new Map();  // storeCode → {countItems, totalQty, warnings}
-    for (const a of ALLOC.allocations.values()) {
-      if (a.qty <= 0) continue;
-      if (!stats.has(a.storeCode)) stats.set(a.storeCode, { countItems: 0, totalQty: 0, warnings: 0 });
-      const st = stats.get(a.storeCode);
-      st.countItems++;
-      st.totalQty += a.qty || 0;
+      COCKPIT.allocations.set(`${c.storeCode}|${c.maSp}`, {
+        storeCode: c.storeCode,
+        maSp: c.maSp,
+        sold: c.sold,
+        onHand: c.onHand,
+        suggested: c.suggested,
+        qty: actualQty,
+        warehouseStock: c.warehouseStock,
+        daysOfStock: c.daysOfStock,
+        velocity: c.velocity,
+        skipReason: c.skipReason,
+        meta: c.meta,
+        locked: false
+      });
     }
 
-    const stores = Array.from(ALLOC.scope.storeIds).map(code => {
-      const s = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(st => st.maCh === code) : null;
-      return s || { maCh: code, ten: code, khuVuc: '', nhomCh: '' };
-    }).filter(s => !filter || (s.ten || '').toLowerCase().includes(filter) || s.maCh.toLowerCase().includes(filter));
+    cockpitGenerateWarnings();
+    cockpitRenderHero();
+    cockpitRenderTableSection();
+    cockpitShowFooter();
 
-    body.innerHTML = stores.map(s => {
-      const st = stats.get(s.maCh) || { countItems: 0, totalQty: 0 };
-      const isActive = ALLOC.selectedStore === s.maCh;
-      return `
-        <div class="alloc-sidebar-item ${isActive ? 'active' : ''}" onclick="allocSelectStore('${s.maCh}')">
-          <div class="alloc-sidebar-item-name">${escapeHtml(s.ten)}</div>
-          <div class="alloc-sidebar-item-meta">
-            <span>${escapeHtml(s.maCh)}</span>
-            <span class="alloc-sidebar-item-badge">${st.countItems} mã</span>
-            <span class="alloc-sidebar-item-badge">${formatNumber(st.totalQty)}</span>
-          </div>
-        </div>
-      `;
-    }).join('') || '<div style="padding:20px;text-align:center;color:var(--text-soft);font-size:12px">Không tìm thấy CH</div>';
-  } else {
-    // Mode product: list các mã có trong allocations
-    const stats = new Map();  // maSp → {countStores, totalQty, supply, deficit}
-    for (const a of ALLOC.allocations.values()) {
-      if (a.qty <= 0) continue;
-      if (!stats.has(a.maSp)) stats.set(a.maSp, { countStores: 0, totalQty: 0 });
-      const st = stats.get(a.maSp);
-      st.countStores++;
-      st.totalQty += a.qty || 0;
+    if (btn) { btn.textContent = '⚡ Chia lại'; btn.disabled = false; }
+    cockpitToast(`AI đã chia ${formatNumber(cockpitTotalQty())} cái cho ${cockpitStoresWithAlloc()} cửa hàng.`, 'success');
+  }, 50);
+}
+
+function cockpitClearAllocations() {
+  if (!confirm('Xóa toàn bộ kết quả chia hàng hiện tại?')) return;
+  COCKPIT.allocations = new Map();
+  COCKPIT.warnings = [];
+  cockpitRenderHero();
+  cockpitRenderTableSection();
+  document.getElementById('cockpit-footer').style.display = 'none';
+}
+
+function cockpitTotalQty() {
+  let t = 0;
+  for (const a of COCKPIT.allocations.values()) t += a.qty || 0;
+  return t;
+}
+function cockpitStoresWithAlloc() {
+  const s = new Set();
+  for (const a of COCKPIT.allocations.values()) if (a.qty > 0) s.add(a.storeCode);
+  return s.size;
+}
+
+// ====== WARNINGS ======
+function cockpitGenerateWarnings() {
+  const W = [];
+  if (COCKPIT.allocations.size === 0) {
+    COCKPIT.warnings = W;
+    return;
+  }
+
+  // Group theo store + theo product
+  const byStore = new Map();
+  const byProduct = new Map();
+  for (const a of COCKPIT.allocations.values()) {
+    if (!byStore.has(a.storeCode)) byStore.set(a.storeCode, []);
+    byStore.get(a.storeCode).push(a);
+    if (!byProduct.has(a.maSp)) byProduct.set(a.maSp, []);
+    byProduct.get(a.maSp).push(a);
+  }
+
+  // 1. Mã thiếu nguồn
+  const shortItems = [];
+  for (const [ma, list] of byProduct) {
+    const totalSuggested = list.reduce((s, a) => s + a.suggested, 0);
+    const supply = list[0].warehouseStock;
+    const totalAlloc = list.reduce((s, a) => s + a.qty, 0);
+    const deficit = totalSuggested - totalAlloc;
+    if (deficit > 0 && totalSuggested > supply) {
+      shortItems.push({ ma, suggested: totalSuggested, supply, deficit, alloc: totalAlloc });
     }
-
-    let items = Array.from(stats.entries()).map(([ma, st]) => {
-      const meta = ALLOC.data.productMeta.get(ma) || {};
-      const supply = ALLOC.data.warehouseStockByCode.get(ma) || 0;
-      const deficit = Math.max(0, st.totalQty - supply);
-      return { ma, ...st, supply, deficit, meta };
+  }
+  if (shortItems.length > 0) {
+    shortItems.sort((a, b) => b.deficit - a.deficit);
+    W.push({
+      type: 'short_supply',
+      severity: 'critical',
+      icon: '⊘',
+      title: `${shortItems.length} mã thiếu nguồn`,
+      desc: `Tổng thiếu ${formatNumber(shortItems.reduce((s, x) => s + x.deficit, 0))} cái · Top: ${shortItems[0].ma} thiếu ${shortItems[0].deficit}`,
+      data: shortItems
     });
-
-    if (filter) items = items.filter(i => i.ma.toLowerCase().includes(filter));
-    items.sort((a, b) => b.deficit - a.deficit || b.totalQty - a.totalQty);
-
-    body.innerHTML = items.map(i => {
-      const isActive = ALLOC.selectedProduct === i.ma;
-      const deficitBadge = i.deficit > 0 ? `<span class="alloc-sidebar-item-badge urgent">Thiếu ${i.deficit}</span>` : '';
-      const saleBadge = i.meta.isSale ? '<span class="alloc-sidebar-item-badge">SALE</span>' : '';
-      return `
-        <div class="alloc-sidebar-item ${isActive ? 'active' : ''}" onclick="allocSelectProduct('${i.ma}')">
-          <div class="alloc-sidebar-item-name" style="font-family:'SF Mono',Menlo,monospace;font-size:11px">${escapeHtml(i.ma)}</div>
-          <div class="alloc-sidebar-item-meta">
-            <span>${i.countStores} CH · ${formatNumber(i.totalQty)}</span>
-            ${saleBadge}
-            ${deficitBadge}
-          </div>
-        </div>
-      `;
-    }).join('') || '<div style="padding:20px;text-align:center;color:var(--text-soft);font-size:12px">Chưa có mã nào</div>';
-  }
-}
-
-function allocFilterSidebar() {
-  allocRenderSidebar();
-}
-
-function allocSelectStore(maCh) {
-  ALLOC.selectedStore = maCh;
-  allocRenderSidebar();
-  allocRenderStoreDetail(maCh);
-}
-
-function allocSelectProduct(ma) {
-  ALLOC.selectedProduct = ma;
-  allocRenderSidebar();
-  allocRenderProductDetail(ma);
-}
-
-function allocRenderStoreDetail(maCh) {
-  const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === maCh) : null;
-  const titleEl = document.getElementById('alloc-main-title');
-  const subEl = document.getElementById('alloc-main-sub');
-  if (titleEl) titleEl.textContent = store ? store.ten : maCh;
-  if (subEl) {
-    const groupTxt = store && store.nhomCh ? `Nhóm ${store.nhomCh}` : '—';
-    subEl.textContent = `${maCh} · ${store ? store.khuVuc : ''} · ${groupTxt}`;
   }
 
-  // Cap bars
-  allocRenderCapBars(maCh, store);
-
-  // Table: list các mã trong allocations của CH này
-  const rows = [];
-  for (const a of ALLOC.allocations.values()) {
-    if (a.storeCode !== maCh) continue;
-    rows.push(a);
-  }
-  allocSortRows(rows);
-
-  const wrap = document.getElementById('alloc-table-wrap');
-  if (rows.length === 0) {
-    wrap.innerHTML = '<div class="alloc-empty"><div class="alloc-empty-icon">◯</div><div class="alloc-empty-title">CH này không có mã cần chia</div><div>Trong khoảng đã chọn, CH chưa bán mã nào (hoặc đã đủ tồn).</div></div>';
-    return;
-  }
-
-  const sortArrow = (col) => {
-    if (ALLOC.sortBy !== col) return '<span class="sort-arrow">⇅</span>';
-    return ALLOC.sortDir === 'desc' ? '<span class="sort-arrow active">▼</span>' : '<span class="sort-arrow active">▲</span>';
-  };
-
-  // Tính tổng các cột số
-  const totals = rows.reduce((t, r) => ({
-    sold: t.sold + (r.sold || 0),
-    onHand: t.onHand + (r.onHand || 0),
-    warehouseStock: t.warehouseStock + (r.warehouseStock || 0),
-    suggested: t.suggested + (r.suggested || 0),
-    qty: t.qty + (r.qty || 0)
-  }), { sold: 0, onHand: 0, warehouseStock: 0, suggested: 0, qty: 0 });
-  const allocCount = rows.filter(r => r.qty > 0).length;
-
-  wrap.innerHTML = `
-    <table class="alloc-table">
-      <thead>
-        <tr>
-          <th class="sortable" onclick="allocToggleSort('product')">Sản phẩm ${sortArrow('product')}</th>
-          <th>Loại</th>
-          <th class="num sortable" onclick="allocToggleSort('sold')">Bán ${sortArrow('sold')}</th>
-          <th class="num sortable" onclick="allocToggleSort('onHand')">Tồn CH ${sortArrow('onHand')}</th>
-          <th class="num sortable" onclick="allocToggleSort('warehouseStock')">Kho TP/SA ${sortArrow('warehouseStock')}</th>
-          <th class="num sortable" onclick="allocToggleSort('suggested')">Đề xuất ${sortArrow('suggested')}</th>
-          <th class="num sortable" onclick="allocToggleSort('chia')">Chia ${sortArrow('chia')}</th>
-          <th>Cảnh báo</th>
-        </tr>
-        <tr class="alloc-table-totals">
-          <td><span class="totals-label">Tổng ${rows.length} mã · chia ${allocCount} mã</span></td>
-          <td></td>
-          <td class="num">${formatNumber(totals.sold)}</td>
-          <td class="num">${formatNumber(totals.onHand)}</td>
-          <td class="num">${formatNumber(totals.warehouseStock)}</td>
-          <td class="num">${formatNumber(totals.suggested)}</td>
-          <td class="num"><strong>${formatNumber(totals.qty)}</strong></td>
-          <td></td>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows.map(r => allocRenderRow(r)).join('')}
-      </tbody>
-    </table>
-  `;
-}
-
-function allocSortRows(rows) {
-  const col = ALLOC.sortBy;
-  const desc = ALLOC.sortDir === 'desc';
-
-  rows.sort((a, b) => {
-    // Product code: string compare
-    if (col === 'product') {
-      const r = String(a.maSp).localeCompare(String(b.maSp));
-      return desc ? -r : r;
+  // 2. CH dư hàng (tổng tồn / tổng bán > 2x)
+  const overstockedStores = [];
+  for (const [code, list] of byStore) {
+    const totalSold = list.reduce((s, a) => s + a.sold, 0);
+    const totalOnHand = list.reduce((s, a) => s + a.onHand, 0);
+    if (totalSold > 5 && totalOnHand / totalSold > 2.5) {
+      overstockedStores.push({ code, ratio: totalOnHand / Math.max(1, totalSold), onHand: totalOnHand, sold: totalSold });
     }
-    // Numeric columns
-    let va, vb;
-    switch (col) {
-      case 'sold': va = a.sold || 0; vb = b.sold || 0; break;
-      case 'onHand': va = a.onHand || 0; vb = b.onHand || 0; break;
-      case 'warehouseStock': va = a.warehouseStock || 0; vb = b.warehouseStock || 0; break;
-      case 'suggested': va = a.suggested || 0; vb = b.suggested || 0; break;
-      case 'chia':
-      default:
-        va = a.qty || 0; vb = b.qty || 0;
-        // Tie-break: chia = 0 cả 2 → sort theo warehouseStock DESC (cố định)
-        if (va === 0 && vb === 0) {
-          return (b.warehouseStock || 0) - (a.warehouseStock || 0);
-        }
-        break;
+  }
+  if (overstockedStores.length > 0) {
+    overstockedStores.sort((a, b) => b.ratio - a.ratio);
+    const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === overstockedStores[0].code) : null;
+    W.push({
+      type: 'overstocked',
+      severity: 'medium',
+      icon: '⊕',
+      title: `${overstockedStores.length} CH có tồn dư cao`,
+      desc: `Top: ${store ? store.ten : overstockedStores[0].code} (tồn gấp ${overstockedStores[0].ratio.toFixed(1)}× bán)`,
+      data: overstockedStores
+    });
+  }
+
+  // 3. CH có nhiều mã bán chậm
+  const slowMoverStores = [];
+  for (const [code, list] of byStore) {
+    const slowCount = list.filter(a => a.daysOfStock > COCKPIT.ai.daysOfStockDead && a.onHand > 0).length;
+    if (slowCount >= 5) {
+      slowMoverStores.push({ code, slowCount, total: list.length });
     }
-    return desc ? (vb - va) : (va - vb);
+  }
+  if (slowMoverStores.length > 0) {
+    slowMoverStores.sort((a, b) => b.slowCount - a.slowCount);
+    const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === slowMoverStores[0].code) : null;
+    W.push({
+      type: 'slow_movers',
+      severity: 'medium',
+      icon: '◐',
+      title: `${slowMoverStores.length} CH có nhiều mã bán chậm`,
+      desc: `Top: ${store ? store.ten : slowMoverStores[0].code} (${slowMoverStores[0].slowCount} mã tồn >60 ngày)`,
+      data: slowMoverStores
+    });
+  }
+
+  // 4. CH vượt trần
+  const overCapStores = [];
+  for (const code of COCKPIT.scope.storeIds) {
+    const list = byStore.get(code) || [];
+    const totalAlloc = list.reduce((s, a) => s + a.qty, 0);
+    const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === code) : null;
+    if (!store) continue;
+    let cap = null;
+    if (COCKPIT.scope.cat === 'BH' && !COCKPIT.scope.isSale) cap = store.capBhChinh;
+    else if (COCKPIT.scope.cat === 'BH' && COCKPIT.scope.isSale) cap = store.capBhSale;
+    else if (COCKPIT.scope.cat === 'NV' && !COCKPIT.scope.isSale) cap = store.capNvChinh;
+    else if (COCKPIT.scope.cat === 'NV' && COCKPIT.scope.isSale) cap = store.capNvSale;
+    if (!cap || cap.max === 0) continue;
+    const onHandTotal = (COCKPIT.data.stockByStoreCode.get(code) || new Map());
+    let stockTotal = 0;
+    for (const [ma, q] of onHandTotal) {
+      const meta = COCKPIT.data.productMeta.get(ma);
+      if (cockpitMatchesScope(meta)) stockTotal += q;
+    }
+    const after = stockTotal + totalAlloc;
+    if (after > cap.max) {
+      overCapStores.push({ code, after, max: cap.max, store });
+    }
+  }
+  if (overCapStores.length > 0) {
+    overCapStores.sort((a, b) => (b.after / b.max) - (a.after / a.max));
+    W.push({
+      type: 'over_cap',
+      severity: 'critical',
+      icon: '⚠',
+      title: `${overCapStores.length} CH vượt trần`,
+      desc: `Top: ${overCapStores[0].store.ten} (${overCapStores[0].after}/${overCapStores[0].max})`,
+      data: overCapStores
+    });
+  }
+
+  // 5. Thông tin tổng - không phải lỗi
+  const noAllocStores = [...COCKPIT.scope.storeIds].filter(code => {
+    const list = byStore.get(code) || [];
+    return list.every(a => a.qty === 0);
   });
-}
-
-function allocToggleSort(col) {
-  if (ALLOC.sortBy === col) {
-    ALLOC.sortDir = ALLOC.sortDir === 'desc' ? 'asc' : 'desc';
-  } else {
-    ALLOC.sortBy = col;
-    ALLOC.sortDir = 'desc';
-  }
-  if (ALLOC.mode === 'store' && ALLOC.selectedStore) {
-    allocRenderStoreDetail(ALLOC.selectedStore);
-  } else if (ALLOC.mode === 'product' && ALLOC.selectedProduct) {
-    allocRenderProductDetail(ALLOC.selectedProduct);
-  }
-}
-
-function allocRenderRow(a) {
-  const meta = ALLOC.data.productMeta.get(a.maSp) || {};
-  const imgUrl = (typeof IMAGE_MAP !== 'undefined' && IMAGE_MAP[a.maSp]) ? IMAGE_MAP[a.maSp] : '';
-  const imgTag = imgUrl
-    ? `<img src="${escapeHtml(imgUrl)}" class="alloc-product-img" loading="lazy">`
-    : `<div class="alloc-product-img" style="display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-soft)">—</div>`;
-  const isChanged = a.qty !== a.suggested;
-  const inputCls = isChanged ? 'alloc-input changed' : (a.qty === 0 ? 'alloc-input zero' : 'alloc-input');
-  const loaiPill = meta.isSale
-    ? '<span class="alloc-loai-pill sale">Sale</span>'
-    : '<span class="alloc-loai-pill chinh">Chính</span>';
-  let warning = '';
-  if (a.qty > 0 && a.qty > a.warehouseStock) warning += '<span class="alloc-warning-dot"></span>Vượt kho tổng';
-  if (meta.isSale && a.warehouseStock < a.qty) {
-    warning += ` <a href="javascript:void(0)" style="color:var(--accent);font-size:11px" onclick="allocOpenSubModal('${a.maSp}','${a.storeCode}')">Gợi ý thay thế</a>`;
+  if (noAllocStores.length > 0) {
+    W.push({
+      type: 'no_alloc',
+      severity: 'info',
+      icon: 'ℹ',
+      title: `${noAllocStores.length} CH không được chia hàng`,
+      desc: 'Có thể do tồn đã đủ hoặc CH không bán mã nào trong khoảng đã chọn.',
+      data: noAllocStores
+    });
   }
 
-  // Class set
-  const rowClasses = [];
-  if (warning) rowClasses.push('has-warning');
-  if (a.qty > 0) rowClasses.push('has-alloc');
-  const rowClass = rowClasses.length ? ` class="${rowClasses.join(' ')}"` : '';
-
-  return `
-    <tr${rowClass} data-key="${a.storeCode}|${a.maSp}">
-      <td>
-        <div class="alloc-product-cell">
-          ${imgTag}
-          <div class="alloc-product-info">
-            <div class="alloc-product-code">${escapeHtml(a.maSp)}</div>
-            <div class="alloc-product-meta">
-              <span>${escapeHtml(meta.nganhCap3 || meta.nganhCap1 || '—')}</span>
-            </div>
-          </div>
-        </div>
-      </td>
-      <td>${loaiPill}</td>
-      <td class="num">${formatNumber(a.sold)}</td>
-      <td class="num">${formatNumber(a.onHand)}</td>
-      <td class="num">${formatNumber(a.warehouseStock)}</td>
-      <td class="num"><span class="alloc-suggestion">${a.suggested}</span></td>
-      <td class="num"><input type="number" class="${inputCls}" value="${a.qty}" min="0" onchange="allocChangeQty('${a.storeCode}','${a.maSp}',this.value)"></td>
-      <td style="font-size:11px;color:var(--text-soft)">${warning}</td>
-    </tr>
-  `;
+  COCKPIT.warnings = W;
 }
 
-function allocChangeQty(storeCode, maSp, val) {
-  const key = `${storeCode}|${maSp}`;
-  const a = ALLOC.allocations.get(key);
-  if (!a) return;
-  a.qty = Math.max(0, parseInt(val) || 0);
-  a.locked = true;
-  // Re-render row + cap bars + health
-  allocRenderStoreDetail(storeCode);
-  allocUpdateHealthBar();
-  allocRenderSidebar();
-  allocMarkDraftDirty();
-}
+// ====== RENDER HERO ======
+function cockpitRenderHero() {
+  // Source card
+  const sourceTotal = [...COCKPIT.data.warehouseStockByCode.values()].reduce((s, v) => s + v, 0) || 0;
+  const used = cockpitTotalQty();
+  const remaining = sourceTotal - used;
+  const usedPct = sourceTotal > 0 ? (used / sourceTotal) * 100 : 0;
 
-function allocRenderCapBars(maCh, store) {
-  const wrap = document.getElementById('alloc-cap-bars-wrap');
-  if (!wrap || !store) { if (wrap) wrap.innerHTML = ''; return; }
+  document.getElementById('cockpit-source-initial').textContent = formatNumber(sourceTotal);
+  document.getElementById('cockpit-source-used').textContent = formatNumber(used);
+  document.getElementById('cockpit-source-remaining').textContent = formatNumber(remaining);
+  document.getElementById('cockpit-donut-pct').textContent = sourceTotal > 0 ? `${usedPct.toFixed(0)}%` : '—';
 
-  // Chỉ hiện 1 cap bar đúng kho/loại/ngành hiện tại
-  const isSale = ALLOC.scope.isSale;
-  const cat = ALLOC.scope.cat;
-  let catKey, label, cap;
-  if (cat === 'BH' && !isSale) { catKey = 'BH_C'; label = 'BH chính'; cap = store.capBhChinh; }
-  else if (cat === 'BH' && isSale) { catKey = 'BH_S'; label = 'BH sale'; cap = store.capBhSale; }
-  else if (cat === 'NV' && !isSale) { catKey = 'NV_C'; label = 'NV chính'; cap = store.capNvChinh; }
-  else if (cat === 'NV' && isSale) { catKey = 'NV_S'; label = 'NV sale'; cap = store.capNvSale; }
-  else { wrap.innerHTML = ''; return; }
-
-  // Tính qty chia cho loại này
-  let newQ = 0;
-  for (const a of ALLOC.allocations.values()) {
-    if (a.storeCode !== maCh) continue;
-    newQ += a.qty || 0;
+  // Donut: stroke-dasharray = (pct/100 × 2πr) ; r=50 → circumference ≈ 314
+  const circumference = 2 * Math.PI * 50;
+  const dashLength = (usedPct / 100) * circumference;
+  const donutFill = document.getElementById('cockpit-donut-fill');
+  if (donutFill) {
+    donutFill.setAttribute('stroke-dasharray', `${dashLength} ${circumference}`);
   }
 
-  const onHand = allocGetOnHandByCategory(maCh, catKey);
-  const after = onHand + newQ;
+  // Main card
+  const total = used;
+  document.getElementById('cockpit-bignum').textContent = formatNumber(total);
+  if (total > 0) {
+    document.getElementById('cockpit-bignum').classList.add('cockpit-flash');
+    setTimeout(() => document.getElementById('cockpit-bignum').classList.remove('cockpit-flash'), 500);
+  }
 
-  if (!cap || cap.max === 0) {
-    wrap.innerHTML = `
-      <div class="cap-bars cap-bars-single">
-        <div class="cap-bar">
-          <div class="cap-bar-label">${label}</div>
-          <div class="cap-bar-value" style="color:var(--text-soft)">${after}</div>
-          <div class="cap-bar-range">Chưa cấu hình mức trần — Tồn ${onHand} + chia ${newQ}</div>
-        </div>
-      </div>
-    `;
+  // Stores ok/short
+  let storesOk = 0, storesShort = 0, totalSold = 0, totalCovered = 0;
+  const byStore = new Map();
+  for (const a of COCKPIT.allocations.values()) {
+    if (!byStore.has(a.storeCode)) byStore.set(a.storeCode, { sold: 0, suggested: 0, qty: 0 });
+    const x = byStore.get(a.storeCode);
+    x.sold += a.sold;
+    x.suggested += a.suggested;
+    x.qty += a.qty;
+  }
+  for (const [code, x] of byStore) {
+    totalSold += x.sold;
+    totalCovered += Math.min(x.qty, x.suggested);
+    if (x.suggested === 0 || x.qty >= x.suggested * 0.95) storesOk++;
+    else storesShort++;
+  }
+  const coveragePct = totalSold > 0 ? Math.min(100, (totalCovered / Math.max(1, [...byStore.values()].reduce((s, x) => s + x.suggested, 0))) * 100) : 0;
+
+  document.getElementById('cockpit-coverage-pct').textContent = `${coveragePct.toFixed(0)}%`;
+  document.getElementById('cockpit-stores-ok').textContent = storesOk;
+  document.getElementById('cockpit-stores-short').textContent = storesShort;
+
+  document.getElementById('cockpit-bignum-label').textContent = total > 0
+    ? `cái sẽ chia cho ${cockpitStoresWithAlloc()} cửa hàng`
+    : 'Bấm "AI chia hàng tự động" để bắt đầu';
+
+  // Warnings
+  cockpitRenderWarnings();
+}
+
+function cockpitRenderWarnings() {
+  const list = document.getElementById('cockpit-warnings-list');
+  if (!list) return;
+  if (COCKPIT.warnings.length === 0) {
+    if (COCKPIT.allocations.size === 0) {
+      list.innerHTML = '<div class="cockpit-empty-warning">Chưa có dữ liệu. Bấm "AI chia hàng tự động" để bắt đầu.</div>';
+    } else {
+      list.innerHTML = '<div class="cockpit-empty-warning" style="border-color:var(--c-green);color:var(--c-green)">✓ Không có cảnh báo nào. Sẵn sàng xuất CSV.</div>';
+    }
     return;
   }
-
-  const pct = Math.min(100, (after / cap.max) * 100);
-  let fillCls = 'ok';
-  let alertCls = '';
-  if (after > cap.max) { fillCls = 'over'; alertCls = 'alert'; }
-  else if (after < cap.min) { fillCls = 'under'; alertCls = 'under-alert'; }
-
-  wrap.innerHTML = `
-    <div class="cap-bars cap-bars-single">
-      <div class="cap-bar ${alertCls}">
-        <div class="cap-bar-label">Mức tồn ${label}</div>
-        <div class="cap-bar-value">${after} <span style="font-size:13px;color:var(--text-soft);font-weight:500">/ ${cap.max}</span></div>
-        <div class="cap-bar-range">Tồn hiện tại ${onHand} + chia ${newQ} · Sàn ${cap.min} · Trần ${cap.max}</div>
-        <div class="cap-bar-track"><div class="cap-bar-fill ${fillCls}" style="width:${pct}%"></div></div>
+  list.innerHTML = COCKPIT.warnings.map(w => `
+    <div class="cockpit-warning-item warning-${w.severity}" onclick="cockpitFocusWarning('${w.type}')">
+      <div class="cockpit-warning-icon">${w.icon}</div>
+      <div class="cockpit-warning-body">
+        <div class="cockpit-warning-title">${escapeHtml(w.title)}</div>
+        <div class="cockpit-warning-desc">${escapeHtml(w.desc)}</div>
       </div>
     </div>
-  `;
+  `).join('');
 }
 
-function allocFillSuggested() {
-  if (!ALLOC.selectedStore) return;
-  for (const a of ALLOC.allocations.values()) {
-    if (a.storeCode === ALLOC.selectedStore && !a.locked) {
-      a.qty = a.suggested;
-    }
+function cockpitFocusWarning(type) {
+  if (type === 'no_alloc' || type === 'overstocked' || type === 'over_cap' || type === 'slow_movers') {
+    cockpitSetTab('issues');
+    document.getElementById('cockpit-table-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else if (type === 'short_supply') {
+    cockpitSetTab('products');
+    document.getElementById('cockpit-table-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-  // Force all back to suggested (kể cả locked)
-  if (confirm('Reset toàn bộ CH này về đề xuất hệ thống?')) {
-    for (const a of ALLOC.allocations.values()) {
-      if (a.storeCode === ALLOC.selectedStore) {
-        a.qty = a.suggested;
-        a.locked = false;
+}
+
+// ====== TABLE / LIST ======
+function cockpitRenderTableSection() {
+  if (COCKPIT.allocations.size === 0) {
+    document.getElementById('cockpit-table-wrap').style.display = 'none';
+    return;
+  }
+  document.getElementById('cockpit-table-wrap').style.display = '';
+  cockpitUpdateTabCounts();
+  cockpitRenderList();
+}
+
+function cockpitUpdateTabCounts() {
+  // Issues = số CH có vấn đề (xuất hiện trong warnings) + số CH allocation
+  const issues = cockpitGetIssueStores();
+  const allStores = new Set();
+  for (const a of COCKPIT.allocations.values()) {
+    if (a.qty > 0 || a.sold > 0 || a.onHand > 0) allStores.add(a.storeCode);
+  }
+  const products = new Set();
+  for (const a of COCKPIT.allocations.values()) if (a.qty > 0) products.add(a.maSp);
+
+  document.getElementById('cockpit-tab-issues-count').textContent = issues.size;
+  document.getElementById('cockpit-tab-all-count').textContent = allStores.size;
+  document.getElementById('cockpit-tab-prod-count').textContent = products.size;
+}
+
+function cockpitGetIssueStores() {
+  const issues = new Map();  // store → array of issue tags
+  for (const w of COCKPIT.warnings) {
+    if (w.type === 'overstocked' || w.type === 'slow_movers' || w.type === 'over_cap' || w.type === 'no_alloc') {
+      const codes = w.data.map(d => d.code || d);
+      for (const c of codes) {
+        if (!issues.has(c)) issues.set(c, []);
+        issues.get(c).push(w);
       }
     }
-    allocRenderStoreDetail(ALLOC.selectedStore);
-    allocUpdateHealthBar();
-    allocRenderSidebar();
+  }
+  return issues;
+}
+
+function cockpitSetTab(t) {
+  COCKPIT.currentTab = t;
+  document.querySelectorAll('.cockpit-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.ctab === t));
+  cockpitRenderList();
+}
+function cockpitFilterList() { cockpitRenderList(); }
+
+function cockpitRenderList() {
+  const list = document.getElementById('cockpit-list');
+  if (!list) return;
+  const filter = (document.getElementById('cockpit-search')?.value || '').toLowerCase().trim();
+
+  if (COCKPIT.currentTab === 'products') {
+    cockpitRenderProductList(list, filter);
+  } else {
+    cockpitRenderStoreList(list, filter);
   }
 }
 
-function allocClearCurrentStore() {
-  if (!ALLOC.selectedStore) return;
-  if (!confirm('Bỏ chia toàn bộ mã cho CH này?')) return;
-  for (const a of ALLOC.allocations.values()) {
-    if (a.storeCode === ALLOC.selectedStore) {
-      a.qty = 0;
-      a.locked = true;
-    }
-  }
-  allocRenderStoreDetail(ALLOC.selectedStore);
-  allocUpdateHealthBar();
-  allocRenderSidebar();
-}
-
-
-// ====== STEP 2: PRODUCT MODE ======
-function allocRenderProductDetail(ma) {
-  const meta = ALLOC.data.productMeta.get(ma) || {};
-  const supply = ALLOC.data.warehouseStockByCode.get(ma) || 0;
-
-  const titleEl = document.getElementById('alloc-main-title');
-  const subEl = document.getElementById('alloc-main-sub');
-  if (titleEl) titleEl.textContent = ma;
-  if (subEl) subEl.textContent = `${meta.nganhCap3 || meta.nganhCap1 || ''} · ${meta.isSale ? 'Hàng SALE' : 'Hàng CHÍNH'} · Kho TP/SA: ${supply}`;
-
-  // Cap bars: ẩn ở product mode
-  const capWrap = document.getElementById('alloc-cap-bars-wrap');
-  if (capWrap) capWrap.innerHTML = '';
-
-  // List các CH có chia mã này
-  const rows = [];
-  for (const a of ALLOC.allocations.values()) {
-    if (a.maSp === ma && a.qty > 0) rows.push(a);
-  }
-  rows.sort((a, b) => b.qty - a.qty);
-
-  const totalDemand = rows.reduce((sum, r) => sum + r.qty, 0);
-  const deficit = Math.max(0, totalDemand - supply);
-
-  const wrap = document.getElementById('alloc-table-wrap');
-  if (rows.length === 0) {
-    wrap.innerHTML = '<div class="alloc-empty"><div class="alloc-empty-icon">◯</div><div class="alloc-empty-title">Chưa CH nào chia mã này</div></div>';
-    return;
+function cockpitRenderStoreList(list, filter) {
+  const issues = cockpitGetIssueStores();
+  const byStore = new Map();
+  for (const a of COCKPIT.allocations.values()) {
+    if (!byStore.has(a.storeCode)) byStore.set(a.storeCode, []);
+    byStore.get(a.storeCode).push(a);
   }
 
-  const deficitBanner = deficit > 0
-    ? `<div style="padding:12px 16px;background:rgba(200,74,74,0.08);border-bottom:1px solid var(--line);font-size:13px"><strong style="color:#c84a4a">Thiếu nguồn ${deficit} cái</strong> · Tổng nhu cầu ${totalDemand}, kho TP/SA chỉ có ${supply}. <a href="javascript:void(0)" onclick="allocProrate('${ma}')" style="color:var(--accent);font-weight:600">Chia tỷ lệ tự động</a></div>`
-    : `<div style="padding:12px 16px;background:rgba(106,119,82,0.08);border-bottom:1px solid var(--line);font-size:13px"><strong style="color:#6a7752">Đủ nguồn</strong> · Tổng nhu cầu ${totalDemand} / ${supply}</div>`;
-
-  // Tính tổng các cột số
-  const totalsP = rows.reduce((t, r) => ({
-    sold: t.sold + (r.sold || 0),
-    onHand: t.onHand + (r.onHand || 0),
-    suggested: t.suggested + (r.suggested || 0),
-    qty: t.qty + (r.qty || 0)
-  }), { sold: 0, onHand: 0, suggested: 0, qty: 0 });
-  const allocCountP = rows.filter(r => r.qty > 0).length;
-
-  wrap.innerHTML = deficitBanner + `
-    <table class="alloc-table">
-      <thead>
-        <tr>
-          <th>Cửa hàng</th>
-          <th class="num">Nhóm</th>
-          <th class="num">Bán</th>
-          <th class="num">Tồn CH</th>
-          <th class="num">Đề xuất</th>
-          <th class="num">Chia</th>
-          <th class="num">% tổng</th>
-        </tr>
-        <tr class="alloc-table-totals">
-          <td><span class="totals-label">Tổng ${rows.length} CH · chia ${allocCountP} CH</span></td>
-          <td></td>
-          <td class="num">${formatNumber(totalsP.sold)}</td>
-          <td class="num">${formatNumber(totalsP.onHand)}</td>
-          <td class="num">${formatNumber(totalsP.suggested)}</td>
-          <td class="num"><strong>${formatNumber(totalsP.qty)}</strong></td>
-          <td class="num">100%</td>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows.map(r => {
-          const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === r.storeCode) : null;
-          const groupCls = store && store.nhomCh ? `scope-store-group-${store.nhomCh}` : '';
-          const pct = totalDemand > 0 ? ((r.qty / totalDemand) * 100).toFixed(1) : 0;
-          const isChanged = r.qty !== r.suggested;
-          const inputCls = isChanged ? 'alloc-input changed' : 'alloc-input';
-          return `
-            <tr${r.qty > 0 ? ' class="has-alloc"' : ''} data-key="${r.storeCode}|${r.maSp}">
-              <td>
-                <div class="alloc-sidebar-item-name">${escapeHtml(store ? store.ten : r.storeCode)}</div>
-                <div class="alloc-product-code" style="font-size:10px;margin-top:2px">${escapeHtml(r.storeCode)}</div>
-              </td>
-              <td class="num"><span class="${groupCls}">${store && store.nhomCh ? 'N' + store.nhomCh : '—'}</span></td>
-              <td class="num">${formatNumber(r.sold)}</td>
-              <td class="num">${formatNumber(r.onHand)}</td>
-              <td class="num"><span class="alloc-suggestion">${r.suggested}</span></td>
-              <td class="num"><input type="number" class="${inputCls}" value="${r.qty}" min="0" onchange="allocChangeQtyFromProduct('${r.storeCode}','${r.maSp}',this.value)"></td>
-              <td class="num">${pct}%</td>
-            </tr>
-          `;
-        }).join('')}
-      </tbody>
-    </table>
-  `;
-}
-
-function allocChangeQtyFromProduct(storeCode, maSp, val) {
-  const key = `${storeCode}|${maSp}`;
-  const a = ALLOC.allocations.get(key);
-  if (!a) return;
-  a.qty = Math.max(0, parseInt(val) || 0);
-  a.locked = true;
-  allocRenderProductDetail(maSp);
-  allocUpdateHealthBar();
-  allocRenderSidebar();
-  allocMarkDraftDirty();
-}
-
-function allocProrate(ma) {
-  const supply = ALLOC.data.warehouseStockByCode.get(ma) || 0;
-  const rows = [];
-  for (const a of ALLOC.allocations.values()) {
-    if (a.maSp === ma && a.qty > 0) rows.push(a);
-  }
-  const totalDemand = rows.reduce((sum, r) => sum + r.qty, 0);
-  if (totalDemand <= supply) {
-    alert('Đủ nguồn, không cần chia tỷ lệ.');
-    return;
-  }
-  if (!confirm(`Chia tỷ lệ ${supply} cái cho ${rows.length} CH theo nhu cầu (ưu tiên CH nhóm 1)?`)) return;
-
-  // Tính weight: qty × priority (nhóm 1 = 1.3, nhóm 2 = 1.0, nhóm 3 = 0.8)
-  const weights = rows.map(r => {
-    const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === r.storeCode) : null;
-    const g = store && store.nhomCh ? String(store.nhomCh) : '2';
-    const p = (g === '1') ? 1.3 : (g === '3' ? 0.8 : 1.0);
-    return r.qty * p;
-  });
-  const totalW = weights.reduce((s, w) => s + w, 0);
-  rows.forEach((r, i) => {
-    r.qty = Math.max(1, Math.floor((weights[i] / totalW) * supply));
-    r.locked = true;
+  // Build rows
+  let stores = [...COCKPIT.scope.storeIds].map(code => {
+    const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === code) : null;
+    const list = byStore.get(code) || [];
+    const sold = list.reduce((s, a) => s + a.sold, 0);
+    const onHand = list.reduce((s, a) => s + a.onHand, 0);
+    const qty = list.reduce((s, a) => s + a.qty, 0);
+    const suggested = list.reduce((s, a) => s + a.suggested, 0);
+    const deficit = Math.max(0, suggested - qty);
+    const issueList = issues.get(code) || [];
+    return {
+      code, store, list, sold, onHand, qty, suggested, deficit,
+      issueTypes: issueList.map(w => w.type)
+    };
   });
 
-  // Adjust rounding to match supply exactly
-  let assigned = rows.reduce((s, r) => s + r.qty, 0);
-  let diff = supply - assigned;
-  let idx = 0;
-  while (diff !== 0 && rows.length > 0) {
-    rows[idx % rows.length].qty += (diff > 0 ? 1 : -1);
-    diff += (diff > 0 ? -1 : 1);
-    idx++;
-    if (idx > 10000) break;
+  if (COCKPIT.currentTab === 'issues') {
+    stores = stores.filter(s => s.issueTypes.length > 0 || s.deficit > 0);
   }
 
-  allocRenderProductDetail(ma);
-  allocUpdateHealthBar();
-  allocRenderSidebar();
-  allocMarkDraftDirty();
-}
-
-
-// ====== STEP 3: HÀNG MỚI / TÁI BẢN ======
-function allocRenderStep3() {
-  const body = document.getElementById('alloc-newitems-body');
-  if (!body) return;
-
-  // Mã hàng mới = có tồn kho TP/SA > 0 nhưng chưa CH nào trong scope có tồn
-  const candidates = [];
-  for (const [ma, supply] of ALLOC.data.warehouseStockByCode) {
-    if (supply <= 0) continue;
-    const meta = ALLOC.data.productMeta.get(ma) || {};
-    if (!allocMatchesScope(meta)) continue;  // chỉ lấy đúng kho/ngành/loại
-    // Check chưa CH nào trong scope có tồn
-    let hasInAnyStore = false;
-    for (const storeCode of ALLOC.scope.storeIds) {
-      const onHand = (ALLOC.data.stockByStoreCode.get(storeCode) || new Map()).get(ma) || 0;
-      if (onHand > 0) { hasInAnyStore = true; break; }
-    }
-    if (hasInAnyStore) continue;
-    if (!meta.nganhCap3) continue;
-    candidates.push({ ma, supply, meta });
+  if (filter) {
+    stores = stores.filter(s =>
+      (s.store && s.store.ten.toLowerCase().includes(filter)) ||
+      s.code.toLowerCase().includes(filter)
+    );
   }
 
-  if (candidates.length === 0) {
-    body.innerHTML = '<div class="alloc-empty"><div class="alloc-empty-icon">◯</div><div class="alloc-empty-title">Không có hàng mới</div><div>Tất cả các mã có tồn kho tổng đã có mặt ở ít nhất 1 CH trong scope.</div></div>';
+  // Sort: critical first, then by qty desc
+  stores.sort((a, b) => {
+    const aCrit = a.issueTypes.includes('over_cap') ? 2 : (a.issueTypes.length > 0 || a.deficit > 0 ? 1 : 0);
+    const bCrit = b.issueTypes.includes('over_cap') ? 2 : (b.issueTypes.length > 0 || b.deficit > 0 ? 1 : 0);
+    if (aCrit !== bCrit) return bCrit - aCrit;
+    return b.qty - a.qty;
+  });
+
+  if (stores.length === 0) {
+    list.innerHTML = `<div class="cockpit-list-empty">
+      <div class="cockpit-list-empty-icon">✓</div>
+      <div class="cockpit-list-empty-title">${COCKPIT.currentTab === 'issues' ? 'Không có vấn đề nào' : 'Không có CH nào'}</div>
+      <div style="font-size:11px;color:var(--text-soft)">${COCKPIT.currentTab === 'issues' ? 'Tất cả CH đều ổn — sẵn sàng xuất CSV' : 'Thử thay đổi bộ lọc'}</div>
+    </div>`;
     return;
   }
 
-  candidates.sort((a, b) => b.supply - a.supply);
+  list.innerHTML = stores.map(s => {
+    const isCritical = s.issueTypes.includes('over_cap');
+    const isIssue = s.issueTypes.length > 0 || s.deficit > 0;
+    const issueClass = isCritical ? 'has-issue-critical' : (isIssue ? 'has-issue' : '');
+    const groupTag = s.store && s.store.nhomCh ? `<span class="cockpit-row-tag">N${s.store.nhomCh}</span>` : '';
+    const issueLabels = [];
+    if (s.issueTypes.includes('over_cap')) issueLabels.push('⚠ Vượt trần');
+    if (s.issueTypes.includes('overstocked')) issueLabels.push('Tồn dư cao');
+    if (s.issueTypes.includes('slow_movers')) issueLabels.push('Nhiều mã bán chậm');
+    if (s.deficit > 0) issueLabels.push(`Thiếu ${s.deficit}`);
 
-  body.innerHTML = `
-    <div style="margin-bottom:14px;font-size:12px;color:var(--text-soft)">
-      Tìm thấy <strong style="color:var(--text)">${candidates.length}</strong> mã có tồn kho tổng nhưng chưa CH nào trong scope có. Chia theo tỷ trọng bán ngành cấp 3 của từng CH.
-    </div>
-    ${candidates.slice(0, 50).map(c => allocRenderNewItem(c)).join('')}
-    ${candidates.length > 50 ? `<div style="text-align:center;padding:12px;color:var(--text-soft);font-size:11px">... và ${candidates.length - 50} mã khác</div>` : ''}
-  `;
-}
-
-function allocRenderNewItem(c) {
-  const cap3 = c.meta.nganhCap3;
-  const totalSold = ALLOC.data.totalSoldByCap3.get(cap3) || 0;
-
-  // Tính lại share NORMALIZE trong scope: chỉ chia cho các CH đã chọn,
-  // dựa trên tỷ trọng bán cap3 của các CH này so với tổng các CH trong scope
-  const scopeShares = [];
-  let scopeTotalShare = 0;
-  for (const storeCode of ALLOC.scope.storeIds) {
-    const rawShare = ALLOC.data.storeShareByCap3.get(`${storeCode}|${cap3}`) || 0;
-    if (rawShare <= 0) continue;
-    scopeShares.push({ storeCode, rawShare });
-    scopeTotalShare += rawShare;
-  }
-
-  if (totalSold === 0 || scopeShares.length === 0) {
     return `
-      <div class="alloc-source-card">
-        <div class="alloc-source-card-head">
-          ${allocNewItemHeader(c)}
+      <div class="cockpit-row ${issueClass}" onclick="cockpitOpenSidePanel('${s.code}')">
+        <div>
+          <div class="cockpit-row-name">${escapeHtml(s.store ? s.store.ten : s.code)}</div>
+          <div class="cockpit-row-sub">${groupTag}${escapeHtml(s.code)} · ${escapeHtml(s.store ? s.store.khuVuc : '')}</div>
         </div>
-        <div style="font-size:11px;color:var(--text-soft)">Ngành ${escapeHtml(cap3)} chưa có dữ liệu bán trong các CH đã chọn.</div>
+        <div class="cockpit-row-num ${s.sold === 0 ? 'cockpit-num-zero' : ''}">${formatNumber(s.sold)}</div>
+        <div class="cockpit-row-num ${s.onHand === 0 ? 'cockpit-num-zero' : ''}">${formatNumber(s.onHand)}</div>
+        <div class="cockpit-row-num ${s.suggested === 0 ? 'cockpit-num-zero' : 'cockpit-num-suggested'}">${formatNumber(s.suggested)}</div>
+        <div class="cockpit-row-num">${formatNumber(s.qty)}</div>
+        <div class="cockpit-row-issue ${isCritical ? 'critical' : ''}">
+          ${issueLabels.map(l => `<span>${l}</span>`).join('') || '<span style="color:var(--c-green)">✓ OK</span>'}
+        </div>
       </div>
     `;
+  }).join('');
+}
+
+function cockpitRenderProductList(list, filter) {
+  const byProduct = new Map();
+  for (const a of COCKPIT.allocations.values()) {
+    if (a.qty <= 0) continue;
+    if (!byProduct.has(a.maSp)) byProduct.set(a.maSp, []);
+    byProduct.get(a.maSp).push(a);
   }
 
-  // Re-normalize: scale các share lên cho tổng = 1 trong phạm vi scope
-  const suggestions = scopeShares.map(s => {
-    const normShare = s.rawShare / scopeTotalShare;
-    const suggested = Math.max(1, Math.round(normShare * c.supply));
-    return { storeCode: s.storeCode, share: normShare, suggested };
+  let products = [...byProduct.entries()].map(([ma, list]) => {
+    const meta = COCKPIT.data.productMeta.get(ma) || {};
+    const totalQty = list.reduce((s, a) => s + a.qty, 0);
+    const totalSuggested = list.reduce((s, a) => s + a.suggested, 0);
+    const supply = list[0].warehouseStock;
+    const deficit = Math.max(0, totalSuggested - totalQty);
+    return { ma, meta, list, totalQty, totalSuggested, supply, deficit, stores: list.length };
   });
-  suggestions.sort((a, b) => b.share - a.share);
 
-  // Adjust rounding để tổng suggestion = supply
-  let totalSuggested = suggestions.reduce((s, x) => s + x.suggested, 0);
-  let diff = c.supply - totalSuggested;
-  let idx = 0;
-  while (diff !== 0 && suggestions.length > 0 && idx < 1000) {
-    const i = idx % suggestions.length;
-    if (diff > 0) { suggestions[i].suggested++; diff--; }
-    else if (suggestions[i].suggested > 1) { suggestions[i].suggested--; diff++; }
-    idx++;
-  }
-  totalSuggested = suggestions.reduce((s, x) => s + x.suggested, 0);
+  if (filter) products = products.filter(p => p.ma.toLowerCase().includes(filter));
+  products.sort((a, b) => b.deficit - a.deficit || b.totalQty - a.totalQty);
 
-  return `
-    <div class="alloc-source-card">
-      <div class="alloc-source-card-head">
-        ${allocNewItemHeader(c)}
-        <div style="font-size:11px;color:var(--text-soft)">Đề xuất chia hết kho ${c.supply}: <strong>${totalSuggested}</strong> cho ${suggestions.length} CH</div>
-      </div>
-      <div style="font-size:11px;color:var(--text-soft);margin-bottom:8px">Ngành cấp 3: ${escapeHtml(cap3)} · Tổng bán hệ thống: ${formatNumber(totalSold)} · Trong scope: ${suggestions.length}/${ALLOC.scope.storeIds.size} CH bán mặt hàng này</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px">
-        ${suggestions.slice(0, 18).map(s => {
-          const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(st => st.maCh === s.storeCode) : null;
-          const name = store ? store.ten : s.storeCode;
-          const groupTag = store && store.nhomCh ? `<span style="color:var(--text-soft);font-size:10px">N${store.nhomCh}</span>` : '';
-          return `
-            <div style="border:1px solid var(--line);border-radius:6px;padding:5px 10px;background:var(--bg);font-size:11px;display:flex;align-items:center;gap:8px">
-              <span title="${escapeHtml(s.storeCode)}">${escapeHtml(name)}</span>
-              ${groupTag}
-              <span style="color:var(--text-soft)">${(s.share*100).toFixed(1)}%</span>
-              <input type="number" class="alloc-input" style="width:50px" value="${s.suggested}" min="0"
-                onchange="allocSetNewItemAlloc('${c.ma}','${s.storeCode}',this.value)">
-            </div>
-          `;
-        }).join('')}
-        ${suggestions.length > 18 ? `<div style="font-size:11px;color:var(--text-soft);padding:5px 10px">+${suggestions.length - 18} CH khác</div>` : ''}
-      </div>
-      <div style="margin-top:10px;text-align:right">
-        <button class="alloc-btn ghost" style="font-size:11px;padding:4px 10px" onclick="allocApplyNewItem('${c.ma}')">✓ Chấp nhận đề xuất hệ thống</button>
-      </div>
-    </div>
-  `;
-}
-
-// Header card hàng mới — có hình ảnh
-function allocNewItemHeader(c) {
-  const imgUrl = (typeof IMAGE_MAP !== 'undefined' && IMAGE_MAP[c.ma]) ? IMAGE_MAP[c.ma] : '';
-  const imgTag = imgUrl
-    ? `<img src="${escapeHtml(imgUrl)}" loading="lazy" style="width:56px;height:56px;border-radius:8px;object-fit:cover;background:var(--line);flex-shrink:0">`
-    : `<div style="width:56px;height:56px;border-radius:8px;background:var(--line);display:flex;align-items:center;justify-content:center;color:var(--text-soft);font-size:10px;flex-shrink:0">—</div>`;
-  return `
-    <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
-      ${imgTag}
-      <div style="min-width:0;flex:1">
-        <div class="alloc-source-name" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <span style="font-family:'SF Mono',Menlo,monospace;font-size:13px">${escapeHtml(c.ma)}</span>
-          <span class="alloc-loai-pill ${c.meta.isSale ? 'sale' : 'chinh'}">${c.meta.isSale ? 'Sale' : 'Chính'}</span>
-        </div>
-        <div style="font-size:11px;color:var(--text-soft);margin-top:3px">Kho TP/SA: <strong style="color:var(--text)">${c.supply}</strong></div>
-      </div>
-    </div>
-  `;
-}
-
-function allocSetNewItemAlloc(ma, storeCode, val) {
-  const qty = Math.max(0, parseInt(val) || 0);
-  const key = `${storeCode}|${ma}`;
-  const meta = ALLOC.data.productMeta.get(ma) || {};
-  if (qty === 0) {
-    ALLOC.allocations.delete(key);
-  } else {
-    ALLOC.allocations.set(key, {
-      storeCode, maSp: ma,
-      sold: 0,
-      onHand: 0,
-      suggested: qty,
-      qty: qty,
-      coverage: 0,
-      target: qty,
-      warehouseStock: ALLOC.data.warehouseStockByCode.get(ma) || 0,
-      isSale: !!meta.isSale,
-      nganhCap1: meta.nganhCap1 || '',
-      nganhCap3: meta.nganhCap3 || '',
-      locked: true,
-      note: 'hàng mới',
-      isNewItem: true
-    });
-  }
-  allocUpdateHealthBar();
-  allocMarkDraftDirty();
-}
-
-function allocApplyNewItem(ma) {
-  const meta = ALLOC.data.productMeta.get(ma) || {};
-  const supply = ALLOC.data.warehouseStockByCode.get(ma) || 0;
-  const cap3 = meta.nganhCap3;
-  if (!cap3) return;
-
-  // Re-normalize share trong phạm vi scope
-  const scopeShares = [];
-  let totalScopeShare = 0;
-  for (const storeCode of ALLOC.scope.storeIds) {
-    const raw = ALLOC.data.storeShareByCap3.get(`${storeCode}|${cap3}`) || 0;
-    if (raw <= 0) continue;
-    scopeShares.push({ storeCode, raw });
-    totalScopeShare += raw;
-  }
-  if (scopeShares.length === 0 || totalScopeShare === 0) {
-    alert('Không có CH nào trong scope từng bán ngành này.');
+  if (products.length === 0) {
+    list.innerHTML = `<div class="cockpit-list-empty"><div class="cockpit-list-empty-icon">∅</div><div class="cockpit-list-empty-title">Chưa có mã nào được chia</div></div>`;
     return;
   }
 
-  const assignments = scopeShares.map(s => ({
-    storeCode: s.storeCode,
-    qty: Math.max(1, Math.round((s.raw / totalScopeShare) * supply))
-  }));
-
-  // Adjust rounding để tổng = supply
-  let total = assignments.reduce((s, a) => s + a.qty, 0);
-  let diff = supply - total;
-  let idx = 0;
-  while (diff !== 0 && assignments.length > 0 && idx < 1000) {
-    const i = idx % assignments.length;
-    if (diff > 0) { assignments[i].qty++; diff--; }
-    else if (assignments[i].qty > 1) { assignments[i].qty--; diff++; }
-    idx++;
-  }
-
-  for (const a of assignments) {
-    allocSetNewItemAlloc(ma, a.storeCode, a.qty);
-  }
-
-  allocRenderStep3();
-  alert(`Đã áp dụng đề xuất cho ${assignments.length} CH (tổng ${assignments.reduce((s,a)=>s+a.qty,0)} cái).`);
-}
-
-
-// ====== STEP 4: CÂN ĐỐI NGUỒN ======
-function allocRenderStep4() {
-  const body = document.getElementById('alloc-source-body');
-  if (!body) return;
-
-  // Tổng nhu cầu theo mã
-  const demandByMa = new Map();
-  for (const a of ALLOC.allocations.values()) {
-    if (a.qty <= 0) continue;
-    demandByMa.set(a.maSp, (demandByMa.get(a.maSp) || 0) + a.qty);
-  }
-
-  // Phân loại: thiếu / đủ
-  const shorts = [];
-  const okays = [];
-  for (const [ma, demand] of demandByMa) {
-    const supply = ALLOC.data.warehouseStockByCode.get(ma) || 0;
-    const meta = ALLOC.data.productMeta.get(ma) || {};
-    const item = { ma, demand, supply, deficit: Math.max(0, demand - supply), meta };
-    if (item.deficit > 0) shorts.push(item);
-    else okays.push(item);
-  }
-  shorts.sort((a, b) => b.deficit - a.deficit);
-  okays.sort((a, b) => (a.supply - a.demand) - (b.supply - b.demand));  // dư ít trước
-
-  const totalDemand = [...demandByMa.values()].reduce((s, v) => s + v, 0);
-  const totalShortDeficit = shorts.reduce((s, x) => s + x.deficit, 0);
-
-  body.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px">
-      <div class="cap-bar">
-        <div class="cap-bar-label">Tổng SP đề xuất chia</div>
-        <div class="cap-bar-value">${formatNumber(totalDemand)}</div>
-        <div class="cap-bar-range">${demandByMa.size} mã</div>
-      </div>
-      <div class="cap-bar ${shorts.length > 0 ? 'alert' : ''}">
-        <div class="cap-bar-label">Mã thiếu nguồn</div>
-        <div class="cap-bar-value">${shorts.length}</div>
-        <div class="cap-bar-range">Thiếu ${formatNumber(totalShortDeficit)} cái</div>
-      </div>
-      <div class="cap-bar">
-        <div class="cap-bar-label">Mã đủ nguồn</div>
-        <div class="cap-bar-value" style="color:#6a7752">${okays.length}</div>
-        <div class="cap-bar-range">${okays.length / Math.max(1, demandByMa.size) * 100 | 0}% mã</div>
-      </div>
-    </div>
-
-    ${shorts.length > 0 ? `
-      <div style="font-size:14px;font-weight:700;margin:18px 0 10px;color:#c84a4a">⊘ Mã thiếu nguồn (${shorts.length})</div>
-      ${shorts.slice(0, 30).map(s => allocRenderShortCard(s)).join('')}
-      ${shorts.length > 30 ? `<div style="text-align:center;color:var(--text-soft);font-size:11px;padding:8px">... và ${shorts.length - 30} mã thiếu khác</div>` : ''}
-    ` : '<div style="padding:14px;background:rgba(106,119,82,0.08);border-radius:8px;font-size:13px;color:#6a7752">✓ Tất cả mã đều đủ nguồn để chia.</div>'}
-  `;
-}
-
-function allocRenderShortCard(s) {
-  const supplyPct = s.demand > 0 ? Math.min(100, (s.supply / s.demand) * 100) : 0;
-  const subBtn = s.meta.isSale
-    ? `<button class="alloc-btn" style="font-size:11px;padding:4px 10px" onclick="allocOpenSubModalFromStep4('${s.ma}')">Gợi ý mã thay thế</button>`
-    : '';
-  return `
-    <div class="alloc-source-card short">
-      <div class="alloc-source-card-head">
-        <div class="alloc-source-name">
-          <span style="font-family:'SF Mono',Menlo,monospace">${escapeHtml(s.ma)}</span>
-          <span class="alloc-loai-pill ${s.meta.isSale ? 'sale' : 'chinh'}" style="margin-left:8px">${s.meta.isSale ? 'Sale' : 'Chính'}</span>
-          <span style="color:var(--text-soft);font-size:11px;margin-left:8px">${escapeHtml(s.meta.nganhCap3 || '')}</span>
+  list.innerHTML = products.map(p => {
+    const imgUrl = (typeof IMAGE_MAP !== 'undefined' && IMAGE_MAP[p.ma]) ? IMAGE_MAP[p.ma] : '';
+    const imgTag = imgUrl
+      ? `<img src="${escapeHtml(imgUrl)}" loading="lazy" style="width:40px;height:40px;border-radius:5px;object-fit:cover;background:var(--line)">`
+      : `<div style="width:40px;height:40px;border-radius:5px;background:var(--line);display:flex;align-items:center;justify-content:center;color:var(--text-soft);font-size:10px">—</div>`;
+    const hasDeficit = p.deficit > 0;
+    return `
+      <div class="cockpit-row ${hasDeficit ? 'has-issue-critical' : ''}">
+        <div style="display:flex;align-items:center;gap:10px">
+          ${imgTag}
+          <div>
+            <div class="cockpit-row-name" style="font-family:'SF Mono',Menlo,monospace;font-size:12px">${escapeHtml(p.ma)}</div>
+            <div class="cockpit-row-sub">${escapeHtml(p.meta.nganhCap3 || '')}</div>
+          </div>
         </div>
-        <div class="alloc-source-deficit">Thiếu ${s.deficit}</div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text-soft);margin-bottom:4px">
-        <span>Nhu cầu ${s.demand}</span>
-        <span>Kho TP/SA: ${s.supply} (${supplyPct.toFixed(0)}%)</span>
-      </div>
-      <div class="alloc-source-bar">
-        <div class="alloc-source-bar-supply" style="width:${supplyPct}%"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px">
-        <span class="alloc-prorate-hint">Đề xuất chia tỷ lệ — ưu tiên CH nhóm 1, sau đó nhóm 2.</span>
-        <div style="display:flex;gap:6px">
-          <button class="alloc-btn" style="font-size:11px;padding:4px 10px" onclick="allocProrate('${s.ma}')">Chia tỷ lệ</button>
-          ${subBtn}
+        <div class="cockpit-row-num">${p.stores}</div>
+        <div class="cockpit-row-num">${formatNumber(p.totalSuggested)}</div>
+        <div class="cockpit-row-num cockpit-num-suggested">${formatNumber(p.supply)}</div>
+        <div class="cockpit-row-num">${formatNumber(p.totalQty)}</div>
+        <div class="cockpit-row-issue ${hasDeficit ? 'critical' : ''}">
+          ${hasDeficit ? `<span>Thiếu ${p.deficit}</span>` : '<span style="color:var(--c-green)">✓ Đủ</span>'}
         </div>
       </div>
-    </div>
-  `;
+    `;
+  }).join('');
 }
 
+// ====== SIDE PANEL ======
+function cockpitOpenSidePanel(storeCode) {
+  COCKPIT.sidePanel.storeCode = storeCode;
+  document.getElementById('cockpit-sidepanel').classList.add('active');
+  document.getElementById('cockpit-sidepanel-backdrop').classList.add('active');
+  cockpitRenderSidePanel(storeCode);
+}
+function cockpitCloseSidePanel() {
+  document.getElementById('cockpit-sidepanel').classList.remove('active');
+  document.getElementById('cockpit-sidepanel-backdrop').classList.remove('active');
+  COCKPIT.sidePanel.storeCode = null;
+}
 
-// ====== STEP 5: EXPORT ODOO ======
-function allocRenderStep5() {
-  const body = document.getElementById('alloc-export-body');
-  if (!body) return;
+function cockpitRenderSidePanel(storeCode) {
+  const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === storeCode) : null;
+  document.getElementById('cockpit-sp-title').textContent = store ? store.ten : storeCode;
+  const groupTxt = store && store.nhomCh ? `Nhóm ${store.nhomCh}` : '—';
+  document.getElementById('cockpit-sp-sub').textContent = `${storeCode} · ${store ? store.khuVuc : ''} · ${groupTxt}`;
 
-  const lines = allocBuildExportLines();
-  const sumQty = lines.reduce((s, l) => s + l.qty, 0);
+  // Stats
+  const items = [];
+  for (const a of COCKPIT.allocations.values()) {
+    if (a.storeCode === storeCode) items.push(a);
+  }
+  const sold = items.reduce((s, a) => s + a.sold, 0);
+  const onHand = items.reduce((s, a) => s + a.onHand, 0);
+  const qty = items.reduce((s, a) => s + a.qty, 0);
+  const suggested = items.reduce((s, a) => s + a.suggested, 0);
 
-  // Group preview by source warehouse
-  const byFrom = new Map();
-  for (const l of lines) {
-    if (!byFrom.has(l.from)) byFrom.set(l.from, []);
-    byFrom.get(l.from).push(l);
+  // Cap bar
+  let capHtml = '';
+  if (store) {
+    const isSale = COCKPIT.scope.isSale, cat = COCKPIT.scope.cat;
+    let cap, label;
+    if (cat === 'BH' && !isSale) { cap = store.capBhChinh; label = 'BH chính'; }
+    else if (cat === 'BH' && isSale) { cap = store.capBhSale; label = 'BH sale'; }
+    else if (cat === 'NV' && !isSale) { cap = store.capNvChinh; label = 'NV chính'; }
+    else if (cat === 'NV' && isSale) { cap = store.capNvSale; label = 'NV sale'; }
+
+    if (cap && cap.max > 0) {
+      const after = onHand + qty;
+      const pct = Math.min(100, (after / cap.max) * 100);
+      let fillCls = 'ok';
+      if (after > cap.max) fillCls = 'over';
+      else if (after < cap.min) fillCls = 'warn';
+      capHtml = `
+        <div class="sp-capbar">
+          <div class="sp-capbar-label">Mức tồn ${label}</div>
+          <div class="sp-capbar-value">${after} <span style="color:var(--text-soft);font-weight:500">/ ${cap.max}</span></div>
+          <div style="font-size:11px;color:var(--text-soft);margin-top:2px">Tồn ${onHand} + chia ${qty} · Sàn ${cap.min} · Trần ${cap.max}</div>
+          <div class="sp-capbar-track"><div class="sp-capbar-fill ${fillCls}" style="width:${pct}%"></div></div>
+        </div>
+      `;
+    }
   }
 
-  body.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px">
-      <div class="cap-bar">
-        <div class="cap-bar-label">Số dòng điều chuyển</div>
-        <div class="cap-bar-value">${formatNumber(lines.length)}</div>
+  // Status pills
+  const ratio = sold > 0 ? onHand / sold : 0;
+  const statusOnHand = ratio > 2.5 ? 'alert' : (ratio < 0.5 && sold > 5 ? 'warn' : 'ok');
+
+  let body = `
+    <div class="sp-mini-stats">
+      <div class="sp-mini-stat">
+        <div class="sp-mini-stat-label">Đã bán</div>
+        <div class="sp-mini-stat-value">${formatNumber(sold)}</div>
       </div>
-      <div class="cap-bar">
-        <div class="cap-bar-label">Tổng SP chuyển</div>
-        <div class="cap-bar-value">${formatNumber(sumQty)}</div>
+      <div class="sp-mini-stat ${statusOnHand}">
+        <div class="sp-mini-stat-label">Tồn CH</div>
+        <div class="sp-mini-stat-value">${formatNumber(onHand)}</div>
       </div>
-      <div class="cap-bar">
-        <div class="cap-bar-label">Kho nguồn</div>
-        <div class="cap-bar-value">${byFrom.size}</div>
+      <div class="sp-mini-stat">
+        <div class="sp-mini-stat-label">Đề xuất</div>
+        <div class="sp-mini-stat-value">${formatNumber(suggested)}</div>
+      </div>
+      <div class="sp-mini-stat ok">
+        <div class="sp-mini-stat-label">Sẽ chia</div>
+        <div class="sp-mini-stat-value">${formatNumber(qty)}</div>
       </div>
     </div>
+    ${capHtml}
 
-    <div style="border:1px solid var(--line);border-radius:8px;overflow:hidden">
-      <div style="padding:10px 14px;background:var(--bg-elevated);border-bottom:1px solid var(--line);font-size:12px;font-weight:600">
-        Xem trước file CSV (4 cột: kho nguồn · kho đích · SKU/Barcode · số lượng)
-      </div>
-      <div style="max-height:400px;overflow-y:auto">
-        <table class="alloc-table">
-          <thead>
-            <tr>
-              <th>Kho nguồn</th>
-              <th>Kho đích</th>
-              <th>SKU/Barcode</th>
-              <th class="num">SL</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${lines.slice(0, 200).map(l => `
-              <tr>
-                <td style="font-family:'SF Mono',Menlo,monospace;font-size:11px">${escapeHtml(l.from)}</td>
-                <td style="font-family:'SF Mono',Menlo,monospace;font-size:11px">${escapeHtml(l.to)}</td>
-                <td style="font-family:'SF Mono',Menlo,monospace;font-size:11px">${escapeHtml(l.sku)}</td>
-                <td class="num">${l.qty}</td>
-              </tr>
-            `).join('')}
-            ${lines.length > 200 ? `<tr><td colspan="4" style="text-align:center;color:var(--text-soft);padding:10px">... và ${lines.length - 200} dòng khác</td></tr>` : ''}
-          </tbody>
-        </table>
-      </div>
+    <div class="sp-section-head">
+      <div class="sp-section-title">Chi tiết theo mã sản phẩm</div>
+      <div class="sp-section-sub">${items.length} mã</div>
     </div>
   `;
+
+  // Items list — sort by qty desc, ties by warehouseStock desc
+  items.sort((a, b) => {
+    if (a.qty !== b.qty) return b.qty - a.qty;
+    return (b.warehouseStock || 0) - (a.warehouseStock || 0);
+  });
+
+  body += '<div class="sp-product-list">' + items.map(a => {
+    const imgUrl = (typeof IMAGE_MAP !== 'undefined' && IMAGE_MAP[a.maSp]) ? IMAGE_MAP[a.maSp] : '';
+    const imgTag = imgUrl
+      ? `<img src="${escapeHtml(imgUrl)}" class="sp-product-img" loading="lazy">`
+      : `<div class="sp-product-img" style="display:flex;align-items:center;justify-content:center;color:var(--text-soft);font-size:9px">—</div>`;
+    const isChanged = a.qty !== a.suggested;
+    const isDead = a.skipReason === 'dead';
+    const rowCls = isDead ? 'dead' : (a.qty > 0 ? 'has-alloc' : '');
+    let tag = '';
+    if (a.skipReason === 'dead') tag = '<span style="font-size:9px;color:var(--c-red);font-weight:600">CHẾT</span>';
+    else if (a.skipReason === 'overstocked') tag = '<span style="font-size:9px;color:var(--c-orange);font-weight:600">DƯ</span>';
+    else if (a.daysOfStock < 7 && a.sold > 0) tag = '<span style="font-size:9px;color:var(--c-green);font-weight:600">CHẠY</span>';
+
+    return `
+      <div class="sp-product-row ${rowCls}">
+        ${imgTag}
+        <div style="min-width:0">
+          <div class="sp-product-code">${escapeHtml(a.maSp)}</div>
+          <div class="sp-product-meta">${escapeHtml(a.meta.nganhCap3 || '')} ${tag}</div>
+        </div>
+        <div class="sp-num">${formatNumber(a.sold)}</div>
+        <div class="sp-num">${formatNumber(a.onHand)}</div>
+        <div class="sp-num sp-num-suggested">${a.suggested}</div>
+        <input type="number" class="sp-input ${isChanged ? 'changed' : ''}" value="${a.qty}" min="0"
+          onchange="cockpitChangeQty('${a.storeCode}','${a.maSp}',this.value)">
+      </div>
+    `;
+  }).join('') + '</div>';
+
+  document.getElementById('cockpit-sp-body').innerHTML = body;
 }
 
-function allocBuildExportLines() {
+function cockpitChangeQty(storeCode, maSp, val) {
+  const key = `${storeCode}|${maSp}`;
+  const a = COCKPIT.allocations.get(key);
+  if (!a) return;
+  a.qty = Math.max(0, parseInt(val) || 0);
+  a.locked = true;
+  cockpitGenerateWarnings();
+  cockpitRenderHero();
+  cockpitRenderTableSection();
+  cockpitRenderSidePanel(storeCode);  // refresh side panel
+}
+
+// ====== FOOTER & EXPORT ======
+function cockpitShowFooter() {
+  const total = cockpitTotalQty();
+  const storeCount = cockpitStoresWithAlloc();
+  const info = WAREHOUSE_MAP[COCKPIT.scope.warehouse];
+  document.getElementById('cockpit-footer-info').innerHTML = `
+    Sẵn sàng xuất <strong>${formatNumber(total)}</strong> cái cho <strong>${storeCount}</strong> CH · Từ kho <strong>${COCKPIT.scope.warehouse}</strong> (${info ? info.name : ''})
+  `;
+  document.getElementById('cockpit-footer').style.display = '';
+}
+
+function cockpitExportOdoo() {
   const lines = [];
-  const sourceWarehouse = ALLOC.scope.warehouse;  // Kho nguồn cố định cho cả phiên
-  for (const a of ALLOC.allocations.values()) {
+  for (const a of COCKPIT.allocations.values()) {
     if (a.qty <= 0) continue;
-    lines.push({
-      from: sourceWarehouse,
-      to: a.storeCode,
-      sku: a.maSp,
-      qty: a.qty
-    });
+    lines.push({ from: COCKPIT.scope.warehouse, to: a.storeCode, sku: a.maSp, qty: a.qty });
   }
-  // Group theo (from, to, sku) phòng trùng
-  const grouped = new Map();
-  for (const l of lines) {
-    const key = `${l.from}|${l.to}|${l.sku}`;
-    if (grouped.has(key)) grouped.get(key).qty += l.qty;
-    else grouped.set(key, { ...l });
-  }
-  return [...grouped.values()];
-}
-
-function allocPickSourceWarehouse(maSp) {
-  // Chọn warehouse (TP/SA) có nhiều stock nhất cho mã này
-  if (typeof STOCK_DATA === 'undefined') return null;
-  let best = null, bestQty = 0;
-  for (const s of STOCK_DATA) {
-    const ma = s.maThamChieu || s.sku;
-    if (ma !== maSp) continue;
-    const code = String(s.maKho || '').toUpperCase();
-    if (!code.startsWith('TP') && !code.startsWith('SA')) continue;
-    const qty = s.tonHienTai || 0;
-    if (qty > bestQty) { bestQty = qty; best = code; }
-  }
-  return best;
-}
-
-function allocExportOdoo() {
-  const lines = allocBuildExportLines();
   if (lines.length === 0) {
-    alert('Chưa có dòng nào để xuất. Hãy chia hàng ở Bước 2 trước.');
+    cockpitToast('Chưa có dòng nào để xuất.', 'error');
     return;
   }
   const csv = ['kho_nguon,kho_dich,sku_barcode,so_luong']
@@ -11580,198 +10831,46 @@ function allocExportOdoo() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `dieu-chuyen-${ALLOC.scope.warehouse}-${todayString()}.csv`;
+  a.download = `dieu-chuyen-${COCKPIT.scope.warehouse}-${todayString()}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+  cockpitToast(`Đã xuất ${lines.length} dòng cho Odoo.`, 'success');
 }
 
-
-// ====== SUBSTITUTE MODAL (gợi ý thay thế cho hàng sale hết) ======
-function allocOpenSubModal(maSp, storeCode) {
-  const meta = ALLOC.data.productMeta.get(maSp);
-  if (!meta) return;
-  const subs = allocFindSubstitutes(maSp);
-  document.getElementById('alloc-sub-modal-title').textContent = `Gợi ý thay thế cho ${maSp}`;
-  document.getElementById('alloc-sub-modal-sub').textContent = `Hàng SALE · ${meta.nganhCap3 || ''} · Giá niêm yết ${formatNumber(meta.giaNiemYet)} · Kho tổng còn ${ALLOC.data.warehouseStockByCode.get(maSp) || 0}`;
-  const grid = document.getElementById('alloc-sub-grid');
-  if (subs.length === 0) {
-    grid.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--text-soft)">Không tìm được mã thay thế phù hợp.</div>';
-  } else {
-    grid.innerHTML = subs.slice(0, 12).map(s => {
-      const img = (typeof IMAGE_MAP !== 'undefined' && IMAGE_MAP[s.ma]) ? IMAGE_MAP[s.ma] : '';
-      const imgTag = img ? `<img src="${escapeHtml(img)}">` : `<div style="aspect-ratio:1;background:var(--line);border-radius:6px;margin-bottom:8px"></div>`;
-      return `
-        <div class="alloc-sub-card" onclick="allocApplySubstitute('${maSp}','${s.ma}','${storeCode || ''}')">
-          ${imgTag}
-          <div class="alloc-sub-card-code">${escapeHtml(s.ma)}</div>
-          <div class="alloc-sub-card-meta">${escapeHtml(s.meta.nganhCap3 || '')}</div>
-          <div class="alloc-sub-card-meta">Kho ${s.supply} · Giá ${formatNumber(s.meta.giaNiemYet)}</div>
-          <span class="alloc-sub-score">${s.score}% phù hợp</span>
-        </div>
-      `;
-    }).join('');
-  }
-  document.getElementById('alloc-sub-modal-backdrop').classList.add('active');
-}
-
-function allocOpenSubModalFromStep4(maSp) {
-  allocOpenSubModal(maSp, '');
-}
-
-function allocCloseSubModal() {
-  document.getElementById('alloc-sub-modal-backdrop').classList.remove('active');
-}
-
-function allocFindSubstitutes(maSp) {
-  const meta = ALLOC.data.productMeta.get(maSp);
-  if (!meta) return [];
-  const targetPrice = meta.giaNiemYet || 0;
-  const targetCap3 = meta.nganhCap3 || '';
-  const targetSaleType = !!meta.isSale;
-
-  const results = [];
-  for (const [ma, m2] of ALLOC.data.productMeta) {
-    if (ma === maSp) continue;
-    const supply = ALLOC.data.warehouseStockByCode.get(ma) || 0;
-    if (supply <= 0) continue;
-    if (!!m2.isSale !== targetSaleType) continue;  // cùng loại sale/chính
-    if (!m2.nganhCap3 || m2.nganhCap3 !== targetCap3) continue;  // cùng ngành cấp 3
-
-    // Score
-    let score = 50;
-    // Giá tương đồng (chênh ≤ 20%)
-    if (targetPrice > 0 && m2.giaNiemYet > 0) {
-      const diff = Math.abs(m2.giaNiemYet - targetPrice) / targetPrice;
-      if (diff < 0.1) score += 30;
-      else if (diff < 0.2) score += 20;
-      else if (diff < 0.4) score += 10;
-    } else {
-      score += 10;
-    }
-    // Supply nhiều → cộng điểm
-    if (supply >= 50) score += 15;
-    else if (supply >= 20) score += 10;
-    else if (supply >= 5) score += 5;
-
-    results.push({ ma, meta: m2, supply, score: Math.min(99, score) });
-  }
-  results.sort((a, b) => b.score - a.score);
-  return results;
-}
-
-function allocApplySubstitute(originalMa, subMa, storeCode) {
-  if (!storeCode) {
-    alert('Để áp dụng thay thế cho 1 CH cụ thể, hãy vào Bước 2, chọn CH và bấm "Gợi ý thay thế" ở dòng mã đó.');
-    allocCloseSubModal();
-    return;
-  }
-  const origKey = `${storeCode}|${originalMa}`;
-  const orig = ALLOC.allocations.get(origKey);
-  if (!orig) return;
-
-  // Giảm qty mã gốc, thêm sub
-  const subKey = `${storeCode}|${subMa}`;
-  const subMeta = ALLOC.data.productMeta.get(subMa) || {};
-  const existing = ALLOC.allocations.get(subKey);
-  const moveQty = orig.qty;
-
-  if (existing) {
-    existing.qty += moveQty;
-    existing.locked = true;
-    existing.note = (existing.note ? existing.note + '; ' : '') + `thay thế cho ${originalMa}`;
-  } else {
-    ALLOC.allocations.set(subKey, {
-      storeCode, maSp: subMa,
-      sold: 0, onHand: 0,
-      suggested: moveQty, qty: moveQty,
-      coverage: 0, target: moveQty,
-      warehouseStock: ALLOC.data.warehouseStockByCode.get(subMa) || 0,
-      isSale: !!subMeta.isSale,
-      nganhCap1: subMeta.nganhCap1 || '',
-      nganhCap3: subMeta.nganhCap3 || '',
-      locked: true,
-      note: `thay thế cho ${originalMa}`,
-      isSubstitute: true
-    });
-  }
-  orig.qty = 0;
-  orig.locked = true;
-  orig.note = `→ thay bằng ${subMa}`;
-
-  allocCloseSubModal();
-  if (ALLOC.mode === 'store') allocRenderStoreDetail(storeCode);
-  allocUpdateHealthBar();
-  allocRenderSidebar();
-  allocMarkDraftDirty();
-}
-
-
-// ====== DRAFT SAVE (localStorage) ======
-function allocSaveDraft() {
+function cockpitSaveDraft() {
   try {
     const payload = {
       savedAt: Date.now(),
       scope: {
-        dateFrom: ALLOC.scope.dateFrom,
-        dateTo: ALLOC.scope.dateTo,
-        region: ALLOC.scope.region,
-        group: ALLOC.scope.group,
-        type: ALLOC.scope.type,
-        storeIds: Array.from(ALLOC.scope.storeIds)
+        warehouse: COCKPIT.scope.warehouse,
+        dateFrom: COCKPIT.scope.dateFrom,
+        dateTo: COCKPIT.scope.dateTo,
+        region: COCKPIT.scope.region,
+        group: COCKPIT.scope.group,
+        type: COCKPIT.scope.type,
+        storeIds: [...COCKPIT.scope.storeIds]
       },
-      coverageDefault: ALLOC.coverageDefault,
-      allocations: Array.from(ALLOC.allocations.entries())
+      allocations: [...COCKPIT.allocations.entries()]
     };
-    localStorage.setItem('ns_alloc_draft', JSON.stringify(payload));
-    ALLOC.draftSaved = true;
-    ALLOC.draftSavedAt = Date.now();
-    const ind = document.getElementById('alloc-draft-indicator-2');
-    if (ind) ind.style.display = '';
-    const txt = document.getElementById('alloc-draft-text');
-    if (txt) txt.textContent = `Đã lưu nháp lúc ${new Date().toLocaleTimeString('vi-VN')}`;
+    localStorage.setItem('ns_cockpit_draft', JSON.stringify(payload));
+    cockpitToast('Đã lưu nháp.', 'success');
   } catch (e) {
-    alert('Lưu nháp lỗi: ' + e.message);
+    cockpitToast('Lỗi lưu nháp: ' + e.message, 'error');
   }
 }
 
-function allocLoadDraft() {
-  try {
-    const raw = localStorage.getItem('ns_alloc_draft');
-    if (!raw) return false;
-    const data = JSON.parse(raw);
-    if (!data.scope) return false;
-    if (!confirm(`Có phiếu chia hàng đã lưu lúc ${new Date(data.savedAt).toLocaleString('vi-VN')}.\nKhôi phục lại?`)) return false;
-
-    ALLOC.scope.dateFrom = data.scope.dateFrom;
-    ALLOC.scope.dateTo = data.scope.dateTo;
-    ALLOC.scope.region = data.scope.region;
-    ALLOC.scope.group = data.scope.group;
-    ALLOC.scope.type = data.scope.type;
-    ALLOC.scope.storeIds = new Set(data.scope.storeIds || []);
-    ALLOC.coverageDefault = data.coverageDefault || 120;
-    ALLOC.allocations = new Map(data.allocations || []);
-
-    // Restore UI
-    document.getElementById('alloc-date-from').value = ALLOC.scope.dateFrom || '';
-    document.getElementById('alloc-date-to').value = ALLOC.scope.dateTo || '';
-    document.getElementById('alloc-region').value = ALLOC.scope.region || '';
-    document.getElementById('alloc-coverage-default').value = ALLOC.coverageDefault;
-    document.querySelectorAll('.scope-chip[data-group]').forEach(c => c.classList.toggle('active', c.dataset.group === ALLOC.scope.group));
-    document.querySelectorAll('.scope-chip[data-type]').forEach(c => c.classList.toggle('active', c.dataset.type === ALLOC.scope.type));
-
-    // Rebuild engine data
-    allocBuildEngineData();
-    return true;
-  } catch (e) {
-    console.warn('Load draft failed', e);
-    return false;
-  }
-}
-
-function allocMarkDraftDirty() {
-  ALLOC.draftSaved = false;
+// ====== TOAST ======
+function cockpitToast(msg, type) {
+  const existing = document.querySelector('.cockpit-toast');
+  if (existing) existing.remove();
+  const el = document.createElement('div');
+  el.className = `cockpit-toast ${type || ''}`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.classList.add('show'), 10);
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 3500);
 }
 
 
@@ -11782,24 +10881,16 @@ function switchWorkspace(ws) {
   document.querySelectorAll('.workspace-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.workspace === ws);
   });
-  // Lưu preference
   try { localStorage.setItem('ns_workspace', ws); } catch (e) {}
 
   if (ws === 'dphh') {
-    allocInitOnTabOpen();
-  } else {
-    // Quay về analytics: đảm bảo tab hiện tại của analytics đang render
-    // Trigger 1 click trên tab active để re-render nếu cần
+    cockpitInit();
   }
-
-  // Cuộn lên đầu
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Áp dụng workspace từ localStorage hoặc default analytics
 function applyWorkspaceFromStorage() {
-  if (!allocCanUse()) {
-    // User không có quyền DPHH → ép về analytics + ẩn nút dphh
+  if (!cockpitCanUse()) {
     const btn = document.querySelector('.workspace-btn[data-workspace="dphh"]');
     if (btn) btn.style.display = 'none';
     document.body.classList.add('workspace-analytics');
@@ -11814,33 +10905,12 @@ function applyWorkspaceFromStorage() {
 }
 
 
-// ====== INIT HOOK: khi user lần đầu bấm tab Điều phối ======
-let _allocInitialized = false;
-function allocInitOnTabOpen() {
-  if (_allocInitialized) return;
-  if (!allocCanUse()) return;
-  _allocInitialized = true;
-
-  allocInitScope();
-
-  // Auto-prompt load draft
-  setTimeout(() => {
-    if (localStorage.getItem('ns_alloc_draft')) {
-      allocLoadDraft();
-    }
-  }, 200);
-}
-
-// Sau khi DOM ready và login xong → apply workspace
 document.addEventListener('DOMContentLoaded', () => {
-  // Đợi auth xong xuôi mới apply (CURRENT_USER có thể null lúc DOM ready)
   setTimeout(applyWorkspaceFromStorage, 800);
 });
-// Backup nếu DOM đã ready
 if (document.readyState !== 'loading') {
   setTimeout(applyWorkspaceFromStorage, 1000);
 }
-
 
 </script>
 </body>
