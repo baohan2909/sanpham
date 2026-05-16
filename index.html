@@ -3265,7 +3265,7 @@ body.workspace-analytics #section-allocation {
 .cockpit-sidepanel {
   position: fixed;
   top: 0; right: 0; bottom: 0;
-  width: 520px;
+  width: 760px;
   max-width: 92vw;
   background: var(--bg-elevated);
   z-index: 1000;
@@ -3276,7 +3276,7 @@ body.workspace-analytics #section-allocation {
   box-shadow: -16px 0 40px rgba(0,0,0,0.18);
 }
 .cockpit-sidepanel.active { transform: translateX(0); }
-.cockpit-sidepanel-wide { width: 720px; }
+.cockpit-sidepanel-wide { width: 880px; }
 .cockpit-sidepanel-head {
   display: flex;
   align-items: center;
@@ -3310,58 +3310,78 @@ body.workspace-analytics #section-allocation {
   margin-bottom: 16px;
 }
 .sp-mini-stat {
-  padding: 10px;
+  padding: 12px 10px;
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 8px;
   text-align: center;
+  transition: all 0.18s;
 }
 .sp-mini-stat-label {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-soft);
+  font-weight: 600;
 }
 .sp-mini-stat-value {
-  font-size: 18px;
-  font-weight: 700;
-  margin-top: 2px;
+  font-size: 22px;
+  font-weight: 800;
+  margin-top: 4px;
   font-family: 'SF Mono', Menlo, monospace;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.sp-mini-stat.alert {
+  background: rgba(200, 74, 74, 0.06);
+  border-color: rgba(200, 74, 74, 0.4);
 }
 .sp-mini-stat.alert .sp-mini-stat-value { color: var(--c-red); }
+.sp-mini-stat.alert .sp-mini-stat-label { color: var(--c-red); opacity: 0.8; }
+.sp-mini-stat.warn {
+  background: rgba(184, 115, 30, 0.06);
+  border-color: rgba(184, 115, 30, 0.4);
+}
 .sp-mini-stat.warn .sp-mini-stat-value { color: var(--c-orange); }
+.sp-mini-stat.warn .sp-mini-stat-label { color: var(--c-orange); opacity: 0.8; }
+.sp-mini-stat.ok {
+  background: rgba(106, 119, 82, 0.06);
+  border-color: rgba(106, 119, 82, 0.4);
+}
 .sp-mini-stat.ok .sp-mini-stat-value { color: var(--c-green); }
+.sp-mini-stat.ok .sp-mini-stat-label { color: var(--c-green); opacity: 0.8; }
 
 .sp-capbar {
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 12px 14px;
-  margin-bottom: 14px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
 }
 .sp-capbar-label {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: var(--text-soft);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .sp-capbar-value {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
   font-family: 'SF Mono', Menlo, monospace;
+  letter-spacing: -0.02em;
 }
 .sp-capbar-track {
-  height: 6px;
+  height: 8px;
   background: var(--line);
-  border-radius: 3px;
-  margin-top: 6px;
+  border-radius: 4px;
+  margin-top: 8px;
   overflow: hidden;
 }
 .sp-capbar-fill {
   height: 100%;
-  transition: width 0.4s;
+  transition: width 0.4s, background 0.3s;
 }
 .sp-capbar-fill.ok { background: var(--c-green); }
 .sp-capbar-fill.warn { background: var(--c-orange); }
@@ -3370,52 +3390,126 @@ body.workspace-analytics #section-allocation {
 .sp-product-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
+
+/* Header bảng sản phẩm (sticky) */
+.sp-product-head {
+  display: grid;
+  grid-template-columns: 44px 1fr 70px 70px 70px 86px 56px;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg-elevated);
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border: 1px solid var(--line);
+}
+.sp-product-head .sp-num,
+.sp-product-head > div {
+  text-align: right;
+}
+.sp-product-head > div:nth-child(1),
+.sp-product-head > div:nth-child(2) {
+  text-align: left;
+}
+
 .sp-product-row {
   display: grid;
-  grid-template-columns: 40px 1fr 80px 80px 80px 70px;
+  grid-template-columns: 44px 1fr 70px 70px 70px 86px 56px;
   align-items: center;
   gap: 10px;
-  padding: 8px 10px;
+  padding: 8px 12px;
   border-radius: 6px;
   background: var(--bg);
   border: 1px solid var(--line);
   font-size: 12px;
+  transition: background 0.12s;
 }
-.sp-product-row.has-alloc { background: rgba(106, 119, 82, 0.08); }
+.sp-product-row:hover { background: var(--bg-elevated); }
+.sp-product-row.has-alloc { background: rgba(106, 119, 82, 0.08); border-color: rgba(106, 119, 82, 0.3); }
+.sp-product-row.has-alloc:hover { background: rgba(106, 119, 82, 0.14); }
 .sp-product-row.dead {
   background: rgba(150, 150, 150, 0.06);
-  opacity: 0.7;
+  opacity: 0.65;
 }
 .sp-product-img {
-  width: 40px;
-  height: 40px;
-  border-radius: 5px;
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
   object-fit: cover;
   background: var(--line);
 }
 .sp-product-code {
   font-family: 'SF Mono', Menlo, monospace;
-  font-size: 11px;
-  font-weight: 600;
-}
-.sp-product-meta { font-size: 10px; color: var(--text-soft); }
-.sp-num { text-align: right; font-family: 'SF Mono', Menlo, monospace; font-size: 12px; font-weight: 600; }
-.sp-num-suggested { color: var(--accent); }
-.sp-input {
-  width: 60px;
-  padding: 4px 6px;
-  border: 1px solid var(--line);
-  border-radius: 5px;
   font-size: 12px;
-  font-family: 'SF Mono', Menlo, monospace;
   font-weight: 600;
+  color: var(--text);
+  word-break: break-all;
+  line-height: 1.3;
+}
+.sp-product-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+.sp-product-tag.dead { background: rgba(200, 74, 74, 0.15); color: var(--c-red); }
+.sp-product-tag.over { background: rgba(184, 115, 30, 0.15); color: var(--c-orange); }
+.sp-product-tag.fast { background: rgba(106, 119, 82, 0.18); color: var(--c-green); }
+.sp-num {
+  text-align: right;
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+.sp-num.zero { color: var(--text-soft); font-weight: 400; }
+.sp-num-suggested {
+  text-align: right;
+  display: inline-block;
+  padding: 3px 9px;
+  background: var(--accent-soft, rgba(168, 86, 48, 0.1));
+  color: var(--accent);
+  border-radius: 5px;
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 50px;
+}
+.sp-input {
+  width: 56px;
+  padding: 5px 8px;
+  border: 1.5px solid var(--line);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: 'SF Mono', Menlo, monospace;
+  font-weight: 700;
   text-align: right;
   background: var(--bg-elevated);
   color: var(--text);
+  transition: all 0.15s;
 }
-.sp-input.changed { border-color: var(--accent); background: rgba(168, 86, 48, 0.05); }
+.sp-input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+  border-color: var(--accent);
+}
+.sp-input.changed {
+  border-color: var(--accent);
+  background: rgba(168, 86, 48, 0.05);
+  color: var(--accent);
+}
+.sp-input.has-alloc { border-color: var(--c-green); color: var(--c-green); }
 
 .sp-section-head {
   display: flex;
@@ -10695,8 +10789,8 @@ function cockpitRenderSidePanel(storeCode) {
   const qty = items.reduce((s, a) => s + a.qty, 0);
   const suggested = items.reduce((s, a) => s + a.suggested, 0);
 
-  // Cap bar
-  let capHtml = '';
+  // Tính status cho từng stat dựa trên cap
+  let capInfo = null;
   if (store) {
     const isSale = COCKPIT.scope.isSale, cat = COCKPIT.scope.cat;
     let cap, label;
@@ -10704,52 +10798,70 @@ function cockpitRenderSidePanel(storeCode) {
     else if (cat === 'BH' && isSale) { cap = store.capBhSale; label = 'BH sale'; }
     else if (cat === 'NV' && !isSale) { cap = store.capNvChinh; label = 'NV chính'; }
     else if (cat === 'NV' && isSale) { cap = store.capNvSale; label = 'NV sale'; }
-
-    if (cap && cap.max > 0) {
-      const after = onHand + qty;
-      const pct = Math.min(100, (after / cap.max) * 100);
-      let fillCls = 'ok';
-      if (after > cap.max) fillCls = 'over';
-      else if (after < cap.min) fillCls = 'warn';
-      capHtml = `
-        <div class="sp-capbar">
-          <div class="sp-capbar-label">Mức tồn ${label}</div>
-          <div class="sp-capbar-value">${after} <span style="color:var(--text-soft);font-weight:500">/ ${cap.max}</span></div>
-          <div style="font-size:11px;color:var(--text-soft);margin-top:2px">Tồn ${onHand} + chia ${qty} · Sàn ${cap.min} · Trần ${cap.max}</div>
-          <div class="sp-capbar-track"><div class="sp-capbar-fill ${fillCls}" style="width:${pct}%"></div></div>
-        </div>
-      `;
-    }
+    if (cap && cap.max > 0) capInfo = { cap, label };
   }
 
-  // Status pills
-  const ratio = sold > 0 ? onHand / sold : 0;
-  const statusOnHand = ratio > 2.5 ? 'alert' : (ratio < 0.5 && sold > 5 ? 'warn' : 'ok');
+  // Status mini-stats
+  const after = onHand + qty;
+  let onHandStatus = 'ok', afterStatus = 'ok';
+  if (capInfo) {
+    if (onHand > capInfo.cap.max) onHandStatus = 'alert';
+    else if (onHand < capInfo.cap.min) onHandStatus = 'warn';
+    if (after > capInfo.cap.max) afterStatus = 'alert';
+    else if (after < capInfo.cap.min) afterStatus = 'warn';
+  }
+
+  // Cap bar
+  let capHtml = '';
+  if (capInfo) {
+    const pct = Math.min(100, (after / capInfo.cap.max) * 100);
+    let fillCls = 'ok', valColor = 'var(--c-green)';
+    if (after > capInfo.cap.max) { fillCls = 'over'; valColor = 'var(--c-red)'; }
+    else if (after < capInfo.cap.min) { fillCls = 'warn'; valColor = 'var(--c-orange)'; }
+    capHtml = `
+      <div class="sp-capbar">
+        <div class="sp-capbar-label">Tồn ${capInfo.label} sau chia</div>
+        <div class="sp-capbar-value" style="color:${valColor}">${after} <span style="color:var(--text-soft);font-weight:500">/ ${capInfo.cap.max}</span></div>
+        <div style="font-size:11px;color:var(--text-soft);margin-top:2px">Tồn hiện tại ${onHand} + chia thêm ${qty} · Sàn ${capInfo.cap.min} · Trần ${capInfo.cap.max}</div>
+        <div class="sp-capbar-track"><div class="sp-capbar-fill ${fillCls}" style="width:${pct}%"></div></div>
+      </div>
+    `;
+  }
 
   let body = `
     <div class="sp-mini-stats">
       <div class="sp-mini-stat">
-        <div class="sp-mini-stat-label">Đã bán</div>
+        <div class="sp-mini-stat-label">Đã bán (${COCKPIT.scope.dateFrom.slice(5)} → ${COCKPIT.scope.dateTo.slice(5)})</div>
         <div class="sp-mini-stat-value">${formatNumber(sold)}</div>
       </div>
-      <div class="sp-mini-stat ${statusOnHand}">
-        <div class="sp-mini-stat-label">Tồn CH</div>
+      <div class="sp-mini-stat ${onHandStatus}">
+        <div class="sp-mini-stat-label">Tồn hiện tại</div>
         <div class="sp-mini-stat-value">${formatNumber(onHand)}</div>
       </div>
       <div class="sp-mini-stat">
-        <div class="sp-mini-stat-label">Đề xuất</div>
-        <div class="sp-mini-stat-value">${formatNumber(suggested)}</div>
+        <div class="sp-mini-stat-label">Đề xuất chia</div>
+        <div class="sp-mini-stat-value" style="color:var(--accent)">${formatNumber(suggested)}</div>
       </div>
-      <div class="sp-mini-stat ok">
-        <div class="sp-mini-stat-label">Sẽ chia</div>
-        <div class="sp-mini-stat-value">${formatNumber(qty)}</div>
+      <div class="sp-mini-stat ${afterStatus}">
+        <div class="sp-mini-stat-label">Sau chia tổng tồn</div>
+        <div class="sp-mini-stat-value">${formatNumber(after)}</div>
       </div>
     </div>
     ${capHtml}
 
     <div class="sp-section-head">
       <div class="sp-section-title">Chi tiết theo mã sản phẩm</div>
-      <div class="sp-section-sub">${items.length} mã</div>
+      <div class="sp-section-sub">${items.length} mã · ô "Chia" có thể chỉnh tay</div>
+    </div>
+
+    <div class="sp-product-head">
+      <div></div>
+      <div>Mã tham chiếu</div>
+      <div>Bán</div>
+      <div>Tồn CH</div>
+      <div>Kho TP/SA</div>
+      <div>Đề xuất</div>
+      <div>Chia</div>
     </div>
   `;
 
@@ -10763,26 +10875,29 @@ function cockpitRenderSidePanel(storeCode) {
     const imgUrl = (typeof IMAGE_MAP !== 'undefined' && IMAGE_MAP[a.maSp]) ? IMAGE_MAP[a.maSp] : '';
     const imgTag = imgUrl
       ? `<img src="${escapeHtml(imgUrl)}" class="sp-product-img" loading="lazy">`
-      : `<div class="sp-product-img" style="display:flex;align-items:center;justify-content:center;color:var(--text-soft);font-size:9px">—</div>`;
+      : `<div class="sp-product-img" style="display:flex;align-items:center;justify-content:center;color:var(--text-soft);font-size:10px">—</div>`;
     const isChanged = a.qty !== a.suggested;
     const isDead = a.skipReason === 'dead';
     const rowCls = isDead ? 'dead' : (a.qty > 0 ? 'has-alloc' : '');
+
     let tag = '';
-    if (a.skipReason === 'dead') tag = '<span style="font-size:9px;color:var(--c-red);font-weight:600">CHẾT</span>';
-    else if (a.skipReason === 'overstocked') tag = '<span style="font-size:9px;color:var(--c-orange);font-weight:600">DƯ</span>';
-    else if (a.daysOfStock < 7 && a.sold > 0) tag = '<span style="font-size:9px;color:var(--c-green);font-weight:600">CHẠY</span>';
+    if (a.skipReason === 'dead') tag = '<span class="sp-product-tag dead">CHẾT</span>';
+    else if (a.skipReason === 'overstocked') tag = '<span class="sp-product-tag over">DƯ</span>';
+    else if (a.daysOfStock < 7 && a.sold > 0) tag = '<span class="sp-product-tag fast">CHẠY</span>';
+
+    const inputCls = `sp-input${isChanged ? ' changed' : ''}${a.qty > 0 && !isChanged ? ' has-alloc' : ''}`;
 
     return `
       <div class="sp-product-row ${rowCls}">
         ${imgTag}
         <div style="min-width:0">
-          <div class="sp-product-code">${escapeHtml(a.maSp)}</div>
-          <div class="sp-product-meta">${escapeHtml(a.meta.nganhCap3 || '')} ${tag}</div>
+          <div class="sp-product-code">${escapeHtml(a.maSp)}${tag}</div>
         </div>
-        <div class="sp-num">${formatNumber(a.sold)}</div>
-        <div class="sp-num">${formatNumber(a.onHand)}</div>
-        <div class="sp-num sp-num-suggested">${a.suggested}</div>
-        <input type="number" class="sp-input ${isChanged ? 'changed' : ''}" value="${a.qty}" min="0"
+        <div class="sp-num${a.sold === 0 ? ' zero' : ''}">${formatNumber(a.sold)}</div>
+        <div class="sp-num${a.onHand === 0 ? ' zero' : ''}">${formatNumber(a.onHand)}</div>
+        <div class="sp-num${a.warehouseStock === 0 ? ' zero' : ''}">${formatNumber(a.warehouseStock)}</div>
+        <div><span class="sp-num-suggested">${a.suggested}</span></div>
+        <input type="number" class="${inputCls}" value="${a.qty}" min="0"
           onchange="cockpitChangeQty('${a.storeCode}','${a.maSp}',this.value)">
       </div>
     `;
