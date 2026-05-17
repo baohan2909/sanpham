@@ -3216,8 +3216,8 @@ body.workspace-analytics #section-allocation {
 
 .cockpit-row {
   display: grid;
-  grid-template-columns: 1fr 100px 90px 90px 110px 110px;
-  gap: 14px;
+  grid-template-columns: 1fr 80px 80px 80px 90px 80px 130px;
+  gap: 12px;
   align-items: center;
   padding: 14px 18px;
   border-bottom: 1px solid var(--line);
@@ -4487,7 +4487,7 @@ body.workspace-analytics #section-allocation {
             <span class="cockpit-scope-value" id="cockpit-store-label">0</span>
           </div>
           <div class="cockpit-scope-summary-right">
-            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v10.5 · N1=7d N2=14d N3=21d</span>
+            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v10.6 · N1=7d N2=14d N3=21d (T-1)</span>
             <button class="cockpit-btn-ghost" id="cockpit-scope-toggle">⚙ Mở chi tiết</button>
           </div>
         </div>
@@ -4527,10 +4527,10 @@ body.workspace-analytics #section-allocation {
                 <input type="date" id="cockpit-date-to" class="scope-input" onchange="cockpitOnScopeChange()">
               </div>
               <div class="scope-chips" style="margin-top:8px">
-                <span class="scope-chip" onclick="cockpitSetDateRange(7)">7 ngày</span>
-                <span class="scope-chip" onclick="cockpitSetDateRange(14)">14 ngày</span>
-                <span class="scope-chip" onclick="cockpitSetDateRange(21)">21 ngày</span>
-                <span class="scope-chip" onclick="cockpitSetDateRange(30)">30 ngày</span>
+                <span class="scope-chip" data-days="7" onclick="cockpitSetDateRange(7)">7 ngày</span>
+                <span class="scope-chip" data-days="14" onclick="cockpitSetDateRange(14)">14 ngày</span>
+                <span class="scope-chip" data-days="21" onclick="cockpitSetDateRange(21)">21 ngày</span>
+                <span class="scope-chip" data-days="30" onclick="cockpitSetDateRange(30)">30 ngày</span>
               </div>
             </div>
 
@@ -10112,16 +10112,21 @@ function cockpitInit() {
   if (!cockpitCanUse()) return;
   _cockpitInitialized = true;
 
-  // Default dates: 14 ngày qua
-  const today = new Date();
-  const fromD = new Date(today); fromD.setDate(fromD.getDate() - 14);
+  // Default dates: 14 ngày qua tính đến T-1 (hôm qua)
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const fromD = new Date(yesterday);
+  fromD.setDate(fromD.getDate() - 13);  // 14 ngày bao gồm cả hôm qua → trừ 13
   const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   const fromEl = document.getElementById('cockpit-date-from');
   const toEl = document.getElementById('cockpit-date-to');
   if (fromEl) fromEl.value = fmt(fromD);
-  if (toEl) toEl.value = fmt(today);
+  if (toEl) toEl.value = fmt(yesterday);
   COCKPIT.scope.dateFrom = fmt(fromD);
-  COCKPIT.scope.dateTo = fmt(today);
+  COCKPIT.scope.dateTo = fmt(yesterday);
+  // Highlight chip 14 ngày mặc định
+  const chip14 = document.querySelector('.scope-chip[data-days="14"]');
+  if (chip14) chip14.classList.add('active');
 
   // Populate regions
   const regionEl = document.getElementById('cockpit-region');
@@ -10182,11 +10187,16 @@ function cockpitSetWarehouse(wh) {
 }
 
 function cockpitSetDateRange(days) {
-  const today = new Date();
-  const fromD = new Date(today); fromD.setDate(fromD.getDate() - days);
+  // Tính từ T-1 (hôm qua) trở về N ngày
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const fromD = new Date(yesterday);
+  fromD.setDate(fromD.getDate() - days + 1);
   const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   document.getElementById('cockpit-date-from').value = fmt(fromD);
-  document.getElementById('cockpit-date-to').value = fmt(today);
+  document.getElementById('cockpit-date-to').value = fmt(yesterday);
+  // Update active state cho chip ngày
+  document.querySelectorAll('.scope-chip[data-days]').forEach(c => c.classList.toggle('active', parseInt(c.dataset.days) === days));
   cockpitOnScopeChange();
 }
 
@@ -10205,6 +10215,16 @@ function cockpitOnScopeChange() {
 function cockpitSetGroup(g) {
   COCKPIT.scope.group = g;
   document.querySelectorAll('.scope-chip[data-group]').forEach(c => c.classList.toggle('active', c.dataset.group === g));
+
+  // Auto đổi picker ngày theo nhóm
+  if (g !== 'all') {
+    const cfg = GROUP_CONFIG[g];
+    if (cfg) {
+      cockpitSetDateRange(cfg.days);
+      return;  // setDateRange tự gọi onScopeChange
+    }
+  }
+
   COCKPIT.allocations = new Map();
   cockpitRebuildStoreScope();
   cockpitUpdateScopeSummary();
@@ -10802,7 +10822,7 @@ function cockpitGenerateWarnings() {
       type: 'over_cap',
       severity: 'critical',
       icon: '⚠',
-      title: `${overCapStores.length} CH vượt tồn kho tối đa`,
+      title: `${overCapStores.length} CH vượt định mức kho`,
       desc: `Top: ${overCapStores[0].store.ten} (${overCapStores[0].after}/${overCapStores[0].max})`,
       data: overCapStores
     });
@@ -10993,10 +11013,11 @@ function cockpitRenderStoreList(list, filter) {
     const onHand = storeList.reduce((s, a) => s + a.onHand, 0);
     const qty = storeList.reduce((s, a) => s + a.qty, 0);
     const suggested = storeList.reduce((s, a) => s + a.suggested, 0);
+    const cap = storeList.reduce((s, a) => s + (a.cap || 0), 0);  // tổng định mức kho
     const deficit = Math.max(0, suggested - qty);
     const issueList = issues.get(code) || [];
     return {
-      code, store, sold, onHand, qty, suggested, deficit,
+      code, store, sold, onHand, qty, suggested, cap, deficit,
       issueTypes: issueList.map(w => w.type)
     };
   });
@@ -11048,6 +11069,7 @@ function cockpitRenderStoreList(list, filter) {
       <div class="cockpit-sortable cockpit-th-num" onclick="cockpitListSetSort('sold')">Bán ${arrow('sold')}</div>
       <div class="cockpit-sortable cockpit-th-num" onclick="cockpitListSetSort('onHand')">Tồn ${arrow('onHand')}</div>
       <div class="cockpit-sortable cockpit-th-num" onclick="cockpitListSetSort('suggested')">Đề xuất ${arrow('suggested')}</div>
+      <div class="cockpit-sortable cockpit-th-num" onclick="cockpitListSetSort('cap')" title="Định mức kho = tổng số tối đa AI có thể chia (120-160% × bán − tồn)">Định mức ${arrow('cap')}</div>
       <div class="cockpit-sortable cockpit-th-num" onclick="cockpitListSetSort('qty')">Chia ${arrow('qty')}</div>
       <div>Cảnh báo</div>
     </div>
@@ -11068,7 +11090,7 @@ function cockpitRenderStoreList(list, filter) {
     const issueClass = isCritical ? 'has-issue-critical' : (isIssue ? 'has-issue' : '');
     const groupTag = s.store && s.store.nhomCh ? `<span class="cockpit-row-tag">N${s.store.nhomCh}</span>` : '';
     const issueLabels = [];
-    if (s.issueTypes.includes('over_cap')) issueLabels.push('⚠ Vượt tồn kho tối đa');
+    if (s.issueTypes.includes('over_cap')) issueLabels.push('⚠ Vượt định mức');
     if (s.issueTypes.includes('overstocked')) issueLabels.push('Tồn dư cao');
     if (s.issueTypes.includes('slow_movers')) issueLabels.push('Nhiều mã bán chậm');
     if (s.deficit > 0) issueLabels.push(`Thiếu ${s.deficit}`);
@@ -11082,6 +11104,7 @@ function cockpitRenderStoreList(list, filter) {
         <div class="cockpit-row-num ${s.sold === 0 ? 'cockpit-num-zero' : ''}">${formatNumber(s.sold)}</div>
         <div class="cockpit-row-num ${s.onHand === 0 ? 'cockpit-num-zero' : ''}">${formatNumber(s.onHand)}</div>
         <div class="cockpit-row-num ${s.suggested === 0 ? 'cockpit-num-zero' : 'cockpit-num-suggested'}">${formatNumber(s.suggested)}</div>
+        <div class="cockpit-row-num ${s.cap === 0 ? 'cockpit-num-zero' : ''}">${formatNumber(s.cap)}</div>
         <div class="cockpit-row-num">${formatNumber(s.qty)}</div>
         <div class="cockpit-row-issue ${isCritical ? 'critical' : ''}">
           ${issueLabels.map(l => `<span>${l}</span>`).join('') || '<span style="color:var(--c-green)">✓ OK</span>'}
@@ -11384,7 +11407,7 @@ function cockpitRenderSidePanel(storeCode) {
       <div class="sp-sortable" onclick="cockpitSpSetSort('onHand')">Tồn CH ${arrow('onHand')}</div>
       <div class="sp-sortable" onclick="cockpitSpSetSort('daysOfStock')">Đủ bán ${arrow('daysOfStock')}</div>
       <div class="sp-sortable" onclick="cockpitSpSetSort('warehouseStock')">Kho ${arrow('warehouseStock')}</div>
-      <div class="sp-sortable" onclick="cockpitSpSetSort('cap')" title="Tồn tối đa = số tối đa AI có thể chia (= sold × 120-160% − tồn hiện tại)">Tồn tối đa ${arrow('cap')}</div>
+      <div class="sp-sortable" onclick="cockpitSpSetSort('cap')" title="Định mức kho = số tối đa AI có thể chia (= sold × 120-160% − tồn hiện tại)">Định mức ${arrow('cap')}</div>
       <div class="sp-sortable" onclick="cockpitSpSetSort('qty')">Chia ${arrow('qty')}</div>
     </div>
   `;
@@ -11449,7 +11472,7 @@ function cockpitRenderSidePanel(storeCode) {
         <div class="sp-num${a.warehouseStock === 0 ? ' zero' : ''}">${formatNumber(a.warehouseStock)}</div>
         <div class="sp-num" style="${capStyle}">${capText}</div>
         <input type="number" class="${inputCls}" value="${a.qty}" min="0"
-          title="AI đề xuất: ${a.suggested} · Tồn tối đa: ${capValue} · Nhập 0 để bỏ chia."
+          title="AI đề xuất: ${a.suggested} · Định mức: ${capValue} · Nhập 0 để bỏ chia."
           onchange="cockpitChangeQty('${a.storeCode}','${a.maSp}',this.value)">
       </div>
     `;
