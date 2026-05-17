@@ -3548,6 +3548,7 @@ body.workspace-analytics #section-allocation {
 .sp-product-tag.fast-soft { background: #e7efd9; color: #5d6a47; }
 .sp-product-tag.over-soft { background: #fdf2d6; color: #8c6418; }
 .sp-product-tag.dead-soft { background: #fde5e9; color: #a13c4d; }
+.sp-product-tag.sub-soft { background: #dde9f4; color: #2d4f73; }
 .sp-product-tag.fast { background: #e7efd9; color: #5d6a47; }
 .sp-product-tag.over { background: #fdf2d6; color: #8c6418; }
 .sp-product-tag.dead { background: #fde5e9; color: #a13c4d; }
@@ -3728,6 +3729,243 @@ body.workspace-analytics #section-allocation {
 .cockpit-storepicker-row.selected { background: var(--accent-soft, rgba(168, 86, 48, 0.06)); }
 
 /* Toast notification */
+/* ===== AI LOADER (multi-step) ===== */
+.cockpit-ai-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 20, 24, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: ai-loader-fade-in 0.3s ease-out;
+}
+.cockpit-ai-loader.active { display: flex; }
+@keyframes ai-loader-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.ai-loader-card {
+  width: 560px;
+  max-width: 92vw;
+  background: linear-gradient(155deg, #fefefe 0%, #f7f5f1 100%);
+  border-radius: 18px;
+  padding: 28px 32px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  transform: scale(0.95);
+  animation: ai-loader-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes ai-loader-pop {
+  to { transform: scale(1); }
+}
+.ai-loader-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.ai-loader-spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid rgba(168, 86, 48, 0.15);
+  border-top-color: var(--accent);
+  animation: ai-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes ai-spin {
+  to { transform: rotate(360deg); }
+}
+.ai-loader-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #2a2a2a;
+  letter-spacing: -0.01em;
+}
+.ai-loader-sub {
+  font-size: 12px;
+  color: #8a8a8a;
+  margin-top: 2px;
+}
+.ai-loader-progress {
+  height: 4px;
+  background: rgba(168, 86, 48, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.ai-loader-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #d57a45);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ai-loader-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.ai-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  opacity: 0;
+  animation: ai-step-in 0.35s cubic-bezier(0.32, 1.4, 0.64, 1) forwards;
+  transition: all 0.25s;
+}
+@keyframes ai-step-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ai-step.current {
+  background: rgba(168, 86, 48, 0.06);
+  border-color: rgba(168, 86, 48, 0.2);
+}
+.ai-step.done {
+  opacity: 0.65;
+}
+.ai-step-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+}
+.ai-step.done .ai-step-icon {
+  background: #4d6d3a;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+.ai-step.current .ai-step-icon {
+  animation: ai-icon-pulse 1.2s ease-in-out infinite;
+}
+@keyframes ai-icon-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+.ai-step-text {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2a2a2a;
+  line-height: 1.4;
+}
+.ai-step.done .ai-step-text { font-weight: 500; }
+.ai-step-sub {
+  font-size: 11px;
+  font-weight: 400;
+  color: #8a8a8a;
+  margin-top: 3px;
+}
+
+/* ===== AI SLIDERS ===== */
+.cockpit-ai-sliders {
+  background: linear-gradient(135deg, var(--bg-elevated), var(--bg));
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 14px;
+}
+.cockpit-ai-sliders-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.cockpit-ai-sliders-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-soft);
+}
+.cockpit-ai-sliders-reset {
+  font-size: 11px;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  user-select: none;
+}
+.cockpit-ai-slider-row {
+  display: grid;
+  grid-template-columns: 180px 1fr 70px;
+  gap: 14px;
+  align-items: center;
+  padding: 6px 0;
+}
+.cockpit-ai-slider-label {
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 600;
+}
+.cockpit-ai-slider-sub {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-soft);
+}
+.cockpit-ai-slider-input {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--line);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.cockpit-ai-slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+.cockpit-ai-slider-input::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+.cockpit-ai-slider-value {
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: right;
+}
+.cockpit-ai-slider-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cockpit-ai-slider-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
 .cockpit-toast {
   position: fixed;
   bottom: 30px;
@@ -4487,7 +4725,7 @@ body.workspace-analytics #section-allocation {
             <span class="cockpit-scope-value" id="cockpit-store-label">0</span>
           </div>
           <div class="cockpit-scope-summary-right">
-            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v10.6 · N1=7d N2=14d N3=21d (T-1)</span>
+            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v11.0 · AI engine 200% · sliders · sub mã</span>
             <button class="cockpit-btn-ghost" id="cockpit-scope-toggle">⚙ Mở chi tiết</button>
           </div>
         </div>
@@ -4558,6 +4796,56 @@ body.workspace-analytics #section-allocation {
               </div>
               <div class="cockpit-scope-row-label" style="margin-top:14px">Đã chọn <strong id="cockpit-store-count">0</strong> <span id="cockpit-store-noun">điểm bán</span></div>
               <button class="cockpit-btn-ghost" style="margin-top:6px" onclick="cockpitOpenStorePicker()">Chọn cụ thể CH...</button>
+            </div>
+          </div>
+
+          <!-- AI Sliders (điều chỉnh trọng số) -->
+          <div class="cockpit-ai-sliders" id="cockpit-ai-sliders">
+            <div class="cockpit-ai-sliders-head">
+              <div class="cockpit-ai-sliders-title">⚙ Điều chỉnh thuật toán AI</div>
+              <span class="cockpit-ai-sliders-reset" onclick="cockpitResetAIWeights()">↺ Khôi phục mặc định</span>
+            </div>
+            <div class="cockpit-ai-slider-row">
+              <div>
+                <div class="cockpit-ai-slider-label">Tồn sau chia mong muốn</div>
+                <div class="cockpit-ai-slider-sub">% × số bán trong kỳ</div>
+              </div>
+              <input type="range" min="150" max="300" step="10" value="200"
+                id="slider-coverage" class="cockpit-ai-slider-input"
+                oninput="cockpitOnSliderChange('coverage', this.value)">
+              <div class="cockpit-ai-slider-value" id="slider-coverage-val">200%</div>
+            </div>
+            <div class="cockpit-ai-slider-row">
+              <div>
+                <div class="cockpit-ai-slider-label">Khi kho thiếu: chia tỷ lệ</div>
+                <div class="cockpit-ai-slider-sub">% chia đều · còn lại ưu tiên N1</div>
+              </div>
+              <input type="range" min="50" max="100" step="5" value="70"
+                id="slider-proportional" class="cockpit-ai-slider-input"
+                oninput="cockpitOnSliderChange('proportional', this.value)">
+              <div class="cockpit-ai-slider-value" id="slider-proportional-val">70%</div>
+            </div>
+            <div class="cockpit-ai-slider-row">
+              <div>
+                <div class="cockpit-ai-slider-label">Ngưỡng cảnh báo cấp dư</div>
+                <div class="cockpit-ai-slider-sub">Tồn sau chia / bán &gt; ngưỡng → cảnh báo</div>
+              </div>
+              <input type="range" min="150" max="400" step="25" value="200"
+                id="slider-overcap" class="cockpit-ai-slider-input"
+                oninput="cockpitOnSliderChange('overcap', this.value)">
+              <div class="cockpit-ai-slider-value" id="slider-overcap-val">200%</div>
+            </div>
+            <div class="cockpit-ai-slider-row">
+              <div>
+                <div class="cockpit-ai-slider-label">Sub mã (hàng sale)</div>
+                <div class="cockpit-ai-slider-sub">Gợi ý mã thay thế cùng base + màu</div>
+              </div>
+              <div></div>
+              <div class="cockpit-ai-slider-toggle">
+                <input type="checkbox" id="slider-substitute" checked
+                  onchange="cockpitOnSliderChange('substitute', this.checked)">
+                <span style="font-size:11px;color:var(--text-soft)">Bật</span>
+              </div>
             </div>
           </div>
         </div>
@@ -10139,6 +10427,10 @@ function cockpitInit() {
   // Update warehouse stock display (retry until STOCK_DATA loaded)
   cockpitUpdateWarehouseStockDisplay();
 
+  // Load AI weights từ localStorage + apply sliders
+  cockpitLoadWeights();
+  cockpitApplySlidersToUI();
+
   // Auto-build store list from filters
   cockpitRebuildStoreScope();
   cockpitUpdateScopeSummary();
@@ -10452,6 +10744,46 @@ const GROUP_CONFIG = {
   '2': { days: 14, coverageTarget: 1.4, coverageMin: 1.2, priority: 2, label: 'N2 (14d)' },
   '3': { days: 21, coverageTarget: 1.2, coverageMin: 1.0, priority: 1, label: 'N3 (21d)' }
 };
+
+// ====== Nhóm màu (gợi ý sub cho hàng sale) ======
+const COLOR_GROUPS = {
+  'XANH': ['XH', 'XR', 'XL'],         // Xanh dương / rêu / lá
+  'DEN_XAM': ['DN', 'XM'],             // Đen / xám
+  'TRANG_KEM': ['TR', 'KM'],           // Trắng / kem
+  'DO_CAM_HONG': ['DO', 'CM', 'HG'],   // Đỏ / cam / hồng
+  'VANG_NAU': ['VG', 'NU'],            // Vàng / nâu
+  'TIM': ['TM'],
+  'KHAC': ['NM', 'HV']                  // Nhiều màu / hoa văn (ko gộp)
+};
+function cockpitGetColorGroup(color) {
+  if (!color || color === 'OTHER') return null;
+  for (const [group, colors] of Object.entries(COLOR_GROUPS)) {
+    if (colors.includes(color)) return group;
+  }
+  return null;
+}
+
+// ====== AI Weights (có thể chỉnh qua slider) ======
+const AI_WEIGHTS = {
+  coverageTargetMultiplier: 2.0,      // 200% = tồn sau chia mong muốn
+  shortageProportionalRatio: 0.7,     // 70% chia tỷ lệ
+  shortagePriorityBonus: 0.3,         // 30% ưu tiên N1
+  allowSaleSubstitute: true,           // Cho phép thay thế mã sale
+  overcappedThreshold: 2.0             // Cảnh báo khi tồn sau chia > 200% × bán
+};
+function cockpitLoadWeights() {
+  try {
+    const saved = localStorage.getItem('ns_cockpit_weights');
+    if (saved) {
+      const obj = JSON.parse(saved);
+      Object.assign(AI_WEIGHTS, obj);
+    }
+  } catch (e) {}
+}
+function cockpitSaveWeights() {
+  try { localStorage.setItem('ns_cockpit_weights', JSON.stringify(AI_WEIGHTS)); } catch (e) {}
+}
+
 function cockpitGetGroupConfig(store) {
   const g = store && store.nhomCh ? String(store.nhomCh) : '2';
   return GROUP_CONFIG[g] || GROUP_CONFIG['2'];
@@ -10509,168 +10841,294 @@ function cockpitAutoAllocate() {
   }
 
   const btn = document.getElementById('cockpit-btn-autoallocate');
-  if (btn) { btn.textContent = '⏳ Đang phân tích...'; btn.disabled = true; }
+  if (btn) btn.disabled = true;
 
-  // Slight delay để hiện loading state
-  setTimeout(() => {
-    cockpitBuildEngineData();
-    COCKPIT.allocations = new Map();
+  // Hiển thị AI Loader (multi-step)
+  cockpitShowAILoader(() => {
+    cockpitRunAllocationEngine();
+    if (btn) btn.disabled = false;
+  });
+}
 
-    // Build sales theo nhóm (single pass)
-    const salesByGroup = cockpitBuildSalesByGroup();
+// ============================================================
+// AI ALLOCATION ENGINE (v11)
+// - Hàng chính: bán bao nhiêu trả bấy nhiêu, target tồn sau chia = 200% × bán
+//   qty = min(2 × sold − onHand, sold)
+// - Hàng sale: cùng logic + gợi ý sub mã (cùng base + same color group)
+// - Kho thiếu: 70% chia tỷ lệ + 30% bonus N1
+// ============================================================
+function cockpitRunAllocationEngine() {
+  cockpitBuildEngineData();
+  COCKPIT.allocations = new Map();
+  COCKPIT._substitutes = new Map();  // Map<"store|maGoc", {maGoc, maSub, qtySub}>
 
-    // Track kho còn lại
-    const warehouseRemaining = new Map();
-    for (const [ma, q] of COCKPIT.data.warehouseStockByCode) warehouseRemaining.set(ma, q);
+  // Build sales theo nhóm (single pass)
+  const salesByGroup = cockpitBuildSalesByGroup();
 
-    // ============================================================
-    // BƯỚC 1: BUILD CANDIDATES
-    // Mỗi candidate có sold-theo-nhóm + target_min (120% sàn) + target_max (160% trần)
-    // ============================================================
-    const candidates = [];
-    for (const storeCode of COCKPIT.scope.storeIds) {
-      const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === storeCode) : null;
-      const cfg = cockpitGetGroupConfig(store);
+  // Track kho còn lại
+  const warehouseRemaining = new Map();
+  for (const [ma, q] of COCKPIT.data.warehouseStockByCode) warehouseRemaining.set(ma, q);
 
-      const stockMap = COCKPIT.data.stockByStoreCode.get(storeCode) || new Map();
-      const salesMapGroup = salesByGroup.get(storeCode) || new Map();
-      const allMa = new Set([...stockMap.keys(), ...salesMapGroup.keys()]);
+  // Coverage target multiplier (từ slider, mặc định 2.0 = 200%)
+  const COV = AI_WEIGHTS.coverageTargetMultiplier;
+  // Tỷ lệ phân bổ khi thiếu kho
+  const PROP_RATIO = AI_WEIGHTS.shortageProportionalRatio;
+  const BONUS_RATIO = AI_WEIGHTS.shortagePriorityBonus;
 
-      for (const ma of allMa) {
-        const meta = COCKPIT.data.productMeta.get(ma);
-        if (!cockpitMatchesScope(meta)) continue;
+  // ============================================================
+  // BƯỚC 1: BUILD CANDIDATES
+  // ============================================================
+  const candidates = [];
+  for (const storeCode of COCKPIT.scope.storeIds) {
+    const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === storeCode) : null;
+    const cfg = cockpitGetGroupConfig(store);
 
-        const onHand = stockMap.get(ma) || 0;
-        // Sales lấy từ salesByGroup (đã tính theo nhóm CH N1=7d, N2=14d, N3=21d)
-        const sold = salesMapGroup.get(ma) || 0;
-        const wh = COCKPIT.data.warehouseStockByCode.get(ma) || 0;
+    const stockMap = COCKPIT.data.stockByStoreCode.get(storeCode) || new Map();
+    const salesMapGroup = salesByGroup.get(storeCode) || new Map();
+    const allMa = new Set([...stockMap.keys(), ...salesMapGroup.keys()]);
 
-        const velocity = sold / cfg.days;
-        const daysOfStock = velocity > 0 ? Math.round(onHand / velocity) : (onHand > 0 ? 999 : 0);
+    for (const ma of allMa) {
+      const meta = COCKPIT.data.productMeta.get(ma);
+      if (!cockpitMatchesScope(meta)) continue;
 
-        if (sold === 0 && onHand === 0) continue;
+      const onHand = stockMap.get(ma) || 0;
+      const sold = salesMapGroup.get(ma) || 0;
+      const wh = COCKPIT.data.warehouseStockByCode.get(ma) || 0;
 
-        let skipReason = null;
-        if (sold === 0 && onHand > 0) {
-          skipReason = 'dead';
-        } else if (sold > 0 && daysOfStock >= 30) {
-          skipReason = 'overstocked';
-        }
+      const velocity = sold / cfg.days;
+      const daysOfStock = velocity > 0 ? Math.round(onHand / velocity) : (onHand > 0 ? 999 : 0);
 
-        const targetMin = Math.round(sold * cfg.coverageMin);
-        const targetMax = Math.round(sold * cfg.coverageTarget);
-        const needMin = Math.max(0, targetMin - onHand);
-        const needMax = Math.max(0, targetMax - onHand);
+      if (sold === 0 && onHand === 0) continue;
 
-        candidates.push({
-          storeCode, maSp: ma, sold, onHand, warehouseStock: wh,
-          velocity, daysOfStock, skipReason,
-          group: store && store.nhomCh ? String(store.nhomCh) : '2',
-          priority: cfg.priority,
-          targetMin, targetMax,
-          needMin, needMax,
-          daysScope: cfg.days,
-          coverageMin: cfg.coverageMin,
-          coverageMax: cfg.coverageTarget,
-          allocated: 0,
-          meta
-        });
+      let skipReason = null;
+      if (sold === 0 && onHand > 0) {
+        skipReason = 'dead';
       }
-    }
 
-    // ============================================================
-    // BƯỚC 2 — PHA 1: CẤP TỐI THIỂU (120%)
-    // ============================================================
-    const candidatesByProduct = new Map();
-    for (const c of candidates) {
-      if (c.skipReason) continue;
-      if (c.needMin <= 0) continue;
-      if (!candidatesByProduct.has(c.maSp)) candidatesByProduct.set(c.maSp, []);
-      candidatesByProduct.get(c.maSp).push(c);
-    }
+      // CÔNG THỨC CHÍNH: qty = min(COV × sold − onHand, sold)
+      // = min cap, max bằng số đã bán (không vượt số bán)
+      const targetStock = Math.round(COV * sold);     // Tồn sau chia mong muốn (200% × bán)
+      const gapToTarget = Math.max(0, targetStock - onHand);  // Khoảng cách để đạt target
+      const needIdeal = sold > 0 ? Math.min(gapToTarget, sold) : 0;  // Nhưng chỉ tối đa bằng bán
 
-    const shortagesPhase1 = new Map();
+      // needMin (cho pha cấp tối thiểu) = 50% needIdeal — đảm bảo CH nào cũng có ít
+      const needMin = sold > 0 ? Math.round(needIdeal * 0.5) : 0;
 
-    for (const [ma, list] of candidatesByProduct) {
-      let supply = warehouseRemaining.get(ma) || 0;
-      const totalNeed = list.reduce((s, c) => s + c.needMin, 0);
-
-      if (totalNeed <= supply) {
-        for (const c of list) {
-          c.allocated = c.needMin;
-          supply -= c.needMin;
-        }
-        warehouseRemaining.set(ma, supply);
-      } else {
-        shortagesPhase1.set(ma, { totalNeed, supply, shortage: totalNeed - supply });
-        // Sort theo priority desc (N1 trước)
-        list.sort((a, b) => b.priority - a.priority || b.sold - a.sold);
-        for (const c of list) {
-          if (supply <= 0) break;
-          const give = Math.min(c.needMin, supply);
-          c.allocated = give;
-          supply -= give;
-        }
-        warehouseRemaining.set(ma, supply);
-      }
-    }
-
-    // ============================================================
-    // BƯỚC 3 — PHA 2: DỰ PHÒNG (TARGET 140-160%)
-    // ============================================================
-    for (const [ma, list] of candidatesByProduct) {
-      let supply = warehouseRemaining.get(ma) || 0;
-      if (supply <= 0) continue;
-      const sorted = [...list].sort((a, b) => b.priority - a.priority || b.sold - a.sold);
-      for (const c of sorted) {
-        if (supply <= 0) break;
-        const extraWanted = Math.max(0, c.needMax - c.allocated);
-        if (extraWanted <= 0) continue;
-        const give = Math.min(extraWanted, supply);
-        c.allocated += give;
-        supply -= give;
-      }
-      warehouseRemaining.set(ma, supply);
-    }
-
-    // ============================================================
-    // BƯỚC 4: Ghi allocations
-    // ============================================================
-    for (const c of candidates) {
-      COCKPIT.allocations.set(`${c.storeCode}|${c.maSp}`, {
-        storeCode: c.storeCode,
-        maSp: c.maSp,
-        sold: c.sold,
-        onHand: c.onHand,
-        suggested: c.skipReason ? 0 : c.needMin,
-        targetMax: c.targetMax,
-        cap: c.needMax,
-        qty: c.allocated,
-        warehouseStock: c.warehouseStock,
-        daysOfStock: c.daysOfStock,
-        velocity: c.velocity,
-        skipReason: c.skipReason,
-        group: c.group,
-        priority: c.priority,
-        daysScope: c.daysScope,
-        coverageMin: c.coverageMin,
-        coverageMax: c.coverageMax,
-        meta: c.meta,
-        locked: false
+      candidates.push({
+        storeCode, maSp: ma, sold, onHand, warehouseStock: wh,
+        velocity, daysOfStock, skipReason,
+        group: store && store.nhomCh ? String(store.nhomCh) : '2',
+        priority: cfg.priority,
+        targetStock,
+        needIdeal,      // Nhu cầu lý tưởng
+        needMin,        // Nhu cầu tối thiểu (đảm bảo có hàng)
+        daysScope: cfg.days,
+        coverageMin: cfg.coverageMin,
+        coverageMax: cfg.coverageTarget,
+        allocated: 0,
+        meta
       });
     }
+  }
 
-    COCKPIT._phase1Shortages = shortagesPhase1;
+  // ============================================================
+  // BƯỚC 2: PHÂN BỔ THEO MÃ
+  // ============================================================
+  const candidatesByProduct = new Map();
+  for (const c of candidates) {
+    if (c.skipReason) continue;
+    if (c.needIdeal <= 0) continue;
+    if (!candidatesByProduct.has(c.maSp)) candidatesByProduct.set(c.maSp, []);
+    candidatesByProduct.get(c.maSp).push(c);
+  }
 
-    cockpitGenerateWarnings();
-    cockpitRenderHero();
-    cockpitRenderTableSection();
-    cockpitShowFooter();
+  const shortagesPhase1 = new Map();
 
-    if (btn) { btn.textContent = '⚡ AI chia hàng tự động'; btn.disabled = false; }
-    cockpitToast(`AI đã chia ${formatNumber(cockpitTotalQty())} sản phẩm cho ${cockpitStoresWithAlloc()} ${cockpitGetStoreNoun()}.`, 'success');
-  }, 50);
+  for (const [ma, list] of candidatesByProduct) {
+    let supply = warehouseRemaining.get(ma) || 0;
+    const totalIdeal = list.reduce((s, c) => s + c.needIdeal, 0);
+
+    if (totalIdeal <= supply) {
+      // KHO ĐỦ — cấp 100% needIdeal cho mỗi CH
+      for (const c of list) {
+        c.allocated = c.needIdeal;
+        supply -= c.needIdeal;
+      }
+      warehouseRemaining.set(ma, supply);
+    } else {
+      // KHO THIẾU — chia thông minh 70/30
+      shortagesPhase1.set(ma, {
+        totalIdeal, supply, shortage: totalIdeal - supply,
+        cutPct: 1 - (supply / totalIdeal)
+      });
+
+      // Step 1: 70% supply chia tỷ lệ theo needIdeal
+      const propShare = Math.floor(supply * PROP_RATIO);
+      let remaining = supply;
+      const propAllocations = new Map();  // candidate idx → qty
+
+      for (const c of list) {
+        const myShare = totalIdeal > 0 ? Math.round((c.needIdeal / totalIdeal) * propShare) : 0;
+        const give = Math.min(myShare, c.needIdeal, remaining);
+        propAllocations.set(c, give);
+        c.allocated = give;
+        remaining -= give;
+      }
+
+      // Step 2: 30% supply ưu tiên cho N1 (priority cao nhất)
+      const sorted = [...list].sort((a, b) => b.priority - a.priority || b.sold - a.sold);
+      for (const c of sorted) {
+        if (remaining <= 0) break;
+        const stillNeed = Math.max(0, c.needIdeal - c.allocated);
+        if (stillNeed <= 0) continue;
+        const give = Math.min(stillNeed, remaining);
+        c.allocated += give;
+        remaining -= give;
+      }
+
+      // Step 3: Nếu vẫn còn dư (do rounding), cấp tiếp cho ai cần
+      if (remaining > 0) {
+        for (const c of sorted) {
+          if (remaining <= 0) break;
+          const stillNeed = Math.max(0, c.needIdeal - c.allocated);
+          if (stillNeed <= 0) continue;
+          const give = Math.min(stillNeed, remaining);
+          c.allocated += give;
+          remaining -= give;
+        }
+      }
+
+      warehouseRemaining.set(ma, remaining);
+    }
+  }
+
+  // ============================================================
+  // BƯỚC 3: GỢI Ý SUB MÃ CHO HÀNG SALE (nếu enable)
+  // ============================================================
+  if (AI_WEIGHTS.allowSaleSubstitute && COCKPIT.scope.isSale) {
+    // Build map: base+size+color → mã  &  base+size+colorGroup → mã list
+    const subIndex = cockpitBuildSubstituteIndex();
+
+    // Tìm các candidate còn thiếu (allocated < needIdeal) và có mã sub khả thi
+    for (const c of candidates) {
+      if (c.skipReason) continue;
+      const stillNeed = Math.max(0, c.needIdeal - c.allocated);
+      if (stillNeed <= 0) continue;
+
+      const subs = cockpitFindSubstitutes(c.maSp, subIndex);
+      if (subs.length === 0) continue;
+
+      for (const subMa of subs) {
+        if (c.allocated >= c.needIdeal) break;
+        const subSupply = warehouseRemaining.get(subMa) || 0;
+        if (subSupply <= 0) continue;
+        const giveSub = Math.min(stillNeed, subSupply, c.needIdeal - c.allocated);
+        if (giveSub > 0) {
+          warehouseRemaining.set(subMa, subSupply - giveSub);
+          // Track sub allocation
+          const key = `${c.storeCode}|${c.maSp}`;
+          if (!COCKPIT._substitutes.has(key)) COCKPIT._substitutes.set(key, []);
+          COCKPIT._substitutes.get(key).push({ maSub: subMa, qty: giveSub });
+          c.allocated += giveSub;
+        }
+      }
+    }
+  }
+
+  // ============================================================
+  // BƯỚC 4: Ghi allocations vào COCKPIT
+  // ============================================================
+  for (const c of candidates) {
+    const key = `${c.storeCode}|${c.maSp}`;
+    const subs = COCKPIT._substitutes.get(key) || [];
+    COCKPIT.allocations.set(key, {
+      storeCode: c.storeCode,
+      maSp: c.maSp,
+      sold: c.sold,
+      onHand: c.onHand,
+      suggested: c.skipReason ? 0 : c.needIdeal,
+      targetStock: c.targetStock,
+      cap: c.needIdeal,
+      qty: c.allocated,
+      warehouseStock: c.warehouseStock,
+      daysOfStock: c.daysOfStock,
+      velocity: c.velocity,
+      skipReason: c.skipReason,
+      group: c.group,
+      priority: c.priority,
+      daysScope: c.daysScope,
+      coverageMin: c.coverageMin,
+      coverageMax: c.coverageMax,
+      meta: c.meta,
+      substitutes: subs,  // Array of {maSub, qty}
+      locked: false
+    });
+  }
+
+  COCKPIT._phase1Shortages = shortagesPhase1;
+
+  cockpitGenerateWarnings();
+  cockpitRenderHero();
+  cockpitRenderTableSection();
+  cockpitShowFooter();
+
+  cockpitToast(`AI đã chia ${formatNumber(cockpitTotalQty())} sản phẩm cho ${cockpitStoresWithAlloc()} ${cockpitGetStoreNoun()}.`, 'success');
 }
+
+// ============================================================
+// SUBSTITUTE HELPER (cho hàng sale)
+// ============================================================
+function cockpitBuildSubstituteIndex() {
+  // Index: cap1+base+size → list of {ma, color, colorGroup}
+  // base = "NS008BTG" (mã đầu), color từ extractColorAndSize
+  const index = new Map();
+  for (const [ma, meta] of COCKPIT.data.productMeta) {
+    if (!cockpitMatchesScope(meta)) continue;
+    const wh = COCKPIT.data.warehouseStockByCode.get(ma) || 0;
+    if (wh <= 0) continue;  // Chỉ index mã có tồn
+
+    const { color, size } = extractColorAndSize(ma, meta.nganhCap1 || '');
+    if (color === 'OTHER') continue;
+    const colorGroup = cockpitGetColorGroup(color);
+
+    // Base = phần đầu mã (trước dấu - đầu tiên có chứa color)
+    const parts = ma.split('-');
+    const base = parts[0];  // vd "NS008BTG"
+
+    const key = `${base}|${size}`;
+    if (!index.has(key)) index.set(key, []);
+    index.get(key).push({ ma, color, colorGroup, wh });
+  }
+  return index;
+}
+
+function cockpitFindSubstitutes(maGoc, index) {
+  const meta = COCKPIT.data.productMeta.get(maGoc);
+  if (!meta) return [];
+  const { color: gocColor, size: gocSize } = extractColorAndSize(maGoc, meta.nganhCap1 || '');
+  if (gocColor === 'OTHER') return [];
+  const gocColorGroup = cockpitGetColorGroup(gocColor);
+  const parts = maGoc.split('-');
+  const base = parts[0];
+
+  const key = `${base}|${gocSize}`;
+  const candidates = index.get(key) || [];
+
+  // Filter: bỏ mã gốc, sort theo ưu tiên
+  return candidates
+    .filter(c => c.ma !== maGoc)
+    .sort((a, b) => {
+      // Ưu tiên 1: cùng màu y hệt (thực ra không có vì đã filter mã gốc)
+      // Ưu tiên 2: cùng color group
+      const aSameGroup = a.colorGroup && a.colorGroup === gocColorGroup ? 1 : 0;
+      const bSameGroup = b.colorGroup && b.colorGroup === gocColorGroup ? 1 : 0;
+      if (aSameGroup !== bSameGroup) return bSameGroup - aSameGroup;
+      // Ưu tiên 3: kho còn nhiều hơn
+      return b.wh - a.wh;
+    })
+    .map(c => c.ma);
+}
+
 
 function cockpitClearAllocations() {
   if (!confirm('Xóa toàn bộ kết quả chia hàng hiện tại?')) return;
@@ -10722,15 +11180,14 @@ function cockpitGenerateWarnings() {
     byProduct.get(a.maSp).push(a);
   }
 
-  // 1. KHO THIẾU PHA 1 — không đủ cung cấp mức tối thiểu 120%
+  // 1. KHO THIẾU — không đủ cung cấp mức lý tưởng (đã chia tỷ lệ 70/30)
   const shortItems = [];
   for (const [ma, list] of byProduct) {
-    const totalNeedMin = list.reduce((s, a) => s + (a.skipReason ? 0 : a.suggested), 0);  // need 120%
+    const totalNeedMin = list.reduce((s, a) => s + (a.skipReason ? 0 : a.suggested), 0);
     const totalAlloc = list.reduce((s, a) => s + a.qty, 0);
     const supply = list[0].warehouseStock;
     const deficit = totalNeedMin - totalAlloc;
     if (deficit > 0 && totalNeedMin > supply) {
-      // Đếm CH bị giảm phần (chia tỷ lệ)
       const storesCut = list.filter(a => !a.skipReason && a.suggested > 0 && a.qty < a.suggested).length;
       const storesFull = list.filter(a => !a.skipReason && a.suggested > 0 && a.qty >= a.suggested).length;
       shortItems.push({ ma, needMin: totalNeedMin, supply, deficit, alloc: totalAlloc, storesCut, storesFull });
@@ -10744,18 +11201,28 @@ function cockpitGenerateWarnings() {
       severity: 'critical',
       icon: '⊘',
       title: `${shortItems.length} mã kho không đủ`,
-      desc: `Tổng thiếu ${formatNumber(totalDeficit)} cái so với nhu cầu tối thiểu · Top: ${shortItems[0].ma} thiếu ${shortItems[0].deficit} (đã ưu tiên CH nhóm 1)`,
+      desc: `Tổng thiếu ${formatNumber(totalDeficit)} cái · Top: ${shortItems[0].ma} thiếu ${shortItems[0].deficit} (đã chia ${(AI_WEIGHTS.shortageProportionalRatio*100).toFixed(0)}% tỷ lệ + ${(AI_WEIGHTS.shortagePriorityBonus*100).toFixed(0)}% ưu tiên N1)`,
       data: shortItems
     });
   }
 
-  // 2. CH dư hàng (tổng tồn / tổng bán > 2x)
+  // 2. CH có tồn SAU CHIA quá cao (vượt ngưỡng từ slider, mặc định 200%)
+  const overcapThreshold = AI_WEIGHTS.overcappedThreshold || 2.0;
   const overstockedStores = [];
   for (const [code, list] of byStore) {
     const totalSold = list.reduce((s, a) => s + a.sold, 0);
     const totalOnHand = list.reduce((s, a) => s + a.onHand, 0);
-    if (totalSold > 5 && totalOnHand / totalSold > 2.5) {
-      overstockedStores.push({ code, ratio: totalOnHand / Math.max(1, totalSold), onHand: totalOnHand, sold: totalSold });
+    const totalQty = list.reduce((s, a) => s + a.qty, 0);
+    const afterChia = totalOnHand + totalQty;
+    if (totalSold > 5 && afterChia / totalSold > overcapThreshold) {
+      overstockedStores.push({
+        code,
+        ratio: afterChia / Math.max(1, totalSold),
+        onHand: totalOnHand,
+        qty: totalQty,
+        afterChia,
+        sold: totalSold
+      });
     }
   }
   if (overstockedStores.length > 0) {
@@ -10765,8 +11232,8 @@ function cockpitGenerateWarnings() {
       type: 'overstocked',
       severity: 'medium',
       icon: '⊕',
-      title: `${overstockedStores.length} CH có tồn dư cao`,
-      desc: `Top: ${store ? store.ten : overstockedStores[0].code} (tồn gấp ${overstockedStores[0].ratio.toFixed(1)}× bán)`,
+      title: `${overstockedStores.length} CH cấp dư hàng`,
+      desc: `Tồn sau chia / bán > ${(overcapThreshold * 100).toFixed(0)}% · Top: ${store ? store.ten : overstockedStores[0].code} (${overstockedStores[0].ratio.toFixed(1)}× bán)`,
       data: overstockedStores
     });
   }
@@ -10774,7 +11241,7 @@ function cockpitGenerateWarnings() {
   // 3. CH có nhiều mã bán chậm
   const slowMoverStores = [];
   for (const [code, list] of byStore) {
-    const slowCount = list.filter(a => a.daysOfStock > COCKPIT.ai.daysOfStockDead && a.onHand > 0).length;
+    const slowCount = list.filter(a => a.daysOfStock > 60 && a.onHand > 0).length;
     if (slowCount >= 5) {
       slowMoverStores.push({ code, slowCount, total: list.length });
     }
@@ -11435,6 +11902,12 @@ function cockpitRenderSidePanel(storeCode) {
     } else if (a._daysOfStock < 7 && a.sold > 0) {
       tag = '<span class="sp-product-tag fast-soft">Chạy mạnh</span>';
     }
+    // Tag mã sub
+    const hasSubs = a.substitutes && a.substitutes.length > 0;
+    if (hasSubs) {
+      const totalSub = a.substitutes.reduce((s, x) => s + x.qty, 0);
+      tag += `<span class="sp-product-tag sub-soft" title="Mã thay thế: ${a.substitutes.map(x => x.maSub + ' (' + x.qty + ')').join(', ')}">✦ +${totalSub} sub</span>`;
+    }
 
     // Đủ bán column
     let dosText = '—';
@@ -11621,6 +12094,178 @@ function cockpitSaveDraft() {
 }
 
 // ====== TOAST ======
+// ====== AI LOADER (multi-step) ======
+function cockpitShowAILoader(onComplete) {
+  // Tạo overlay nếu chưa có
+  let overlay = document.getElementById('cockpit-ai-loader');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'cockpit-ai-loader';
+    overlay.className = 'cockpit-ai-loader';
+    document.body.appendChild(overlay);
+  }
+
+  // Tính số liệu thật sự để hiển thị
+  const storeCount = COCKPIT.scope.storeIds.size;
+  const rawCount = (typeof RAW_DATA !== 'undefined') ? RAW_DATA.length : 0;
+  const stockCount = (typeof STOCK_DATA !== 'undefined') ? STOCK_DATA.length : 0;
+  const info = WAREHOUSE_MAP[COCKPIT.scope.warehouse] || {};
+  const catLabel = info.cat === 'BH' ? 'Bảo hiểm' : 'Nón vải';
+  const typeLabel = info.isSale ? 'sale' : 'chính';
+
+  // Group breakdown
+  let n1 = 0, n2 = 0, n3 = 0;
+  if (typeof STORES_DATA !== 'undefined') {
+    for (const code of COCKPIT.scope.storeIds) {
+      const s = STORES_DATA.find(x => x.maCh === code);
+      if (!s) continue;
+      const g = String(s.nhomCh || '2');
+      if (g === '1') n1++;
+      else if (g === '3') n3++;
+      else n2++;
+    }
+  }
+
+  const steps = [
+    { icon: '📊', text: `Đang đọc ${formatNumber(rawCount)} giao dịch bán hàng...`, delay: 280 },
+    { icon: '📦', text: `Đang phân tích ${formatNumber(stockCount)} dòng tồn kho...`, delay: 240 },
+    { icon: '🏬', text: `Đang phân loại ${storeCount} ${cockpitGetStoreNoun()} theo nhóm vận hành...`, sub: `${n1} N1 (7d) · ${n2} N2 (14d) · ${n3} N3 (21d)`, delay: 320 },
+    { icon: '🎯', text: `Đang xác định nhóm "Hàng ${typeLabel}" — Ngành ${catLabel}...`, delay: 260 },
+    { icon: '⚙', text: `Đang tính nhu cầu tối ưu (target = ${(AI_WEIGHTS.coverageTargetMultiplier * 100).toFixed(0)}% × bán)...`, delay: 300 },
+    { icon: '🔍', text: 'Đang phát hiện mã thiếu nguồn...', delay: 280 },
+    { icon: '⚖', text: `Đang cân đối phân bổ (${(AI_WEIGHTS.shortageProportionalRatio * 100).toFixed(0)}% tỷ lệ + ${(AI_WEIGHTS.shortagePriorityBonus * 100).toFixed(0)}% ưu tiên N1)...`, delay: 320 },
+  ];
+  if (info.isSale && AI_WEIGHTS.allowSaleSubstitute) {
+    steps.push({ icon: '✦', text: 'Đang gợi ý mã thay thế theo nhóm màu cho hàng sale...', delay: 320 });
+  }
+  steps.push(
+    { icon: '🚦', text: 'Đang kiểm tra tồn sau chia vs định mức kho...', delay: 280 },
+    { icon: '⚠', text: 'Đang tạo báo cáo cảnh báo...', delay: 240 },
+    { icon: '✨', text: 'Đang hoàn tất phương án điều phối...', delay: 280 }
+  );
+
+  // Reset overlay
+  overlay.innerHTML = `
+    <div class="ai-loader-card">
+      <div class="ai-loader-head">
+        <div class="ai-loader-spinner"></div>
+        <div>
+          <div class="ai-loader-title">AI đang phân tích phương án điều phối</div>
+          <div class="ai-loader-sub">Vui lòng đợi vài giây...</div>
+        </div>
+      </div>
+      <div class="ai-loader-progress">
+        <div class="ai-loader-progress-fill" id="ai-loader-progress-fill"></div>
+      </div>
+      <div class="ai-loader-steps" id="ai-loader-steps"></div>
+    </div>
+  `;
+  overlay.classList.add('active');
+
+  // Chạy step tuần tự
+  const stepsEl = document.getElementById('ai-loader-steps');
+  const progressEl = document.getElementById('ai-loader-progress-fill');
+  let i = 0;
+
+  function nextStep() {
+    if (i >= steps.length) {
+      // Tất cả step xong → run engine, sau đó fade out
+      onComplete && onComplete();
+      setTimeout(() => {
+        overlay.classList.remove('active');
+      }, 350);
+      return;
+    }
+    const step = steps[i];
+    // Mark previous step done
+    if (i > 0) {
+      const prev = stepsEl.children[i - 1];
+      if (prev) {
+        prev.classList.remove('current');
+        prev.classList.add('done');
+        prev.querySelector('.ai-step-icon').textContent = '✓';
+      }
+    }
+    // Add new step
+    const stepEl = document.createElement('div');
+    stepEl.className = 'ai-step current';
+    stepEl.innerHTML = `
+      <span class="ai-step-icon">${step.icon}</span>
+      <div class="ai-step-text">
+        <div>${escapeHtml(step.text)}</div>
+        ${step.sub ? `<div class="ai-step-sub">${escapeHtml(step.sub)}</div>` : ''}
+      </div>
+    `;
+    stepsEl.appendChild(stepEl);
+    // Progress
+    const pct = ((i + 1) / steps.length) * 100;
+    progressEl.style.width = pct + '%';
+    // Scroll xuống
+    stepsEl.scrollTop = stepsEl.scrollHeight;
+
+    i++;
+    setTimeout(nextStep, step.delay);
+  }
+  nextStep();
+}
+
+// ====== AI WEIGHTS SLIDERS ======
+function cockpitOnSliderChange(key, value) {
+  if (key === 'coverage') {
+    AI_WEIGHTS.coverageTargetMultiplier = parseInt(value) / 100;
+    document.getElementById('slider-coverage-val').textContent = value + '%';
+  } else if (key === 'proportional') {
+    AI_WEIGHTS.shortageProportionalRatio = parseInt(value) / 100;
+    AI_WEIGHTS.shortagePriorityBonus = 1 - AI_WEIGHTS.shortageProportionalRatio;
+    document.getElementById('slider-proportional-val').textContent = value + '%';
+  } else if (key === 'overcap') {
+    AI_WEIGHTS.overcappedThreshold = parseInt(value) / 100;
+    document.getElementById('slider-overcap-val').textContent = value + '%';
+  } else if (key === 'substitute') {
+    AI_WEIGHTS.allowSaleSubstitute = !!value;
+  }
+  cockpitSaveWeights();
+  // Reset allocations vì engine config đổi
+  if (COCKPIT.allocations.size > 0) {
+    COCKPIT.allocations = new Map();
+    COCKPIT.warnings = [];
+    cockpitRenderHero();
+    cockpitRenderTableSection();
+    document.getElementById('cockpit-footer').style.display = 'none';
+  }
+}
+
+function cockpitResetAIWeights() {
+  AI_WEIGHTS.coverageTargetMultiplier = 2.0;
+  AI_WEIGHTS.shortageProportionalRatio = 0.7;
+  AI_WEIGHTS.shortagePriorityBonus = 0.3;
+  AI_WEIGHTS.allowSaleSubstitute = true;
+  AI_WEIGHTS.overcappedThreshold = 2.0;
+  cockpitSaveWeights();
+  cockpitApplySlidersToUI();
+  cockpitToast('Đã khôi phục cấu hình AI mặc định.', 'success');
+}
+
+function cockpitApplySlidersToUI() {
+  const sCov = document.getElementById('slider-coverage');
+  const sProp = document.getElementById('slider-proportional');
+  const sOver = document.getElementById('slider-overcap');
+  const sSub = document.getElementById('slider-substitute');
+  if (sCov) {
+    sCov.value = Math.round(AI_WEIGHTS.coverageTargetMultiplier * 100);
+    document.getElementById('slider-coverage-val').textContent = sCov.value + '%';
+  }
+  if (sProp) {
+    sProp.value = Math.round(AI_WEIGHTS.shortageProportionalRatio * 100);
+    document.getElementById('slider-proportional-val').textContent = sProp.value + '%';
+  }
+  if (sOver) {
+    sOver.value = Math.round(AI_WEIGHTS.overcappedThreshold * 100);
+    document.getElementById('slider-overcap-val').textContent = sOver.value + '%';
+  }
+  if (sSub) sSub.checked = AI_WEIGHTS.allowSaleSubstitute;
+}
+
 function cockpitToast(msg, type) {
   const existing = document.querySelector('.cockpit-toast');
   if (existing) existing.remove();
