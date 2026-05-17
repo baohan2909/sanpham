@@ -3224,6 +3224,9 @@ body.workspace-analytics #section-allocation {
   transition: background 0.12s;
   cursor: pointer;
 }
+.cockpit-row.cockpit-row-product {
+  grid-template-columns: 1fr 70px 90px 100px 90px 110px;
+}
 .cockpit-row:hover { background: var(--bg); }
 .cockpit-row.has-issue { border-left: 3px solid var(--c-orange); padding-left: 15px; }
 .cockpit-row.has-issue-critical { border-left-color: var(--c-red); background: rgba(200, 74, 74, 0.02); }
@@ -3306,8 +3309,8 @@ body.workspace-analytics #section-allocation {
 .cockpit-sidepanel {
   position: fixed;
   top: 0; right: 0; bottom: 0;
-  width: 760px;
-  max-width: 92vw;
+  width: 820px;
+  max-width: 95vw;
   background: var(--bg-elevated);
   z-index: 1000;
   transform: translateX(110%);
@@ -3435,12 +3438,12 @@ body.workspace-analytics #section-allocation {
   gap: 4px;
 }
 
-/* Grid 8 cột: ảnh | tên | bán | tồn | đủ bán | kho | trần | chia */
+/* Grid 8 cột: ảnh | tên | bán | tồn | ngày còn lại | kho TP | AI chia | Chốt */
 .sp-product-head,
 .sp-product-row {
   display: grid;
-  grid-template-columns: 44px minmax(160px, 1fr) 52px 58px 52px 64px 52px 60px;
-  gap: 6px;
+  grid-template-columns: 44px minmax(140px, 1fr) 60px 60px 56px 70px 64px 70px;
+  gap: 8px;
   align-items: center;
 }
 
@@ -3450,12 +3453,45 @@ body.workspace-analytics #section-allocation {
   color: var(--text-soft);
   text-transform: none;
   letter-spacing: 0;
+  margin-top: 1px;
+  line-height: 1.1;
+}
+.sp-th-num {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  line-height: 1.15;
 }
 
 .sp-input.over-cap {
   border-color: var(--c-red);
   background: rgba(200, 74, 74, 0.06);
   color: var(--c-red);
+}
+
+/* Hover zoom cho ảnh sản phẩm */
+.sp-product-img {
+  cursor: zoom-in;
+  transition: transform 0.18s cubic-bezier(0.32, 1.4, 0.64, 1);
+}
+.sp-product-img:hover {
+  transform: scale(3.5);
+  transform-origin: left center;
+  z-index: 10;
+  position: relative;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+.cockpit-img-hover {
+  transition: transform 0.18s cubic-bezier(0.32, 1.4, 0.64, 1);
+}
+.cockpit-img-hover:hover {
+  transform: scale(3.5);
+  transform-origin: left center;
+  z-index: 10;
+  position: relative;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
 }
 
 /* Header bảng sản phẩm (sticky) */
@@ -3473,6 +3509,13 @@ body.workspace-analytics #section-allocation {
   z-index: 3;
   border: 1px solid var(--line);
   margin-bottom: 4px;
+}
+.sp-product-head > div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sp-product-head > div:nth-child(1),
+.sp-product-head > div:nth-child(2) { text-align: left; }
+.sp-product-head > div:nth-child(n+3) {
+  text-align: right;
+  justify-self: end;
 }
 .sp-product-head > div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sp-product-head > div:nth-child(3),
@@ -3693,7 +3736,7 @@ body.workspace-analytics #section-allocation {
 @media (max-width: 720px) {
   .sp-narrative-segments { grid-template-columns: 1fr 1fr; }
   .sp-product-head, .sp-product-row {
-    grid-template-columns: 36px minmax(110px, 1fr) 42px 46px 42px 52px 42px 50px;
+    grid-template-columns: 36px minmax(100px, 1fr) 46px 46px 42px 54px 50px 54px;
     gap: 4px;
   }
 }
@@ -4725,7 +4768,7 @@ body.workspace-analytics #section-allocation {
             <span class="cockpit-scope-value" id="cockpit-store-label">0</span>
           </div>
           <div class="cockpit-scope-summary-right">
-            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v11.0 · AI engine 200% · sliders · sub mã</span>
+            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v11.1 · Header fix · Hover zoom · AI chia + Chốt</span>
             <button class="cockpit-btn-ghost" id="cockpit-scope-toggle">⚙ Mở chi tiết</button>
           </div>
         </div>
@@ -11601,19 +11644,31 @@ function cockpitRenderProductList(list, filter) {
   if (filter) products = products.filter(p => p.ma.toLowerCase().includes(filter));
   products.sort((a, b) => b.deficit - a.deficit || b.totalQty - a.totalQty);
 
+  // Header bảng "Theo sản phẩm" (6 cột)
+  const header = `
+    <div class="cockpit-row cockpit-list-head cockpit-row-product">
+      <div>Sản phẩm</div>
+      <div class="cockpit-th-num">Số CH</div>
+      <div class="cockpit-th-num">Đề xuất</div>
+      <div class="cockpit-th-num">Kho TP/SA</div>
+      <div class="cockpit-th-num">Đã chia</div>
+      <div>Trạng thái</div>
+    </div>
+  `;
+
   if (products.length === 0) {
-    list.innerHTML = `<div class="cockpit-list-empty"><div class="cockpit-list-empty-icon">∅</div><div class="cockpit-list-empty-title">Chưa có mã nào được chia</div></div>`;
+    list.innerHTML = header + `<div class="cockpit-list-empty"><div class="cockpit-list-empty-icon">∅</div><div class="cockpit-list-empty-title">Chưa có mã nào được chia</div></div>`;
     return;
   }
 
-  list.innerHTML = products.map(p => {
+  list.innerHTML = header + products.map(p => {
     const imgUrl = (typeof IMAGE_MAP !== 'undefined' && IMAGE_MAP[p.ma]) ? IMAGE_MAP[p.ma] : '';
     const imgTag = imgUrl
-      ? `<img src="${escapeHtml(imgUrl)}" loading="lazy" style="width:40px;height:40px;border-radius:5px;object-fit:cover;background:var(--line)">`
+      ? `<img src="${escapeHtml(imgUrl)}" loading="lazy" class="cockpit-img-hover" data-fullsrc="${escapeHtml(imgUrl)}" style="width:40px;height:40px;border-radius:5px;object-fit:cover;background:var(--line);cursor:zoom-in">`
       : `<div style="width:40px;height:40px;border-radius:5px;background:var(--line);display:flex;align-items:center;justify-content:center;color:var(--text-soft);font-size:10px">—</div>`;
     const hasDeficit = p.deficit > 0;
     return `
-      <div class="cockpit-row ${hasDeficit ? 'has-issue-critical' : ''}">
+      <div class="cockpit-row cockpit-row-product ${hasDeficit ? 'has-issue-critical' : ''}">
         <div style="display:flex;align-items:center;gap:10px">
           ${imgTag}
           <div>
@@ -11683,6 +11738,7 @@ function cockpitSortSidePanel(items) {
       case 'daysOfStock': va = a._daysOfStock; vb = b._daysOfStock; break;
       case 'warehouseStock': va = a.warehouseStock; vb = b.warehouseStock; break;
       case 'cap': va = a.cap || 0; vb = b.cap || 0; break;
+      case 'suggested': va = a.suggested || 0; vb = b.suggested || 0; break;
       case 'qty':
       default:
         va = a.qty; vb = b.qty;
@@ -11870,12 +11926,21 @@ function cockpitRenderSidePanel(storeCode) {
     <div class="sp-product-head">
       <div></div>
       <div class="sp-sortable" onclick="cockpitSpSetSort('maSp')">Sản phẩm ${arrow('maSp')}</div>
-      <div class="sp-sortable" onclick="cockpitSpSetSort('sold')">Bán (${COCKPIT.spSort.col === 'sold' ? '' : ''}<span class="sp-thsub">${items[0] ? items[0].daysScope + 'd' : ''}</span>) ${arrow('sold')}</div>
-      <div class="sp-sortable" onclick="cockpitSpSetSort('onHand')">Tồn CH ${arrow('onHand')}</div>
-      <div class="sp-sortable" onclick="cockpitSpSetSort('daysOfStock')">Đủ bán ${arrow('daysOfStock')}</div>
-      <div class="sp-sortable" onclick="cockpitSpSetSort('warehouseStock')">Kho ${arrow('warehouseStock')}</div>
-      <div class="sp-sortable" onclick="cockpitSpSetSort('cap')" title="Định mức kho = số tối đa AI có thể chia (= sold × 120-160% − tồn hiện tại)">Định mức ${arrow('cap')}</div>
-      <div class="sp-sortable" onclick="cockpitSpSetSort('qty')">Chia ${arrow('qty')}</div>
+      <div class="sp-sortable sp-th-num" onclick="cockpitSpSetSort('sold')">
+        <div>Bán ${arrow('sold')}</div>
+        <div class="sp-thsub">${items[0] ? '(' + items[0].daysScope + ' ngày)' : ''}</div>
+      </div>
+      <div class="sp-sortable sp-th-num" onclick="cockpitSpSetSort('onHand')">Tồn CH ${arrow('onHand')}</div>
+      <div class="sp-sortable sp-th-num" onclick="cockpitSpSetSort('daysOfStock')">
+        <div>Ngày</div>
+        <div class="sp-thsub">còn lại</div>
+      </div>
+      <div class="sp-sortable sp-th-num" onclick="cockpitSpSetSort('warehouseStock')">
+        <div>Tồn kho</div>
+        <div class="sp-thsub">TP/SA</div>
+      </div>
+      <div class="sp-sortable sp-th-num" onclick="cockpitSpSetSort('suggested')" title="Số AI đề xuất chia (chưa chỉnh tay)">AI chia ${arrow('suggested')}</div>
+      <div class="sp-sortable sp-th-num" onclick="cockpitSpSetSort('qty')" title="Số chốt cuối — có thể chỉnh tay">Chốt ${arrow('qty')}</div>
     </div>
   `;
 
@@ -11922,16 +11987,14 @@ function cockpitRenderSidePanel(storeCode) {
       dosText = a._daysSinceLast + 'd'; dosStyle = 'color:var(--c-red);font-style:italic;font-size:10px';
     }
 
-    // Trần (cap = số tối đa engine có thể chia thêm)
-    // = min(targetMax − onHand, warehouseStock còn lại)
-    const capValue = a.skipReason && a.skipReason !== 'overstocked' ? 0 : (a.cap || 0);
-    let capText = capValue > 0 ? formatNumber(capValue) : '—';
-    let capStyle = 'color:var(--text-soft)';
-    if (capValue > 0) capStyle = 'color:var(--text)';
-    // Cảnh báo nếu qty vượt cap
-    const isOverCap = a.qty > capValue && capValue > 0;
+    // Cột "AI chia" (suggested = số AI đề xuất ban đầu, trước khi chỉnh tay)
+    const suggestedValue = a.skipReason ? 0 : (a.suggested || 0);
+    let suggestedText = suggestedValue > 0 ? formatNumber(suggestedValue) : '—';
+    let suggestedStyle = suggestedValue > 0 ? 'color:var(--accent);font-weight:700' : 'color:var(--text-soft)';
 
-    const inputCls = `sp-input${isChanged ? ' changed' : ''}${a.qty > 0 && !isChanged ? ' has-alloc' : ''}${isOverCap ? ' over-cap' : ''}`;
+    // Cảnh báo nếu qty chỉnh vượt suggested * 1.5 (chỉnh tay quá cao)
+    const isOverSuggested = suggestedValue > 0 && a.qty > suggestedValue * 1.5;
+    const inputCls = `sp-input${isChanged ? ' changed' : ''}${a.qty > 0 && !isChanged ? ' has-alloc' : ''}${isOverSuggested ? ' over-cap' : ''}`;
 
     return `
       <div class="sp-product-row ${rowCls}">
@@ -11943,9 +12006,9 @@ function cockpitRenderSidePanel(storeCode) {
         <div class="sp-num${a.onHand === 0 ? ' zero' : ''}">${formatNumber(a.onHand)}</div>
         <div class="sp-num" style="${dosStyle}">${dosText}</div>
         <div class="sp-num${a.warehouseStock === 0 ? ' zero' : ''}">${formatNumber(a.warehouseStock)}</div>
-        <div class="sp-num" style="${capStyle}">${capText}</div>
+        <div class="sp-num" style="${suggestedStyle}">${suggestedText}</div>
         <input type="number" class="${inputCls}" value="${a.qty}" min="0"
-          title="AI đề xuất: ${a.suggested} · Định mức: ${capValue} · Nhập 0 để bỏ chia."
+          title="AI đề xuất: ${a.suggested} · Định mức: ${a.cap || 0} · Có thể chỉnh tay · Nhập 0 để bỏ chia."
           onchange="cockpitChangeQty('${a.storeCode}','${a.maSp}',this.value)">
       </div>
     `;
