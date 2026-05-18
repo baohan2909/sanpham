@@ -3664,107 +3664,6 @@ body.workspace-analytics #section-allocation {
   font-feature-settings: 'tnum';
 }
 
-/* ===== HEALTH BAR (Inventory Zone visualization) ===== */
-.health-bar-wrap {
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 14px 16px;
-  margin: 14px 0;
-}
-.health-bar-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.health-bar-title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-soft);
-}
-.health-bar-status {
-  font-size: 12px;
-  font-weight: 700;
-}
-.health-bar-track {
-  position: relative;
-  display: flex;
-  height: 14px;
-  border-radius: 7px;
-  overflow: hidden;
-  background: var(--line);
-  margin-bottom: 22px;
-}
-.health-zone {
-  height: 100%;
-}
-.health-zone-under { background: rgba(200, 74, 74, 0.35); }
-.health-zone-mid { background: rgba(184, 115, 30, 0.45); }
-.health-zone-target { background: rgba(106, 119, 82, 0.55); }
-.health-zone-over { background: rgba(200, 74, 74, 0.35); }
-
-.health-marker {
-  position: absolute;
-  top: -3px;
-  bottom: -3px;
-  width: 4px;
-  border-radius: 2px;
-  transform: translateX(-50%);
-  z-index: 2;
-  cursor: help;
-}
-.health-marker-current {
-  background: #2a2a2a;
-  box-shadow: 0 0 0 1.5px #fff;
-}
-.health-marker-after {
-  background: var(--accent);
-  box-shadow: 0 0 0 1.5px #fff, 0 1px 4px rgba(168, 86, 48, 0.5);
-}
-
-.health-bar-labels {
-  position: relative;
-  height: 14px;
-  font-size: 10px;
-  color: var(--text-soft);
-  font-family: 'SF Mono', Menlo, monospace;
-  font-weight: 600;
-}
-.health-bar-labels span {
-  position: absolute;
-  top: -14px;
-  transform: translateX(-50%);
-}
-.health-bar-legend {
-  display: flex;
-  gap: 16px;
-  font-size: 11px;
-  color: var(--text);
-  flex-wrap: wrap;
-  align-items: center;
-  margin-top: 8px;
-}
-.health-bar-legend strong {
-  font-family: 'SF Mono', Menlo, monospace;
-  font-weight: 700;
-  color: var(--text);
-}
-.health-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  margin-right: 4px;
-  vertical-align: middle;
-}
-.health-dot-current { background: #2a2a2a; }
-.health-dot-after { background: var(--accent); }
-
 /* 4 segments */
 .sp-narrative-segments {
   display: grid;
@@ -4016,7 +3915,7 @@ body.workspace-analytics #section-allocation {
   margin-top: 3px;
 }
 
-/* ===== AI SLIDERS (Zone-based) ===== */
+/* ===== AI SLIDERS ===== */
 .cockpit-ai-sliders {
   background: linear-gradient(135deg, var(--bg-elevated), var(--bg));
   border: 1px solid var(--line);
@@ -4028,123 +3927,8 @@ body.workspace-analytics #section-allocation {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-  gap: 8px;
+  margin-bottom: 10px;
 }
-
-/* Zone Explainer */
-.zone-explainer {
-  background: var(--bg);
-  border-radius: 8px;
-  padding: 12px 14px;
-  margin-bottom: 14px;
-  border: 1px solid var(--line);
-}
-.zone-explainer-bar {
-  display: flex;
-  height: 10px;
-  border-radius: 5px;
-  overflow: hidden;
-  margin-bottom: 6px;
-}
-.zone-band {
-  flex: 1;
-}
-.zone-band-under { background: rgba(200, 74, 74, 0.4); flex: 1.5; }
-.zone-band-min { background: rgba(184, 115, 30, 0.55); flex: 1; }
-.zone-band-target { background: rgba(106, 119, 82, 0.7); flex: 2; }
-.zone-band-max { background: rgba(184, 115, 30, 0.55); flex: 1; }
-.zone-band-over { background: rgba(200, 74, 74, 0.4); flex: 1.5; }
-.zone-explainer-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 4px;
-}
-.zone-explainer-labels > * { flex: 1; text-align: center; }
-.zone-explainer-note {
-  font-size: 11px;
-  color: var(--text-soft);
-  text-align: center;
-  margin-top: 4px;
-}
-
-/* Per-group zone cards */
-.zone-group-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-@media (max-width: 1000px) {
-  .zone-group-grid { grid-template-columns: 1fr; }
-}
-.zone-group-card {
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 10px 12px;
-}
-.zone-group-card.zone-n1 { border-top: 3px solid #1f4e79; }
-.zone-group-card.zone-n2 { border-top: 3px solid var(--c-orange); }
-.zone-group-card.zone-n3 { border-top: 3px solid var(--c-green); }
-.zone-group-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-.zone-group-tag {
-  padding: 2px 8px;
-  background: var(--accent);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  border-radius: 4px;
-  font-family: 'SF Mono', Menlo, monospace;
-}
-.zone-n1 .zone-group-tag { background: #1f4e79; }
-.zone-n2 .zone-group-tag { background: var(--c-orange); }
-.zone-n3 .zone-group-tag { background: var(--c-green); }
-.zone-group-name {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: 0.01em;
-}
-.zone-slider-row {
-  display: grid;
-  grid-template-columns: 50px 1fr 48px;
-  gap: 8px;
-  align-items: center;
-  padding: 4px 0;
-}
-.zone-slider-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-soft);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.zone-slider-value {
-  font-family: 'SF Mono', Menlo, monospace;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--accent);
-  text-align: right;
-}
-
-.zone-shared-settings {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
-}
-
-/* Keep existing slider classes that are still used */
 .cockpit-ai-sliders-title {
   font-size: 11px;
   font-weight: 700;
@@ -4189,8 +3973,8 @@ body.workspace-analytics #section-allocation {
 .cockpit-ai-slider-input::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--accent);
   border: 2px solid #fff;
@@ -4198,8 +3982,8 @@ body.workspace-analytics #section-allocation {
   cursor: pointer;
 }
 .cockpit-ai-slider-input::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--accent);
   border: 2px solid #fff;
@@ -4984,7 +4768,7 @@ body.workspace-analytics #section-allocation {
             <span class="cockpit-scope-value" id="cockpit-store-label">0</span>
           </div>
           <div class="cockpit-scope-summary-right">
-            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v12.0 · Inventory Zone · Health Bar · Boost mode</span>
+            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v11.1 · Header fix · Hover zoom · AI chia + Chốt</span>
             <button class="cockpit-btn-ghost" id="cockpit-scope-toggle">⚙ Mở chi tiết</button>
           </div>
         </div>
@@ -5061,158 +4845,49 @@ body.workspace-analytics #section-allocation {
           <!-- AI Sliders (điều chỉnh trọng số) -->
           <div class="cockpit-ai-sliders" id="cockpit-ai-sliders">
             <div class="cockpit-ai-sliders-head">
-              <div class="cockpit-ai-sliders-title">⚙ Điều chỉnh thuật toán AI (Inventory Zone)</div>
-              <div style="display:flex;gap:10px;align-items:center">
-                <span class="cockpit-ai-sliders-reset" onclick="cockpitToggleAISliders()" id="cockpit-ai-toggle-label">▼ Thu gọn</span>
-                <span class="cockpit-ai-sliders-reset" onclick="cockpitResetAIWeights()">↺ Khôi phục mặc định</span>
-              </div>
+              <div class="cockpit-ai-sliders-title">⚙ Điều chỉnh thuật toán AI</div>
+              <span class="cockpit-ai-sliders-reset" onclick="cockpitResetAIWeights()">↺ Khôi phục mặc định</span>
             </div>
-            <div id="cockpit-ai-sliders-body">
-              <!-- Mô tả zone -->
-              <div class="zone-explainer">
-                <div class="zone-explainer-bar">
-                  <div class="zone-band zone-band-under"></div>
-                  <div class="zone-band zone-band-min"></div>
-                  <div class="zone-band zone-band-target"></div>
-                  <div class="zone-band zone-band-max"></div>
-                  <div class="zone-band zone-band-over"></div>
-                </div>
-                <div class="zone-explainer-labels">
-                  <span style="color:var(--c-red)">Thiếu</span>
-                  <span style="color:var(--c-orange)">Min</span>
-                  <span style="color:var(--c-green)">Target</span>
-                  <span style="color:var(--c-orange)">Max</span>
-                  <span style="color:var(--c-red)">Dư</span>
-                </div>
-                <div class="zone-explainer-note">Tổng tồn sau chia / Sức bán → Zone tương ứng. Engine cấp đủ để đưa CH vào vùng Target.</div>
+            <div class="cockpit-ai-slider-row">
+              <div>
+                <div class="cockpit-ai-slider-label">Tồn sau chia mong muốn</div>
+                <div class="cockpit-ai-slider-sub">% × số bán trong kỳ</div>
               </div>
-
-              <!-- Per-group zones -->
-              <div class="zone-group-grid">
-                <!-- Nhóm 1 -->
-                <div class="zone-group-card zone-n1">
-                  <div class="zone-group-head">
-                    <span class="zone-group-tag">N1</span>
-                    <span class="zone-group-name">CH cao cấp · 7 ngày</span>
-                  </div>
-                  <div class="zone-slider-row">
-                    <span class="zone-slider-label">Min</span>
-                    <input type="range" min="100" max="200" step="5" value="140"
-                      id="z1-min" class="cockpit-ai-slider-input"
-                      oninput="cockpitOnZoneChange('1','min',this.value)">
-                    <span class="zone-slider-value" id="z1-min-val">140%</span>
-                  </div>
-                  <div class="zone-slider-row">
-                    <span class="zone-slider-label">Target</span>
-                    <input type="range" min="120" max="250" step="5" value="170"
-                      id="z1-target" class="cockpit-ai-slider-input"
-                      oninput="cockpitOnZoneChange('1','target',this.value)">
-                    <span class="zone-slider-value" id="z1-target-val">170%</span>
-                  </div>
-                  <div class="zone-slider-row">
-                    <span class="zone-slider-label">Max</span>
-                    <input type="range" min="150" max="350" step="10" value="220"
-                      id="z1-max" class="cockpit-ai-slider-input"
-                      oninput="cockpitOnZoneChange('1','max',this.value)">
-                    <span class="zone-slider-value" id="z1-max-val">220%</span>
-                  </div>
-                </div>
-
-                <!-- Nhóm 2 -->
-                <div class="zone-group-card zone-n2">
-                  <div class="zone-group-head">
-                    <span class="zone-group-tag">N2</span>
-                    <span class="zone-group-name">CH trung · 14 ngày</span>
-                  </div>
-                  <div class="zone-slider-row">
-                    <span class="zone-slider-label">Min</span>
-                    <input type="range" min="100" max="200" step="5" value="130"
-                      id="z2-min" class="cockpit-ai-slider-input"
-                      oninput="cockpitOnZoneChange('2','min',this.value)">
-                    <span class="zone-slider-value" id="z2-min-val">130%</span>
-                  </div>
-                  <div class="zone-slider-row">
-                    <span class="zone-slider-label">Target</span>
-                    <input type="range" min="120" max="250" step="5" value="160"
-                      id="z2-target" class="cockpit-ai-slider-input"
-                      oninput="cockpitOnZoneChange('2','target',this.value)">
-                    <span class="zone-slider-value" id="z2-target-val">160%</span>
-                  </div>
-                  <div class="zone-slider-row">
-                    <span class="zone-slider-label">Max</span>
-                    <input type="range" min="150" max="350" step="10" value="200"
-                      id="z2-max" class="cockpit-ai-slider-input"
-                      oninput="cockpitOnZoneChange('2','max',this.value)">
-                    <span class="zone-slider-value" id="z2-max-val">200%</span>
-                  </div>
-                </div>
-
-                <!-- Nhóm 3 -->
-                <div class="zone-group-card zone-n3">
-                  <div class="zone-group-head">
-                    <span class="zone-group-tag">N3</span>
-                    <span class="zone-group-name">CH nhỏ · 21 ngày</span>
-                  </div>
-                  <div class="zone-slider-row">
-                    <span class="zone-slider-label">Min</span>
-                    <input type="range" min="100" max="200" step="5" value="120"
-                      id="z3-min" class="cockpit-ai-slider-input"
-                      oninput="cockpitOnZoneChange('3','min',this.value)">
-                    <span class="zone-slider-value" id="z3-min-val">120%</span>
-                  </div>
-                  <div class="zone-slider-row">
-                    <span class="zone-slider-label">Target</span>
-                    <input type="range" min="120" max="250" step="5" value="150"
-                      id="z3-target" class="cockpit-ai-slider-input"
-                      oninput="cockpitOnZoneChange('3','target',this.value)">
-                    <span class="zone-slider-value" id="z3-target-val">150%</span>
-                  </div>
-                  <div class="zone-slider-row">
-                    <span class="zone-slider-label">Max</span>
-                    <input type="range" min="150" max="350" step="10" value="180"
-                      id="z3-max" class="cockpit-ai-slider-input"
-                      oninput="cockpitOnZoneChange('3','max',this.value)">
-                    <span class="zone-slider-value" id="z3-max-val">180%</span>
-                  </div>
-                </div>
+              <input type="range" min="150" max="300" step="10" value="200"
+                id="slider-coverage" class="cockpit-ai-slider-input"
+                oninput="cockpitOnSliderChange('coverage', this.value)">
+              <div class="cockpit-ai-slider-value" id="slider-coverage-val">200%</div>
+            </div>
+            <div class="cockpit-ai-slider-row">
+              <div>
+                <div class="cockpit-ai-slider-label">Khi kho thiếu: chia tỷ lệ</div>
+                <div class="cockpit-ai-slider-sub">% chia đều · còn lại ưu tiên N1</div>
               </div>
-
-              <!-- Cài đặt chung -->
-              <div class="zone-shared-settings">
-                <div class="cockpit-ai-slider-row">
-                  <div>
-                    <div class="cockpit-ai-slider-label">Boost mode (tồn cực thấp)</div>
-                    <div class="cockpit-ai-slider-sub">Cho phép chia ≤ 1.5× số bán khi tồn &lt; 30% bán</div>
-                  </div>
-                  <div></div>
-                  <div class="cockpit-ai-slider-toggle">
-                    <input type="checkbox" id="slider-boost" checked
-                      onchange="cockpitOnSliderChange('boost', this.checked)">
-                    <span style="font-size:11px;color:var(--text-soft)">Bật</span>
-                  </div>
-                </div>
-                <div class="cockpit-ai-slider-row">
-                  <div>
-                    <div class="cockpit-ai-slider-label">Khi kho thiếu: chia tỷ lệ</div>
-                    <div class="cockpit-ai-slider-sub">% chia đều · còn lại ưu tiên N1</div>
-                  </div>
-                  <input type="range" min="50" max="100" step="5" value="70"
-                    id="slider-proportional" class="cockpit-ai-slider-input"
-                    oninput="cockpitOnSliderChange('proportional', this.value)">
-                  <div class="cockpit-ai-slider-value" id="slider-proportional-val">70%</div>
-                </div>
-                <div class="cockpit-ai-slider-row">
-                  <div>
-                    <div class="cockpit-ai-slider-label">Sub mã (hàng sale)</div>
-                    <div class="cockpit-ai-slider-sub">Gợi ý mã thay thế cùng base + màu</div>
-                  </div>
-                  <div></div>
-                  <div class="cockpit-ai-slider-toggle">
-                    <input type="checkbox" id="slider-substitute" checked
-                      onchange="cockpitOnSliderChange('substitute', this.checked)">
-                    <span style="font-size:11px;color:var(--text-soft)">Bật</span>
-                  </div>
-                </div>
+              <input type="range" min="50" max="100" step="5" value="70"
+                id="slider-proportional" class="cockpit-ai-slider-input"
+                oninput="cockpitOnSliderChange('proportional', this.value)">
+              <div class="cockpit-ai-slider-value" id="slider-proportional-val">70%</div>
+            </div>
+            <div class="cockpit-ai-slider-row">
+              <div>
+                <div class="cockpit-ai-slider-label">Ngưỡng cảnh báo cấp dư</div>
+                <div class="cockpit-ai-slider-sub">Tồn sau chia / bán &gt; ngưỡng → cảnh báo</div>
+              </div>
+              <input type="range" min="150" max="400" step="25" value="200"
+                id="slider-overcap" class="cockpit-ai-slider-input"
+                oninput="cockpitOnSliderChange('overcap', this.value)">
+              <div class="cockpit-ai-slider-value" id="slider-overcap-val">200%</div>
+            </div>
+            <div class="cockpit-ai-slider-row">
+              <div>
+                <div class="cockpit-ai-slider-label">Sub mã (hàng sale)</div>
+                <div class="cockpit-ai-slider-sub">Gợi ý mã thay thế cùng base + màu</div>
+              </div>
+              <div></div>
+              <div class="cockpit-ai-slider-toggle">
+                <input type="checkbox" id="slider-substitute" checked
+                  onchange="cockpitOnSliderChange('substitute', this.checked)">
+                <span style="font-size:11px;color:var(--text-soft)">Bật</span>
               </div>
             </div>
           </div>
@@ -11133,46 +10808,23 @@ function cockpitGetColorGroup(color) {
 
 // ====== AI Weights (có thể chỉnh qua slider) ======
 const AI_WEIGHTS = {
-  // Inventory Zone (per group) — Min / Target / Max % so với bán
-  zoneByGroup: {
-    '1': { min: 140, target: 170, max: 220 },  // N1 — growth cao
-    '2': { min: 130, target: 160, max: 200 },  // N2 — chuẩn
-    '3': { min: 120, target: 150, max: 180 }   // N3 — bảo thủ
-  },
-  // Boost mode (khi tồn cực thấp)
-  boostEnabled: true,
-  boostLowStockThreshold: 30,   // tồn < 30% × bán → boost
-  boostQtyMultiplier: 1.5,       // cho phép qty ≤ 1.5 × sold
-  // Khi kho thiếu
-  shortageProportionalRatio: 0.7,
-  shortagePriorityBonus: 0.3,
-  // Sub mã sale
-  allowSaleSubstitute: true
+  coverageTargetMultiplier: 2.0,      // 200% = tồn sau chia mong muốn
+  shortageProportionalRatio: 0.7,     // 70% chia tỷ lệ
+  shortagePriorityBonus: 0.3,         // 30% ưu tiên N1
+  allowSaleSubstitute: true,           // Cho phép thay thế mã sale
+  overcappedThreshold: 2.0             // Cảnh báo khi tồn sau chia > 200% × bán
 };
 function cockpitLoadWeights() {
   try {
-    const saved = localStorage.getItem('ns_cockpit_weights_v2');
+    const saved = localStorage.getItem('ns_cockpit_weights');
     if (saved) {
       const obj = JSON.parse(saved);
-      // Deep merge cho zoneByGroup
-      if (obj.zoneByGroup) {
-        for (const g of ['1', '2', '3']) {
-          if (obj.zoneByGroup[g]) Object.assign(AI_WEIGHTS.zoneByGroup[g], obj.zoneByGroup[g]);
-        }
-        delete obj.zoneByGroup;
-      }
       Object.assign(AI_WEIGHTS, obj);
     }
   } catch (e) {}
 }
 function cockpitSaveWeights() {
-  try { localStorage.setItem('ns_cockpit_weights_v2', JSON.stringify(AI_WEIGHTS)); } catch (e) {}
-}
-
-// Helper lấy zone cho 1 CH
-function cockpitGetZoneFor(store) {
-  const g = store && store.nhomCh ? String(store.nhomCh) : '2';
-  return AI_WEIGHTS.zoneByGroup[g] || AI_WEIGHTS.zoneByGroup['2'];
+  try { localStorage.setItem('ns_cockpit_weights', JSON.stringify(AI_WEIGHTS)); } catch (e) {}
 }
 
 function cockpitGetGroupConfig(store) {
@@ -11251,7 +10903,7 @@ function cockpitAutoAllocate() {
 function cockpitRunAllocationEngine() {
   cockpitBuildEngineData();
   COCKPIT.allocations = new Map();
-  COCKPIT._substitutes = new Map();
+  COCKPIT._substitutes = new Map();  // Map<"store|maGoc", {maGoc, maSub, qtySub}>
 
   // Build sales theo nhóm (single pass)
   const salesByGroup = cockpitBuildSalesByGroup();
@@ -11260,22 +10912,19 @@ function cockpitRunAllocationEngine() {
   const warehouseRemaining = new Map();
   for (const [ma, q] of COCKPIT.data.warehouseStockByCode) warehouseRemaining.set(ma, q);
 
+  // Coverage target multiplier (từ slider, mặc định 2.0 = 200%)
+  const COV = AI_WEIGHTS.coverageTargetMultiplier;
   // Tỷ lệ phân bổ khi thiếu kho
   const PROP_RATIO = AI_WEIGHTS.shortageProportionalRatio;
   const BONUS_RATIO = AI_WEIGHTS.shortagePriorityBonus;
 
   // ============================================================
-  // BƯỚC 1: BUILD CANDIDATES (Zone-based)
+  // BƯỚC 1: BUILD CANDIDATES
   // ============================================================
   const candidates = [];
   for (const storeCode of COCKPIT.scope.storeIds) {
     const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === storeCode) : null;
     const cfg = cockpitGetGroupConfig(store);
-    const zone = cockpitGetZoneFor(store);
-    // % → multiplier
-    const zMin = zone.min / 100;
-    const zTarget = zone.target / 100;
-    const zMax = zone.max / 100;
 
     const stockMap = COCKPIT.data.stockByStoreCode.get(storeCode) || new Map();
     const salesMapGroup = salesByGroup.get(storeCode) || new Map();
@@ -11295,60 +10944,17 @@ function cockpitRunAllocationEngine() {
       if (sold === 0 && onHand === 0) continue;
 
       let skipReason = null;
-      let zoneStatus = 'unknown';  // dead | over_max | in_zone | under_min | low_stock
-
       if (sold === 0 && onHand > 0) {
         skipReason = 'dead';
-        zoneStatus = 'dead';
       }
 
-      // ====== LOGIC ZONE-BASED ======
-      const stockRatio = sold > 0 ? (onHand / sold) : (onHand > 0 ? 999 : 0);  // current tồn / bán
+      // CÔNG THỨC CHÍNH: qty = min(COV × sold − onHand, sold)
+      // = min cap, max bằng số đã bán (không vượt số bán)
+      const targetStock = Math.round(COV * sold);     // Tồn sau chia mong muốn (200% × bán)
+      const gapToTarget = Math.max(0, targetStock - onHand);  // Khoảng cách để đạt target
+      const needIdeal = sold > 0 ? Math.min(gapToTarget, sold) : 0;  // Nhưng chỉ tối đa bằng bán
 
-      let targetStock = 0;     // mục tiêu tồn sau chia
-      let needIdeal = 0;       // số cần chia
-      let qtyMaxAllowed = 0;   // ràng buộc max
-
-      if (sold > 0 && !skipReason) {
-        const stockMin = sold * zMin;       // tồn tối thiểu (130%)
-        const stockTarget = sold * zTarget;  // tồn lý tưởng (160%)
-        const stockMax = sold * zMax;        // tồn tối đa (200%)
-
-        if (onHand >= stockMax) {
-          // CASE A: ĐÃ DƯ — không cấp
-          zoneStatus = 'over_max';
-          needIdeal = 0;
-        } else if (onHand >= stockTarget) {
-          // CASE B: VÙNG AN TOÀN — có thể bỏ qua hoặc cấp rất ít
-          zoneStatus = 'in_zone';
-          needIdeal = 0;
-        } else {
-          // CASE C/D/E: CẦN CẤP
-          targetStock = Math.round(stockTarget);
-          const gap = Math.round(stockTarget - onHand);
-
-          // Boost mode khi tồn cực thấp
-          const isLowStock = AI_WEIGHTS.boostEnabled &&
-                             stockRatio < (AI_WEIGHTS.boostLowStockThreshold / 100);
-
-          if (isLowStock) {
-            // BOOST: cho phép qty ≤ 1.5 × sold
-            qtyMaxAllowed = Math.round(sold * AI_WEIGHTS.boostQtyMultiplier);
-            zoneStatus = 'low_stock';
-          } else if (onHand < stockMin) {
-            // Dưới sàn
-            qtyMaxAllowed = sold;  // ràng buộc chuẩn
-            zoneStatus = 'under_min';
-          } else {
-            // Trong vùng [Min, Target)
-            qtyMaxAllowed = sold;
-            zoneStatus = 'under_target';
-          }
-
-          needIdeal = Math.min(gap, qtyMaxAllowed);
-        }
-      }
-
+      // needMin (cho pha cấp tối thiểu) = 50% needIdeal — đảm bảo CH nào cũng có ít
       const needMin = sold > 0 ? Math.round(needIdeal * 0.5) : 0;
 
       candidates.push({
@@ -11357,14 +10963,8 @@ function cockpitRunAllocationEngine() {
         group: store && store.nhomCh ? String(store.nhomCh) : '2',
         priority: cfg.priority,
         targetStock,
-        needIdeal,
-        needMin,
-        qtyMaxAllowed,
-        zoneStatus,
-        stockRatio,             // ratio hiện tại (cho health bar)
-        zoneMin: zMin,
-        zoneTarget: zTarget,
-        zoneMax: zMax,
+        needIdeal,      // Nhu cầu lý tưởng
+        needMin,        // Nhu cầu tối thiểu (đảm bảo có hàng)
         daysScope: cfg.days,
         coverageMin: cfg.coverageMin,
         coverageMax: cfg.coverageTarget,
@@ -11492,24 +11092,18 @@ function cockpitRunAllocationEngine() {
       suggested: c.skipReason ? 0 : c.needIdeal,
       targetStock: c.targetStock,
       cap: c.needIdeal,
-      qtyMaxAllowed: c.qtyMaxAllowed,   // Trần qty (sold hoặc 1.5×sold nếu boost)
       qty: c.allocated,
       warehouseStock: c.warehouseStock,
       daysOfStock: c.daysOfStock,
       velocity: c.velocity,
       skipReason: c.skipReason,
-      zoneStatus: c.zoneStatus,          // dead | over_max | in_zone | under_min | low_stock | under_target
-      stockRatio: c.stockRatio,          // hiện tại
-      zoneMin: c.zoneMin,                // % min/target/max
-      zoneTarget: c.zoneTarget,
-      zoneMax: c.zoneMax,
       group: c.group,
       priority: c.priority,
       daysScope: c.daysScope,
       coverageMin: c.coverageMin,
       coverageMax: c.coverageMax,
       meta: c.meta,
-      substitutes: subs,
+      substitutes: subs,  // Array of {maSub, qty}
       locked: false
     });
   }
@@ -11655,41 +11249,34 @@ function cockpitGenerateWarnings() {
     });
   }
 
-  // 2. CH có tồn SAU CHIA vượt zone Max (theo nhóm CH)
+  // 2. CH có tồn SAU CHIA quá cao (vượt ngưỡng từ slider, mặc định 200%)
+  const overcapThreshold = AI_WEIGHTS.overcappedThreshold || 2.0;
   const overstockedStores = [];
   for (const [code, list] of byStore) {
     const totalSold = list.reduce((s, a) => s + a.sold, 0);
     const totalOnHand = list.reduce((s, a) => s + a.onHand, 0);
     const totalQty = list.reduce((s, a) => s + a.qty, 0);
     const afterChia = totalOnHand + totalQty;
-
-    // Lấy zone Max theo nhóm CH
-    const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === code) : null;
-    const zone = cockpitGetZoneFor(store);
-    const maxThreshold = zone.max / 100;
-
-    if (totalSold > 5 && afterChia / totalSold > maxThreshold) {
+    if (totalSold > 5 && afterChia / totalSold > overcapThreshold) {
       overstockedStores.push({
         code,
         ratio: afterChia / Math.max(1, totalSold),
         onHand: totalOnHand,
         qty: totalQty,
         afterChia,
-        sold: totalSold,
-        store,
-        maxThreshold: zone.max
+        sold: totalSold
       });
     }
   }
   if (overstockedStores.length > 0) {
     overstockedStores.sort((a, b) => b.ratio - a.ratio);
-    const top = overstockedStores[0];
+    const store = (typeof STORES_DATA !== 'undefined') ? STORES_DATA.find(s => s.maCh === overstockedStores[0].code) : null;
     W.push({
       type: 'overstocked',
       severity: 'medium',
       icon: '⊕',
       title: `${overstockedStores.length} CH cấp dư hàng`,
-      desc: `Tồn sau chia vượt zone Max · Top: ${top.store ? top.store.ten : top.code} (${(top.ratio*100).toFixed(0)}% vs max ${top.maxThreshold}%)`,
+      desc: `Tồn sau chia / bán > ${(overcapThreshold * 100).toFixed(0)}% · Top: ${store ? store.ten : overstockedStores[0].code} (${overstockedStores[0].ratio.toFixed(1)}× bán)`,
       data: overstockedStores
     });
   }
@@ -12254,67 +11841,6 @@ function cockpitRenderSidePanel(storeCode) {
   const slotsLeft = capInfo ? Math.max(0, capInfo.cap.max - onHand) : null;
   const slotsAfter = capInfo ? Math.max(0, capInfo.cap.max - after) : null;
 
-  // ===== HEALTH BAR (Inventory Zone) =====
-  const zone = cockpitGetZoneFor(store);
-  const ratioCurrent = sold > 0 ? (onHand / sold) * 100 : 0;
-  const ratioAfter = sold > 0 ? (after / sold) * 100 : 0;
-  // Scale max = 250% hoặc max + 50, lấy lớn hơn
-  const scaleMax = Math.max(zone.max + 50, ratioAfter + 30, 250);
-  const pctOnHand = sold > 0 ? Math.min(100, (ratioCurrent / scaleMax) * 100) : 0;
-  const pctAfter = sold > 0 ? Math.min(100, (ratioAfter / scaleMax) * 100) : 0;
-  const pctMin = (zone.min / scaleMax) * 100;
-  const pctTarget = (zone.target / scaleMax) * 100;
-  const pctMax = (zone.max / scaleMax) * 100;
-
-  // Status text
-  let zoneStatusText = '', zoneStatusColor = 'var(--c-green)';
-  if (sold === 0) {
-    zoneStatusText = 'Chưa có sức bán';
-    zoneStatusColor = 'var(--text-soft)';
-  } else if (ratioAfter < zone.min) {
-    zoneStatusText = `Thiếu hàng — dưới mức tối thiểu ${zone.min}%`;
-    zoneStatusColor = 'var(--c-red)';
-  } else if (ratioAfter <= zone.target) {
-    zoneStatusText = `Vùng an toàn — đảm bảo tăng trưởng`;
-    zoneStatusColor = 'var(--c-green)';
-  } else if (ratioAfter <= zone.max) {
-    zoneStatusText = `Vùng an toàn — gần đạt mức tối đa`;
-    zoneStatusColor = 'var(--c-orange)';
-  } else {
-    zoneStatusText = `Cấp dư hàng — vượt mức tối đa ${zone.max}%`;
-    zoneStatusColor = 'var(--c-red)';
-  }
-
-  const healthBar = sold > 0 ? `
-    <div class="health-bar-wrap">
-      <div class="health-bar-head">
-        <div class="health-bar-title">Sức khỏe tồn kho (Inventory Zone — Nhóm ${cfg.label.split(' ')[0].replace('N','')})</div>
-        <div class="health-bar-status" style="color:${zoneStatusColor}">${zoneStatusText}</div>
-      </div>
-      <div class="health-bar-track">
-        <div class="health-zone health-zone-under" style="width:${pctMin}%"></div>
-        <div class="health-zone health-zone-mid" style="width:${pctTarget - pctMin}%"></div>
-        <div class="health-zone health-zone-target" style="width:${pctMax - pctTarget}%"></div>
-        <div class="health-zone health-zone-over" style="width:${100 - pctMax}%"></div>
-
-        <!-- Markers cho onHand và after -->
-        ${pctOnHand > 0 ? `<div class="health-marker health-marker-current" style="left:${pctOnHand}%" title="Tồn hiện tại: ${ratioCurrent.toFixed(0)}%"></div>` : ''}
-        ${qty > 0 ? `<div class="health-marker health-marker-after" style="left:${pctAfter}%" title="Sau chia: ${ratioAfter.toFixed(0)}%"></div>` : ''}
-      </div>
-      <div class="health-bar-labels">
-        <span style="left:0%">0%</span>
-        <span style="left:${pctMin}%">${zone.min}%</span>
-        <span style="left:${pctTarget}%">${zone.target}%</span>
-        <span style="left:${pctMax}%">${zone.max}%</span>
-      </div>
-      <div class="health-bar-legend">
-        <span><span class="health-dot health-dot-current"></span> Hiện tại: <strong>${formatNumber(onHand)}</strong> (${ratioCurrent.toFixed(0)}%)</span>
-        ${qty > 0 ? `<span><span class="health-dot health-dot-after"></span> Sau chia: <strong>${formatNumber(after)}</strong> (${ratioAfter.toFixed(0)}%)</span>` : ''}
-        <span style="margin-left:auto;color:var(--text-soft)">Mục tiêu: ${zone.target}% × bán = <strong>${Math.round(sold * zone.target / 100)}</strong></span>
-      </div>
-    </div>
-  ` : '';
-
   const segmentSummary = `
     <div class="sp-narrative">
       <div class="sp-narrative-title">📊 Tóm tắt tình hình CH</div>
@@ -12323,7 +11849,6 @@ function cockpitRenderSidePanel(storeCode) {
         (≈ <strong>${velocityTotal.toFixed(1)}</strong> cái/ngày).
         Hiện tồn <strong>${formatNumber(onHand)} cái</strong>${totalDaysOfStock !== null ? ` = đủ bán <strong>${totalDaysOfStock} ngày</strong> nữa` : ''}.
       </div>
-      ${healthBar}
       <div class="sp-narrative-segments">
         <div class="sp-seg-item sp-seg-running">
           <span class="sp-seg-icon">🔥</span>
@@ -12669,7 +12194,7 @@ function cockpitShowAILoader(onComplete) {
     { icon: '📦', text: `Đang phân tích ${formatNumber(stockCount)} dòng tồn kho...`, delay: 240 },
     { icon: '🏬', text: `Đang phân loại ${storeCount} ${cockpitGetStoreNoun()} theo nhóm vận hành...`, sub: `${n1} N1 (7d) · ${n2} N2 (14d) · ${n3} N3 (21d)`, delay: 320 },
     { icon: '🎯', text: `Đang xác định nhóm "Hàng ${typeLabel}" — Ngành ${catLabel}...`, delay: 260 },
-    { icon: '⚙', text: `Đang tính Inventory Zone (N1: ${AI_WEIGHTS.zoneByGroup['1'].target}% · N2: ${AI_WEIGHTS.zoneByGroup['2'].target}% · N3: ${AI_WEIGHTS.zoneByGroup['3'].target}%)...`, delay: 300 },
+    { icon: '⚙', text: `Đang tính nhu cầu tối ưu (target = ${(AI_WEIGHTS.coverageTargetMultiplier * 100).toFixed(0)}% × bán)...`, delay: 300 },
     { icon: '🔍', text: 'Đang phát hiện mã thiếu nguồn...', delay: 280 },
     { icon: '⚖', text: `Đang cân đối phân bổ (${(AI_WEIGHTS.shortageProportionalRatio * 100).toFixed(0)}% tỷ lệ + ${(AI_WEIGHTS.shortagePriorityBonus * 100).toFixed(0)}% ưu tiên N1)...`, delay: 320 },
   ];
@@ -12747,104 +12272,61 @@ function cockpitShowAILoader(onComplete) {
   nextStep();
 }
 
-// ====== AI WEIGHTS SLIDERS (Zone-based) ======
-function cockpitOnZoneChange(group, key, value) {
-  const v = parseInt(value);
-  AI_WEIGHTS.zoneByGroup[group][key] = v;
-  document.getElementById(`z${group}-${key}-val`).textContent = v + '%';
-
-  // Constraint: Min ≤ Target ≤ Max
-  const z = AI_WEIGHTS.zoneByGroup[group];
-  if (z.min > z.target) {
-    z.target = z.min;
-    const tEl = document.getElementById(`z${group}-target`);
-    const tVal = document.getElementById(`z${group}-target-val`);
-    if (tEl) { tEl.value = z.min; tVal.textContent = z.min + '%'; }
-  }
-  if (z.target > z.max) {
-    z.max = z.target;
-    const mEl = document.getElementById(`z${group}-max`);
-    const mVal = document.getElementById(`z${group}-max-val`);
-    if (mEl) { mEl.value = z.target; mVal.textContent = z.target + '%'; }
-  }
-
-  cockpitSaveWeights();
-  cockpitInvalidateAllocations();
-}
-
+// ====== AI WEIGHTS SLIDERS ======
 function cockpitOnSliderChange(key, value) {
-  if (key === 'proportional') {
+  if (key === 'coverage') {
+    AI_WEIGHTS.coverageTargetMultiplier = parseInt(value) / 100;
+    document.getElementById('slider-coverage-val').textContent = value + '%';
+  } else if (key === 'proportional') {
     AI_WEIGHTS.shortageProportionalRatio = parseInt(value) / 100;
     AI_WEIGHTS.shortagePriorityBonus = 1 - AI_WEIGHTS.shortageProportionalRatio;
     document.getElementById('slider-proportional-val').textContent = value + '%';
+  } else if (key === 'overcap') {
+    AI_WEIGHTS.overcappedThreshold = parseInt(value) / 100;
+    document.getElementById('slider-overcap-val').textContent = value + '%';
   } else if (key === 'substitute') {
     AI_WEIGHTS.allowSaleSubstitute = !!value;
-  } else if (key === 'boost') {
-    AI_WEIGHTS.boostEnabled = !!value;
   }
   cockpitSaveWeights();
-  cockpitInvalidateAllocations();
-}
-
-function cockpitInvalidateAllocations() {
+  // Reset allocations vì engine config đổi
   if (COCKPIT.allocations.size > 0) {
     COCKPIT.allocations = new Map();
     COCKPIT.warnings = [];
     cockpitRenderHero();
     cockpitRenderTableSection();
-    const f = document.getElementById('cockpit-footer');
-    if (f) f.style.display = 'none';
+    document.getElementById('cockpit-footer').style.display = 'none';
   }
 }
 
 function cockpitResetAIWeights() {
-  AI_WEIGHTS.zoneByGroup = {
-    '1': { min: 140, target: 170, max: 220 },
-    '2': { min: 130, target: 160, max: 200 },
-    '3': { min: 120, target: 150, max: 180 }
-  };
-  AI_WEIGHTS.boostEnabled = true;
-  AI_WEIGHTS.boostLowStockThreshold = 30;
-  AI_WEIGHTS.boostQtyMultiplier = 1.5;
+  AI_WEIGHTS.coverageTargetMultiplier = 2.0;
   AI_WEIGHTS.shortageProportionalRatio = 0.7;
   AI_WEIGHTS.shortagePriorityBonus = 0.3;
   AI_WEIGHTS.allowSaleSubstitute = true;
+  AI_WEIGHTS.overcappedThreshold = 2.0;
   cockpitSaveWeights();
   cockpitApplySlidersToUI();
-  cockpitInvalidateAllocations();
   cockpitToast('Đã khôi phục cấu hình AI mặc định.', 'success');
 }
 
 function cockpitApplySlidersToUI() {
-  // Per-group zone sliders
-  for (const g of ['1', '2', '3']) {
-    const z = AI_WEIGHTS.zoneByGroup[g];
-    for (const k of ['min', 'target', 'max']) {
-      const el = document.getElementById(`z${g}-${k}`);
-      const valEl = document.getElementById(`z${g}-${k}-val`);
-      if (el) el.value = z[k];
-      if (valEl) valEl.textContent = z[k] + '%';
-    }
-  }
-  // Shared settings
+  const sCov = document.getElementById('slider-coverage');
   const sProp = document.getElementById('slider-proportional');
+  const sOver = document.getElementById('slider-overcap');
+  const sSub = document.getElementById('slider-substitute');
+  if (sCov) {
+    sCov.value = Math.round(AI_WEIGHTS.coverageTargetMultiplier * 100);
+    document.getElementById('slider-coverage-val').textContent = sCov.value + '%';
+  }
   if (sProp) {
     sProp.value = Math.round(AI_WEIGHTS.shortageProportionalRatio * 100);
     document.getElementById('slider-proportional-val').textContent = sProp.value + '%';
   }
-  const sSub = document.getElementById('slider-substitute');
+  if (sOver) {
+    sOver.value = Math.round(AI_WEIGHTS.overcappedThreshold * 100);
+    document.getElementById('slider-overcap-val').textContent = sOver.value + '%';
+  }
   if (sSub) sSub.checked = AI_WEIGHTS.allowSaleSubstitute;
-  const sBoost = document.getElementById('slider-boost');
-  if (sBoost) sBoost.checked = AI_WEIGHTS.boostEnabled;
-}
-
-function cockpitToggleAISliders() {
-  const body = document.getElementById('cockpit-ai-sliders-body');
-  const label = document.getElementById('cockpit-ai-toggle-label');
-  if (!body) return;
-  const isOpen = body.style.display !== 'none';
-  body.style.display = isOpen ? 'none' : 'block';
-  if (label) label.textContent = isOpen ? '▶ Mở rộng' : '▼ Thu gọn';
 }
 
 function cockpitToast(msg, type) {
