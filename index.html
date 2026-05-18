@@ -2668,7 +2668,12 @@ body.workspace-dphh #section-region,
 body.workspace-dphh #section-attributes,
 body.workspace-dphh #section-lifecycle,
 body.workspace-dphh #section-transfer,
-body.workspace-dphh #section-raw {
+body.workspace-dphh #section-raw,
+body.workspace-dphh #section-hot,
+body.workspace-dphh .live-status-bar,
+body.workspace-dphh .live-controls,
+body.workspace-dphh .live-control-btn,
+body.workspace-dphh .live-feed {
   display: none !important;
 }
 body.workspace-dphh #section-allocation {
@@ -4984,7 +4989,7 @@ body.workspace-analytics #section-allocation {
             <span class="cockpit-scope-value" id="cockpit-store-label">0</span>
           </div>
           <div class="cockpit-scope-summary-right">
-            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v12.0 · Inventory Zone · Health Bar · Boost mode</span>
+            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v12.1 · Ghost UI fix · Data guard · State sync</span>
             <button class="cockpit-btn-ghost" id="cockpit-scope-toggle">⚙ Mở chi tiết</button>
           </div>
         </div>
@@ -5334,18 +5339,6 @@ body.workspace-analytics #section-allocation {
     </aside>
   </div>
 
-  <!-- Substitute modal -->
-  <div class="alloc-sub-modal-backdrop" id="alloc-sub-modal-backdrop" onclick="if(event.target===this)allocCloseSubModal()">
-    <div class="alloc-sub-modal">
-      <div class="alloc-sub-modal-title" id="alloc-sub-modal-title">Gợi ý mã thay thế</div>
-      <div class="alloc-sub-modal-sub" id="alloc-sub-modal-sub"></div>
-      <div class="alloc-sub-grid" id="alloc-sub-grid"></div>
-      <div style="text-align:right;margin-top:16px">
-        <button class="alloc-btn" onclick="allocCloseSubModal()">Đóng</button>
-      </div>
-    </div>
-  </div>
-  
   <div id="loading" class="loading-screen" style="display:none">
     <div class="loader"></div>
     <div>Đang tải dữ liệu từ Google Sheet...</div>
@@ -10886,17 +10879,25 @@ function cockpitSetGroup(g) {
   }
 
   COCKPIT.allocations = new Map();
+  COCKPIT.warnings = [];
   cockpitRebuildStoreScope();
   cockpitUpdateScopeSummary();
   cockpitRenderHero();
+  cockpitRenderTableSection();
+  const f = document.getElementById('cockpit-footer');
+  if (f) f.style.display = 'none';
 }
 function cockpitSetType(t) {
   COCKPIT.scope.type = t;
   document.querySelectorAll('.scope-chip[data-type]').forEach(c => c.classList.toggle('active', c.dataset.type === t));
   COCKPIT.allocations = new Map();
+  COCKPIT.warnings = [];
   cockpitRebuildStoreScope();
   cockpitUpdateScopeSummary();
   cockpitRenderHero();
+  cockpitRenderTableSection();
+  const f = document.getElementById('cockpit-footer');
+  if (f) f.style.display = 'none';
 }
 
 function cockpitFilterStores() {
@@ -11231,6 +11232,19 @@ function cockpitAutoAllocate() {
     return;
   }
 
+  // Guard: data sources ready
+  const hasRaw = typeof RAW_DATA !== 'undefined' && RAW_DATA.length > 0;
+  const hasStock = typeof STOCK_DATA !== 'undefined' && STOCK_DATA.length > 0;
+  const hasStores = typeof STORES_DATA !== 'undefined' && STORES_DATA.length > 0;
+  if (!hasRaw || !hasStock || !hasStores) {
+    const missing = [];
+    if (!hasStores) missing.push('danh sách CH');
+    if (!hasStock) missing.push('dữ liệu tồn kho');
+    if (!hasRaw) missing.push('dữ liệu bán hàng');
+    cockpitToast(`Dữ liệu chưa tải xong: ${missing.join(', ')}. Vui lòng đợi 5 giây rồi thử lại.`, 'error');
+    return;
+  }
+
   const btn = document.getElementById('cockpit-btn-autoallocate');
   if (btn) btn.disabled = true;
 
@@ -11516,12 +11530,32 @@ function cockpitRunAllocationEngine() {
 
   COCKPIT._phase1Shortages = shortagesPhase1;
 
+  // Diagnostic: nếu candidates trống → data có vấn đề
+  if (candidates.length === 0) {
+    // Đo xem CH có data không
+    let storesWithSales = 0, storesWithStock = 0;
+    for (const code of COCKPIT.scope.storeIds) {
+      if ((salesByGroup.get(code) || new Map()).size > 0) storesWithSales++;
+      if ((COCKPIT.data.stockByStoreCode.get(code) || new Map()).size > 0) storesWithStock++;
+    }
+    console.warn('[Cockpit] Engine build: 0 candidates', {
+      scopeSize: COCKPIT.scope.storeIds.size,
+      storesWithSales, storesWithStock,
+      productMetaSize: COCKPIT.data.productMeta.size,
+      warehouseStockSize: COCKPIT.data.warehouseStockByCode.size,
+      warehouseTotalUnits: [...COCKPIT.data.warehouseStockByCode.values()].reduce((s,v)=>s+v,0)
+    });
+    cockpitToast(`⚠ Không tạo được phương án. CH có sales: ${storesWithSales}/${COCKPIT.scope.storeIds.size}. Kiểm tra Console (F12).`, 'error');
+  }
+
   cockpitGenerateWarnings();
   cockpitRenderHero();
   cockpitRenderTableSection();
   cockpitShowFooter();
 
-  cockpitToast(`AI đã chia ${formatNumber(cockpitTotalQty())} sản phẩm cho ${cockpitStoresWithAlloc()} ${cockpitGetStoreNoun()}.`, 'success');
+  if (candidates.length > 0) {
+    cockpitToast(`AI đã chia ${formatNumber(cockpitTotalQty())} sản phẩm cho ${cockpitStoresWithAlloc()} ${cockpitGetStoreNoun()}.`, 'success');
+  }
 }
 
 // ============================================================
