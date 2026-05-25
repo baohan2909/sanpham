@@ -4989,7 +4989,7 @@ body.workspace-analytics #section-allocation {
             <span class="cockpit-scope-value" id="cockpit-store-label">0</span>
           </div>
           <div class="cockpit-scope-summary-right">
-            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v12.1 · Ghost UI fix · Data guard · State sync</span>
+            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v12.2 · Fix bug số liệu mã SP theo ngày</span>
             <button class="cockpit-btn-ghost" id="cockpit-scope-toggle">⚙ Mở chi tiết</button>
           </div>
         </div>
@@ -5367,7 +5367,7 @@ body.workspace-analytics #section-allocation {
 </div>
 <script>
 // ============ STATE ============
-const API_URL = 'https://script.google.com/macros/s/AKfycbxV1A53tKta2nKzaFFNo9zmnWdRjcPm4CGFAMKqG9PWbgBl_L7Zl6LCbI44F4ohV17O/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyZvvlNm_F1kkqJRys8BgsOtN8kVBEPAtMTRfRiIszRbGTc0ahYS9MFAa9r-GvZJ0v-/exec';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -6020,15 +6020,9 @@ async function applyFilters() {
 
     if (matchedCodes.size > 0) {
       // User đang tìm mã SP cụ thể
-      const hasInRange = FILTERED.some(r => matchedCodes.has(r.maThamChieu));
-      if (hasInRange) {
-        // Có GD trong khoảng → chỉ giữ GD của mã đó
-        FILTERED = FILTERED.filter(r => matchedCodes.has(r.maThamChieu));
-      } else {
-        // Mã có trong hệ thống nhưng không có GD trong khoảng → lấy toàn bộ GD của mã từ RAW_DATA
-        // (để user vẫn xem được SP detail + stock info)
-        FILTERED = RAW_DATA.filter(r => matchedCodes.has(r.maThamChieu));
-      }
+      // CHỈ giữ GD trong khoảng ngày + match mã (không mở rộng ra ngoài khoảng!)
+      FILTERED = FILTERED.filter(r => matchedCodes.has(r.maThamChieu));
+      // Nếu không có GD nào → FILTERED rỗng (đúng = "không bán mã này trong ngày đã chọn")
     } else {
       // Không khớp mã SP → tìm trong barcode + soDon
       FILTERED = FILTERED.filter(r => {
