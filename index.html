@@ -1527,9 +1527,23 @@
     display: flex;
     gap: 18px;
     flex-wrap: wrap;
+    align-items: center;
   }
   .info-bar span { color: rgba(255,255,255,0.6); }
   .info-bar strong { color: white; font-weight: 600; }
+  .info-bar .info-bar-version {
+    margin-left: auto;
+    padding: 3px 10px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    font-size: 10.5px;
+    letter-spacing: 0.02em;
+  }
+  .info-bar .info-bar-version strong {
+    color: #ffd591;
+    font-weight: 700;
+  }
 
 
 /* ===========================================================
@@ -5368,6 +5382,7 @@ body.workspace-analytics #section-allocation {
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbyZvvlNm_F1kkqJRys8BgsOtN8kVBEPAtMTRfRiIszRbGTc0ahYS9MFAa9r-GvZJ0v-/exec';
+const APP_VERSION = 'v12.3 · Fix duplicate · Dedupe load tháng';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -5823,6 +5838,7 @@ function updateInfoBar() {
     <div><span>Kho/CH:</span> <strong>${formatNumber(stores.size)}</strong></div>
     <div><span>Đã load:</span> ${monthsBadge}</div>
     <div><span>Khoảng:</span> <strong>${dates[0] || '—'} → ${dates[dates.length-1] || '—'}</strong></div>
+    <div class="info-bar-version" title="Phiên bản đang chạy"><strong>${APP_VERSION}</strong></div>
   `;
 }
 
