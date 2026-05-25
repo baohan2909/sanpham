@@ -5003,7 +5003,7 @@ body.workspace-analytics #section-allocation {
             <span class="cockpit-scope-value" id="cockpit-store-label">0</span>
           </div>
           <div class="cockpit-scope-summary-right">
-            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v12.4 · Fix duplicate · Giữ data hôm nay</span>
+            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v12.5 · Promise lock · Race-free load</span>
             <button class="cockpit-btn-ghost" id="cockpit-scope-toggle">⚙ Mở chi tiết</button>
           </div>
         </div>
@@ -5382,7 +5382,7 @@ body.workspace-analytics #section-allocation {
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbyZvvlNm_F1kkqJRys8BgsOtN8kVBEPAtMTRfRiIszRbGTc0ahYS9MFAa9r-GvZJ0v-/exec';
-const APP_VERSION = 'v12.4 · Fix duplicate · Giữ data hôm nay';
+const APP_VERSION = 'v12.5 · Promise lock · Race-free load';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -5623,34 +5623,44 @@ async function loadData() {
 }
 
 // Refresh chỉ data hôm nay + stock - request song song nhỏ gọn
+let _refreshTodayLock = null;
 async function refreshTodayAndStock() {
-  try {
-    const today = todayString();
-    
-    // Fetch song song
-    const [todayResult, stockResult] = await Promise.allSettled([
-      fetchEndpoint('today'),
-      fetchEndpoint('stock')
-    ]);
-    
-    if (todayResult.status === 'fulfilled' && todayResult.value.sales) {
-      RAW_DATA = RAW_DATA.filter(r => r.ngay !== today);
-      const filtered = todayResult.value.sales.filter(r => isAllowedCategory(r.nganhHang));
-      RAW_DATA = RAW_DATA.concat(filtered);
-      cacheSet('today_' + today, todayResult.value.sales, 600);
+  // Lock: nếu đang refresh → đợi xong rồi return
+  if (_refreshTodayLock) return _refreshTodayLock;
+  
+  _refreshTodayLock = (async () => {
+    try {
+      const today = todayString();
+      
+      // Fetch song song
+      const [todayResult, stockResult] = await Promise.allSettled([
+        fetchEndpoint('today'),
+        fetchEndpoint('stock')
+      ]);
+      
+      if (todayResult.status === 'fulfilled' && todayResult.value.sales) {
+        RAW_DATA = RAW_DATA.filter(r => r.ngay !== today);
+        const filtered = todayResult.value.sales.filter(r => isAllowedCategory(r.nganhHang));
+        RAW_DATA = RAW_DATA.concat(filtered);
+        cacheSet('today_' + today, todayResult.value.sales, 600);
+      }
+      
+      if (stockResult.status === 'fulfilled' && stockResult.value.stock) {
+        const stockRaw = stockResult.value.stock;
+        STOCK_DATA = stockRaw.filter(s => isAllowedCategory(s.nganhCap1));
+        cacheSet('stock', stockRaw, 1800);
+      }
+      
+      indexStock();
+      if (typeof renderAll === 'function') applyFilters();
+    } catch (err) {
+      console.warn('[REFRESH] Failed:', err);
+    } finally {
+      _refreshTodayLock = null;
     }
-    
-    if (stockResult.status === 'fulfilled' && stockResult.value.stock) {
-      const stockRaw = stockResult.value.stock;
-      STOCK_DATA = stockRaw.filter(s => isAllowedCategory(s.nganhCap1));
-      cacheSet('stock', stockRaw, 1800);
-    }
-    
-    indexStock();
-    if (typeof renderAll === 'function') applyFilters();
-  } catch (err) {
-    console.warn('[REFRESH] Failed:', err);
-  }
+  })();
+  
+  return _refreshTodayLock;
 }
 
 function todayString() {
@@ -5659,9 +5669,32 @@ function todayString() {
 
 // Load thêm tháng cũ (lazy) - cache vĩnh viễn vì data không đổi
 // Tháng HIỆN TẠI có cache key kèm date suffix (mỗi ngày 1 cache mới)
+//
+// PROMISE LOCK: đảm bảo cùng 1 tháng chỉ được load 1 lần tại 1 thời điểm.
+// Nếu có nhiều call đồng thời, tất cả share cùng promise → không duplicate.
+const _monthLoadLocks = {};
+
 async function loadMonth(month) {
   if (LOADED_MONTHS.has(month)) return true;
   if (!META_INFO || !META_INFO.archiveMonths.includes(month)) return false;
+
+  // PROMISE LOCK: nếu đang load tháng này rồi → return cùng promise
+  if (_monthLoadLocks[month]) {
+    return _monthLoadLocks[month];
+  }
+
+  // Tạo promise mới + lưu lock
+  _monthLoadLocks[month] = _loadMonthImpl(month).finally(() => {
+    // Cleanup lock sau khi xong (dù success hay fail)
+    delete _monthLoadLocks[month];
+  });
+
+  return _monthLoadLocks[month];
+}
+
+async function _loadMonthImpl(month) {
+  // Double-check sau khi vào lock (có thể đã được load bởi call khác)
+  if (LOADED_MONTHS.has(month)) return true;
 
   const isCurrentMonth = META_INFO && month === META_INFO.currentMonth;
   const cacheKey = isCurrentMonth
@@ -5686,7 +5719,6 @@ async function loadMonth(month) {
     const monthPrefix = month + '-';
     const today = todayString();
     RAW_DATA = RAW_DATA.filter(r => !r.ngay || !r.ngay.startsWith(monthPrefix) || r.ngay === today);
-    // Loại bỏ data hôm nay khỏi cached (để giữ data hôm nay fresh từ endpoint 'today')
     const cachedNoToday = filtered.filter(r => r.ngay !== today);
     RAW_DATA = RAW_DATA.concat(cachedNoToday);
     LOADED_MONTHS.add(month);
@@ -5700,13 +5732,19 @@ async function loadMonth(month) {
     
     const data = await fetchEndpoint('month', { month: month });
     
+    // Double-check lần nữa sau fetch (race: tháng có thể đã được load bởi call song song
+    // mà không qua lock — vd qua restoreFromCache)
+    if (LOADED_MONTHS.has(month)) {
+      console.log(`[MONTH] ${month} đã được load song song, bỏ qua concat`);
+      return true;
+    }
+
     const sales = data.sales || [];
     const filtered = sales.filter(r => isAllowedCategory(r.nganhHang));
     // Xóa data trùng (cùng tháng, NHƯNG GIỮ HÔM NAY) trước khi concat
     const monthPrefix = month + '-';
     const today = todayString();
     RAW_DATA = RAW_DATA.filter(r => !r.ngay || !r.ngay.startsWith(monthPrefix) || r.ngay === today);
-    // Loại bỏ data hôm nay khỏi sales (để giữ data hôm nay fresh từ endpoint 'today')
     const salesNoToday = filtered.filter(r => r.ngay !== today);
     RAW_DATA = RAW_DATA.concat(salesNoToday);
     LOADED_MONTHS.add(month);
@@ -6071,19 +6109,20 @@ async function applyFilters() {
   renderAll();
   
   // ====== DIAGNOSTIC: phát hiện duplicate ======
-  // Chỉ check khi search 1 mã cụ thể để dễ debug
-  if (search && search.length > 3) {
-    const ids = {};
+  // Check duplicate trên RAW_DATA (1 lần mỗi 30s, không spam console)
+  if (!window._lastDupCheck || (Date.now() - window._lastDupCheck) > 30000) {
+    window._lastDupCheck = Date.now();
+    const seen = new Set();
     let dupCount = 0;
-    for (const r of FILTERED) {
-      const id = r.soDon + '|' + r.barcode + '|' + r.maThamChieu + '|' + r.ngay + '|' + r.gio + '|' + r.cuaHang;
-      ids[id] = (ids[id] || 0) + 1;
-      if (ids[id] === 2) dupCount++;
+    for (const r of RAW_DATA) {
+      const id = (r.soDon || '') + '|' + (r.barcode || '') + '|' + (r.maThamChieu || '') + '|' + (r.ngay || '') + '|' + (r.gio || '') + '|' + (r.cuaHang || '');
+      if (seen.has(id)) dupCount++;
+      else seen.add(id);
     }
     if (dupCount > 0) {
-      console.warn(`[DUP] Tìm thấy ${dupCount} giao dịch trùng lặp trong FILTERED (${FILTERED.length} dòng). RAW_DATA=${RAW_DATA.length}, LOADED_MONTHS=${[...LOADED_MONTHS].join(',')}`);
+      console.warn(`[DUP] ⚠ RAW_DATA có ${dupCount}/${RAW_DATA.length} GD trùng lặp. LOADED_MONTHS=[${[...LOADED_MONTHS].join(',')}]`);
     } else {
-      console.log(`[OK] Không có duplicate. FILTERED=${FILTERED.length}, RAW_DATA=${RAW_DATA.length}`);
+      console.log(`[OK] RAW_DATA sạch: ${RAW_DATA.length} GD, không duplicate.`);
     }
   }
 }
