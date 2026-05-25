@@ -4989,7 +4989,7 @@ body.workspace-analytics #section-allocation {
             <span class="cockpit-scope-value" id="cockpit-store-label">0</span>
           </div>
           <div class="cockpit-scope-summary-right">
-            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v12.2 · Fix bug số liệu mã SP theo ngày</span>
+            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v12.3 · Fix duplicate data · Dedupe khi load tháng</span>
             <button class="cockpit-btn-ghost" id="cockpit-scope-toggle">⚙ Mở chi tiết</button>
           </div>
         </div>
@@ -5667,6 +5667,9 @@ async function loadMonth(month) {
   const cached = cacheGet(cacheKey);
   if (cached) {
     const filtered = cached.filter(r => isAllowedCategory(r.nganhHang));
+    // Xóa data trùng (cùng tháng) trước khi concat — tránh duplicate
+    const monthPrefix = month + '-';
+    RAW_DATA = RAW_DATA.filter(r => !r.ngay || !r.ngay.startsWith(monthPrefix));
     RAW_DATA = RAW_DATA.concat(filtered);
     LOADED_MONTHS.add(month);
     return true;
@@ -5681,6 +5684,9 @@ async function loadMonth(month) {
     
     const sales = data.sales || [];
     const filtered = sales.filter(r => isAllowedCategory(r.nganhHang));
+    // Xóa data trùng (cùng tháng) trước khi concat — tránh duplicate
+    const monthPrefix = month + '-';
+    RAW_DATA = RAW_DATA.filter(r => !r.ngay || !r.ngay.startsWith(monthPrefix));
     RAW_DATA = RAW_DATA.concat(filtered);
     LOADED_MONTHS.add(month);
 
@@ -5769,6 +5775,9 @@ function restoreFromCache() {
     const cached = cacheGet('month_' + month);
     if (cached) {
       const filtered = cached.filter(r => isAllowedCategory(r.nganhHang));
+      // Xóa data trùng (cùng tháng) trước khi concat — tránh duplicate
+      const monthPrefix = month + '-';
+      RAW_DATA = RAW_DATA.filter(r => !r.ngay || !r.ngay.startsWith(monthPrefix));
       RAW_DATA = RAW_DATA.concat(filtered);
       LOADED_MONTHS.add(month);
       count++;
@@ -6035,6 +6044,23 @@ async function applyFilters() {
   computeProductAgg();
   CURRENT_PAGE = 1;
   renderAll();
+  
+  // ====== DIAGNOSTIC: phát hiện duplicate ======
+  // Chỉ check khi search 1 mã cụ thể để dễ debug
+  if (search && search.length > 3) {
+    const ids = {};
+    let dupCount = 0;
+    for (const r of FILTERED) {
+      const id = r.soDon + '|' + r.barcode + '|' + r.maThamChieu + '|' + r.ngay + '|' + r.gio + '|' + r.cuaHang;
+      ids[id] = (ids[id] || 0) + 1;
+      if (ids[id] === 2) dupCount++;
+    }
+    if (dupCount > 0) {
+      console.warn(`[DUP] Tìm thấy ${dupCount} giao dịch trùng lặp trong FILTERED (${FILTERED.length} dòng). RAW_DATA=${RAW_DATA.length}, LOADED_MONTHS=${[...LOADED_MONTHS].join(',')}`);
+    } else {
+      console.log(`[OK] Không có duplicate. FILTERED=${FILTERED.length}, RAW_DATA=${RAW_DATA.length}`);
+    }
+  }
 }
 
 function clearFilters() {
