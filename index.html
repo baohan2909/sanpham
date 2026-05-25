@@ -4481,8 +4481,9 @@ body.workspace-analytics #section-allocation {
       </div>
       <div class="filter-group">
         <label class="filter-label">Ngành hàng</label>
-        <input type="text" id="filter-category" class="filter-input" list="dl-categories" placeholder="Tất cả ngành" autocomplete="off">
-        <datalist id="dl-categories"></datalist>
+        <select id="filter-category" class="filter-select">
+          <option value="">Tất cả ngành</option>
+        </select>
       </div>
       <!-- Shared datalist for all product code searches -->
       <datalist id="dl-products"></datalist>
@@ -5447,7 +5448,7 @@ body.workspace-analytics #section-allocation {
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbyZvvlNm_F1kkqJRys8BgsOtN8kVBEPAtMTRfRiIszRbGTc0ahYS9MFAa9r-GvZJ0v-/exec';
-const APP_VERSION = 'v12.7 · KPI lọc · Slider SP hot · Filter tồn';
+const APP_VERSION = 'v12.8 · Chain filter · CH từ DSCH';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -6057,11 +6058,31 @@ function initFilters() {
 
   const cats = [...new Set(RAW_DATA.map(r => r.nganhHang).filter(Boolean))].sort();
   fillDataList('dl-categories', cats);
+  // Fill cả select filter-category
+  const catSel = document.getElementById('filter-category');
+  if (catSel) {
+    const currentCat = catSel.value;
+    catSel.innerHTML = '<option value="">Tất cả ngành</option>' +
+      cats.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
+    catSel.value = currentCat;
+  }
 
-  const stores = [...new Set(RAW_DATA.map(r => r.cuaHang).filter(Boolean))].sort();
+  // Danh sách CH-tên (cột B sheet DANH SÁCH CỬA HÀNG) — ưu tiên STORES_DATA
+  let stores;
+  if (typeof STORES_DATA !== 'undefined' && Array.isArray(STORES_DATA) && STORES_DATA.length > 0) {
+    stores = [...new Set(STORES_DATA.map(s => s.ten).filter(Boolean))].sort();
+  } else {
+    stores = [...new Set(RAW_DATA.map(r => r.cuaHang).filter(Boolean))].sort();
+  }
   fillDataList('dl-stores', stores);
 
-  const regions = [...new Set(STOCK_DATA.map(r => r.khuVuc).filter(Boolean))].sort();
+  // Khu vực — ưu tiên STORES_DATA (sheet DANH SÁCH CỬA HÀNG), fallback STOCK_DATA
+  let regions;
+  if (typeof STORES_DATA !== 'undefined' && Array.isArray(STORES_DATA) && STORES_DATA.length > 0) {
+    regions = [...new Set(STORES_DATA.map(s => s.khuVuc).filter(Boolean))].sort();
+  } else {
+    regions = [...new Set(STOCK_DATA.map(r => r.khuVuc).filter(Boolean))].sort();
+  }
   fillDataList('dl-regions', regions);
   // Fill cả select filter-region
   const regionSel = document.getElementById('filter-region');
@@ -6103,50 +6124,104 @@ function initFilters() {
 }
 
 // ====== REFRESH DEPENDENT FILTERS ======
-// Khi user chọn ngành/khu vực/loại điểm bán → cập nhật dropdown CH chỉ hiện các CH thoả mãn
-function refreshDependentFilters({ cat, region, storeType }) {
-  // 1. Filter STOCK_DATA theo các điều kiện đã chọn
-  let stockFiltered = STOCK_DATA;
-  if (cat) stockFiltered = stockFiltered.filter(s => s.nganhCap1 === cat);
-  if (region) stockFiltered = stockFiltered.filter(s => s.khuVuc === region);
-  if (storeType) {
-    stockFiltered = stockFiltered.filter(s => {
-      const u = String(s.maKho || '').toUpperCase();
-      if (storeType === 'CH') return u.startsWith('CH');
-      if (storeType === 'DOISALE') return u.startsWith('DOISALE');
-      if (storeType === 'DB') return u.startsWith('DB');
-      return true;
-    });
-  }
+// Chain phụ thuộc: Ngày → Ngành → Khu vực → Loại điểm bán → Loại hàng → Cửa hàng → Mã
+// Mỗi filter cập nhật các filter PHÍA SAU nó (downstream).
+function refreshDependentFilters({ cat, region, storeType, saleType }) {
+  // Helper: build CH set thoả mãn các filter UPSTREAM (ngành, khu vực, loại điểm bán)
+  // CH = tên cửa hàng (cột B sheet DANH SÁCH CỬA HÀNG), KHÔNG phải mã
+  // Nguồn chính: STORES_DATA (sheet DANH SÁCH CỬA HÀNG) + STOCK_DATA (cho khu vực qua khoHang).
+  const hasStoresData = typeof STORES_DATA !== 'undefined' && Array.isArray(STORES_DATA) && STORES_DATA.length > 0;
 
-  // 2. Cập nhật dropdown khu vực (giữ giá trị đang chọn)
+  // ===== 1. Refresh Khu vực =====
+  // Khu vực phụ thuộc vào: Ngành (đã chọn) — vì khu vực có data ngành đó
   const regionSel = document.getElementById('filter-region');
   if (regionSel) {
     const currentRegion = regionSel.value;
-    let availableRegions = [...new Set(STOCK_DATA.filter(s => {
-      if (cat && s.nganhCap1 !== cat) return false;
-      return true;
-    }).map(r => r.khuVuc).filter(Boolean))].sort();
+    // Tập tất cả khu vực từ STORES_DATA (sheet DANH SÁCH CỬA HÀNG, cột A)
+    let availableRegions;
+    if (hasStoresData) {
+      availableRegions = [...new Set(STORES_DATA.map(s => s.khuVuc).filter(Boolean))];
+    } else {
+      availableRegions = [...new Set(STOCK_DATA.map(r => r.khuVuc).filter(Boolean))];
+    }
+    // Lọc theo ngành nếu có
+    if (cat) {
+      const regionsWithCat = new Set(
+        STOCK_DATA.filter(s => s.nganhCap1 === cat).map(s => s.khuVuc).filter(Boolean)
+      );
+      availableRegions = availableRegions.filter(r => regionsWithCat.has(r));
+    }
+    availableRegions.sort();
     regionSel.innerHTML = '<option value="">Tất cả khu vực</option>' +
       availableRegions.map(r => `<option value="${escapeAttr(r)}">${escapeHtml(r)}</option>`).join('');
-    regionSel.value = currentRegion;
+    // Restore nếu giá trị cũ vẫn còn trong list
+    if (availableRegions.includes(currentRegion)) {
+      regionSel.value = currentRegion;
+    } else if (currentRegion) {
+      regionSel.value = '';  // Reset nếu không match
+    }
   }
 
-  // 3. Cập nhật danh sách cửa hàng — bao gồm cả CH từ STOCK + CH từ RAW_DATA (có giao dịch nhưng chưa có tồn)
-  const storesFromStock = new Set(stockFiltered.map(s => s.khoHang).filter(Boolean));
-  // Thêm CH từ RAW_DATA (giao dịch hôm nay/tháng) — vì có CH bán mà không có tồn
-  const rawStores = new Set(RAW_DATA.filter(r => {
-    if (cat && r.nganhHang !== cat) return false;
-    return true;
-  }).map(r => r.cuaHang).filter(Boolean));
-
-  // Merge 2 nguồn
-  const allStores = new Set([...storesFromStock, ...rawStores]);
-  const sortedStores = [...allStores].sort();
-
+  // ===== 2. Refresh danh sách CH =====
+  // CH phụ thuộc vào: Ngành + Khu vực + Loại điểm bán
+  // CH = TÊN CỬA HÀNG (lấy từ STORES_DATA.ten, là cột B sheet DANH SÁCH CỬA HÀNG)
+  // Xác định CH-tên (B) khả thi:
+  //   - Bắt đầu từ STORES_DATA (lọc theo region nếu có)
+  //   - Lọc theo storeType (qua maCh prefix)
+  //   - Cần có data ngành (qua STOCK_DATA hoặc RAW_DATA) nếu user đã chọn ngành
   const dl = document.getElementById('dl-stores');
   if (dl) {
-    dl.innerHTML = sortedStores.map(v => `<option value="${escapeAttr(v)}"></option>`).join('');
+    // Tập CH-tên (cột B) ban đầu từ STORES_DATA
+    let storesPool;
+    if (hasStoresData) {
+      storesPool = STORES_DATA.filter(s => s.ten);
+      // Lọc theo khu vực
+      if (region) storesPool = storesPool.filter(s => s.khuVuc === region);
+      // Lọc theo loại điểm bán (qua maCh prefix)
+      if (storeType) {
+        storesPool = storesPool.filter(s => {
+          const u = String(s.maCh || '').toUpperCase();
+          if (storeType === 'CH') return u.startsWith('CH');
+          if (storeType === 'DOISALE') return u.startsWith('DOISALE');
+          if (storeType === 'DB') return u.startsWith('DB');
+          return true;
+        });
+      }
+    } else {
+      // Fallback: dùng STOCK_DATA + RAW_DATA
+      const storeSet = new Set();
+      STOCK_DATA.forEach(s => {
+        if (region && s.khuVuc !== region) return;
+        if (storeType) {
+          const u = String(s.maKho || '').toUpperCase();
+          if (storeType === 'CH' && !u.startsWith('CH')) return;
+          if (storeType === 'DOISALE' && !u.startsWith('DOISALE')) return;
+          if (storeType === 'DB' && !u.startsWith('DB')) return;
+        }
+        if (s.khoHang) storeSet.add(s.khoHang);
+      });
+      storesPool = [...storeSet].map(name => ({ ten: name, maCh: '' }));
+    }
+
+    // Nếu user đã chọn ngành → chỉ giữ CH có data của ngành đó
+    if (cat) {
+      const storesWithCat = new Set();
+      // Từ STOCK_DATA: CH có tồn của ngành
+      STOCK_DATA.forEach(s => {
+        if (s.nganhCap1 === cat && s.khoHang) storesWithCat.add(s.khoHang);
+      });
+      // Từ RAW_DATA: CH có bán mã ngành đó (cuaHang là tên CH)
+      RAW_DATA.forEach(r => {
+        if (r.nganhHang === cat && r.cuaHang) storesWithCat.add(r.cuaHang);
+      });
+      // Filter pool — match qua name
+      storesPool = storesPool.filter(s => storesWithCat.has(s.ten));
+    }
+
+    // Loại hàng (saleType) không ảnh hưởng CH (vì CH nào cũng bán cả 2 loại)
+
+    const sortedNames = [...new Set(storesPool.map(s => s.ten))].sort();
+    dl.innerHTML = sortedNames.map(v => `<option value="${escapeAttr(v)}"></option>`).join('');
   }
 }
 
@@ -6168,28 +6243,44 @@ async function applyFilters() {
   }
 
   // ====== Cập nhật danh sách CH + khu vực dựa trên bộ lọc đang chọn ======
-  refreshDependentFilters({ cat, region, storeType });
+  refreshDependentFilters({ cat, region, storeType, saleType });
   
-  // Build set of stores in selected region
-  let regionStores = null;
-  if (region) {
-    regionStores = new Set(STOCK_DATA.filter(s => s.khuVuc === region).map(s => s.khoHang));
-  }
+  // Build set CH-tên (cột B sheet DANH SÁCH CỬA HÀNG) hợp lệ theo: khu vực + loại điểm bán
+  // Ưu tiên STORES_DATA (sheet DANH SÁCH CỬA HÀNG) — fallback STOCK_DATA nếu chưa load
+  const hasStores = typeof STORES_DATA !== 'undefined' && Array.isArray(STORES_DATA) && STORES_DATA.length > 0;
+  let allowedStoreNames = null;  // null = không filter
 
-  // Build set of stores matching storeType (qua maKho)
-  // CH/DOISALE/DB: lookup mã kho bắt đầu với prefix
-  let storeTypeStores = null;
-  if (storeType) {
-    storeTypeStores = new Set();
-    STOCK_DATA.forEach(s => {
-      const u = String(s.maKho || '').toUpperCase();
-      if (storeType === 'CH' && u.startsWith('CH')) storeTypeStores.add(s.khoHang);
-      else if (storeType === 'DOISALE' && u.startsWith('DOISALE')) storeTypeStores.add(s.khoHang);
-      else if (storeType === 'DB' && u.startsWith('DB')) storeTypeStores.add(s.khoHang);
-    });
-    // Also accept tenDoi (cột K) cho DOISALE
+  if (region || storeType) {
+    allowedStoreNames = new Set();
+    if (hasStores) {
+      STORES_DATA.forEach(s => {
+        if (!s.ten) return;
+        if (region && s.khuVuc !== region) return;
+        if (storeType) {
+          const u = String(s.maCh || '').toUpperCase();
+          if (storeType === 'CH' && !u.startsWith('CH')) return;
+          if (storeType === 'DOISALE' && !u.startsWith('DOISALE')) return;
+          if (storeType === 'DB' && !u.startsWith('DB')) return;
+        }
+        allowedStoreNames.add(s.ten);
+      });
+    } else {
+      // Fallback STOCK_DATA
+      STOCK_DATA.forEach(s => {
+        if (!s.khoHang) return;
+        if (region && s.khuVuc !== region) return;
+        if (storeType) {
+          const u = String(s.maKho || '').toUpperCase();
+          if (storeType === 'CH' && !u.startsWith('CH')) return;
+          if (storeType === 'DOISALE' && !u.startsWith('DOISALE')) return;
+          if (storeType === 'DB' && !u.startsWith('DB')) return;
+        }
+        allowedStoreNames.add(s.khoHang);
+      });
+    }
+    // DOISALE fallback: thêm tenDoi từ RAW_DATA
     if (storeType === 'DOISALE') {
-      RAW_DATA.forEach(r => { if (r.tenDoi) storeTypeStores.add(r.tenDoi); });
+      RAW_DATA.forEach(r => { if (r.tenDoi) allowedStoreNames.add(r.tenDoi); });
     }
   }
   
@@ -6198,18 +6289,8 @@ async function applyFilters() {
     if (dateTo && r.ngay > dateTo) return false;
     if (cat && r.nganhHang !== cat) return false;
     if (store && r.cuaHang !== store) return false;
-    if (region && regionStores && !regionStores.has(r.cuaHang)) {
-      if (!r.cuaHang || !regionStores.has(r.cuaHang)) {
-        const matchesRegion = STOCK_DATA.some(s => 
-          s.khuVuc === region && s.khoHang === r.cuaHang
-        );
-        if (!matchesRegion) return false;
-      }
-    }
-    if (storeTypeStores) {
-      if (!r.cuaHang || !storeTypeStores.has(r.cuaHang)) return false;
-    }
-    // Loại giao dịch: hàng chính (giaSale=0 hoặc giaSale>=giaBan) vs hàng sale (giaSale>0 và <giaBan)
+    if (allowedStoreNames && (!r.cuaHang || !allowedStoreNames.has(r.cuaHang))) return false;
+    // Loại hàng: hàng chính (giaSale=0 hoặc giaSale>=giaBan) vs hàng sale (giaSale>0 và <giaBan)
     if (saleType) {
       const isSaleTx = (r.giaSale && r.giaSale > 0 && r.giaBan && r.giaSale < r.giaBan);
       if (saleType === 'sale' && !isSaleTx) return false;
@@ -6501,17 +6582,78 @@ function renderKPI() {
   // Lấy bộ lọc hiện tại để tính tồn
   const cat = document.getElementById('filter-category').value;
   const region = document.getElementById('filter-region').value;
+  const storeTypeEl = document.getElementById('filter-storetype');
+  const storeType = storeTypeEl ? storeTypeEl.value : '';
+  const storeName = document.getElementById('filter-store').value;
+  const search = document.getElementById('filter-search').value.trim().toLowerCase();
+
+  // Build set CH-tên thoả mãn (Khu vực + Loại điểm bán + CH cụ thể)
+  // CH-tên = STORES_DATA.ten = cột B sheet DANH SÁCH CỬA HÀNG
+  let allowedStoreNames = null;  // null = không filter CH
+  const hasStores = typeof STORES_DATA !== 'undefined' && Array.isArray(STORES_DATA);
+  if (region || storeType || storeName) {
+    allowedStoreNames = new Set();
+    if (hasStores) {
+      STORES_DATA.forEach(s => {
+        if (!s.ten) return;
+        if (region && s.khuVuc !== region) return;
+        if (storeType) {
+          const u = String(s.maCh || '').toUpperCase();
+          if (storeType === 'CH' && !u.startsWith('CH')) return;
+          if (storeType === 'DOISALE' && !u.startsWith('DOISALE')) return;
+          if (storeType === 'DB' && !u.startsWith('DB')) return;
+        }
+        if (storeName && s.ten !== storeName) return;
+        allowedStoreNames.add(s.ten);
+      });
+    } else {
+      // Fallback: dùng STOCK_DATA
+      STOCK_DATA.forEach(s => {
+        if (!s.khoHang) return;
+        if (region && s.khuVuc !== region) return;
+        if (storeType) {
+          const u = String(s.maKho || '').toUpperCase();
+          if (storeType === 'CH' && !u.startsWith('CH')) return;
+          if (storeType === 'DOISALE' && !u.startsWith('DOISALE')) return;
+          if (storeType === 'DB' && !u.startsWith('DB')) return;
+        }
+        if (storeName && s.khoHang !== storeName) return;
+        allowedStoreNames.add(s.khoHang);
+      });
+    }
+  }
+
+  // Build set mã SP nếu user search mã cụ thể
+  let allowedCodes = null;
+  if (search) {
+    const masterCodes = typeof MASTER_PRODUCT_INDEX !== 'undefined' ? Object.keys(MASTER_PRODUCT_INDEX) : [];
+    const matched = masterCodes.filter(c => c.toLowerCase().includes(search));
+    if (matched.length > 0) allowedCodes = new Set(matched);
+  }
 
   // Tách 2 chỉ số: tồn ở điểm bán (CH/DOISALE/DB) + tồn ở kho (TP/SA)
-  // CHỈ áp dụng filter ngành + khu vực, KHÔNG dùng filter ngày
+  // Áp dụng đầy đủ chain: ngành + khu vực + loại điểm bán + cửa hàng + mã
   let stockSell = 0, stockWarehouse = 0;
   STOCK_DATA.forEach(r => {
     if (cat && r.nganhCap1 !== cat) return;
     if (region && r.khuVuc !== region) return;
+    if (allowedCodes && !allowedCodes.has(r.maThamChieu)) return;
     const u = String(r.maKho || '').toUpperCase();
-    if (u.startsWith('CH') || u.startsWith('DOISALE') || u.startsWith('DB')) {
+    const isSellPoint = u.startsWith('CH') || u.startsWith('DOISALE') || u.startsWith('DB');
+    const isWarehouse = u.startsWith('TP') || u.startsWith('SA');
+
+    if (isSellPoint) {
+      // Filter theo loại điểm bán
+      if (storeType && storeType !== '' && storeType !== 'CH' && storeType !== 'DOISALE' && storeType !== 'DB') return;
+      if (storeType === 'CH' && !u.startsWith('CH')) return;
+      if (storeType === 'DOISALE' && !u.startsWith('DOISALE')) return;
+      if (storeType === 'DB' && !u.startsWith('DB')) return;
+      // Filter theo CH cụ thể
+      if (allowedStoreNames && !allowedStoreNames.has(r.khoHang)) return;
       stockSell += r.tonHienTai || 0;
-    } else if (u.startsWith('TP') || u.startsWith('SA')) {
+    } else if (isWarehouse) {
+      // Kho TP/SA — chỉ tính khi không filter CH/loại điểm bán
+      if (storeType || storeName) return;
       stockWarehouse += r.tonHienTai || 0;
     }
   });
