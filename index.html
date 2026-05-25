@@ -5448,7 +5448,7 @@ body.workspace-analytics #section-allocation {
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbyZvvlNm_F1kkqJRys8BgsOtN8kVBEPAtMTRfRiIszRbGTc0ahYS9MFAa9r-GvZJ0v-/exec';
-const APP_VERSION = 'v12.8 · Chain filter · CH từ DSCH';
+const APP_VERSION = 'v12.9 · Debug tồn · Safety null';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -6621,6 +6621,8 @@ function renderKPI() {
         allowedStoreNames.add(s.khoHang);
       });
     }
+    // Safety: nếu set rỗng (user gõ tên CH sai hoặc filter quá hẹp) → bỏ filter
+    if (allowedStoreNames.size === 0) allowedStoreNames = null;
   }
 
   // Build set mã SP nếu user search mã cụ thể
@@ -6634,6 +6636,7 @@ function renderKPI() {
   // Tách 2 chỉ số: tồn ở điểm bán (CH/DOISALE/DB) + tồn ở kho (TP/SA)
   // Áp dụng đầy đủ chain: ngành + khu vực + loại điểm bán + cửa hàng + mã
   let stockSell = 0, stockWarehouse = 0;
+  let countSell = 0, countWarehouse = 0;
   STOCK_DATA.forEach(r => {
     if (cat && r.nganhCap1 !== cat) return;
     if (region && r.khuVuc !== region) return;
@@ -6644,20 +6647,29 @@ function renderKPI() {
 
     if (isSellPoint) {
       // Filter theo loại điểm bán
-      if (storeType && storeType !== '' && storeType !== 'CH' && storeType !== 'DOISALE' && storeType !== 'DB') return;
       if (storeType === 'CH' && !u.startsWith('CH')) return;
       if (storeType === 'DOISALE' && !u.startsWith('DOISALE')) return;
       if (storeType === 'DB' && !u.startsWith('DB')) return;
       // Filter theo CH cụ thể
       if (allowedStoreNames && !allowedStoreNames.has(r.khoHang)) return;
       stockSell += r.tonHienTai || 0;
+      countSell++;
     } else if (isWarehouse) {
       // Kho TP/SA — chỉ tính khi không filter CH/loại điểm bán
       if (storeType || storeName) return;
       stockWarehouse += r.tonHienTai || 0;
+      countWarehouse++;
     }
   });
   const totalStock = stockSell + stockWarehouse;
+  // Diagnostic — log mỗi 30s
+  if (!window._lastStockLog || (Date.now() - window._lastStockLog) > 30000) {
+    window._lastStockLog = Date.now();
+    console.log(`[STOCK] STOCK_DATA=${STOCK_DATA.length}, stockSell=${stockSell} (${countSell} rows), stockWarehouse=${stockWarehouse} (${countWarehouse} rows), total=${totalStock}`);
+    console.log(`[STOCK] Filters: cat="${cat}", region="${region}", storeType="${storeType}", storeName="${storeName}", search="${search}"`);
+    if (allowedStoreNames) console.log(`[STOCK] allowedStoreNames size: ${allowedStoreNames.size}`);
+    if (allowedCodes) console.log(`[STOCK] allowedCodes size: ${allowedCodes.size}`);
+  }
 
   // SP bán chạy — dùng ngưỡng từ localStorage (slider)
   const hotThreshold = parseInt(localStorage.getItem('ns_hot_threshold') || '10');
