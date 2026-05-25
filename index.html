@@ -5003,7 +5003,7 @@ body.workspace-analytics #section-allocation {
             <span class="cockpit-scope-value" id="cockpit-store-label">0</span>
           </div>
           <div class="cockpit-scope-summary-right">
-            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v12.3 · Fix duplicate data · Dedupe khi load tháng</span>
+            <span class="cockpit-version-badge" title="Phiên bản đang chạy">v12.4 · Fix duplicate · Giữ data hôm nay</span>
             <button class="cockpit-btn-ghost" id="cockpit-scope-toggle">⚙ Mở chi tiết</button>
           </div>
         </div>
@@ -5382,7 +5382,7 @@ body.workspace-analytics #section-allocation {
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbyZvvlNm_F1kkqJRys8BgsOtN8kVBEPAtMTRfRiIszRbGTc0ahYS9MFAa9r-GvZJ0v-/exec';
-const APP_VERSION = 'v12.3 · Fix duplicate · Dedupe load tháng';
+const APP_VERSION = 'v12.4 · Fix duplicate · Giữ data hôm nay';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -5682,10 +5682,13 @@ async function loadMonth(month) {
   const cached = cacheGet(cacheKey);
   if (cached) {
     const filtered = cached.filter(r => isAllowedCategory(r.nganhHang));
-    // Xóa data trùng (cùng tháng) trước khi concat — tránh duplicate
+    // Xóa data trùng (cùng tháng, NHƯNG GIỮ HÔM NAY) trước khi concat
     const monthPrefix = month + '-';
-    RAW_DATA = RAW_DATA.filter(r => !r.ngay || !r.ngay.startsWith(monthPrefix));
-    RAW_DATA = RAW_DATA.concat(filtered);
+    const today = todayString();
+    RAW_DATA = RAW_DATA.filter(r => !r.ngay || !r.ngay.startsWith(monthPrefix) || r.ngay === today);
+    // Loại bỏ data hôm nay khỏi cached (để giữ data hôm nay fresh từ endpoint 'today')
+    const cachedNoToday = filtered.filter(r => r.ngay !== today);
+    RAW_DATA = RAW_DATA.concat(cachedNoToday);
     LOADED_MONTHS.add(month);
     return true;
   }
@@ -5699,10 +5702,13 @@ async function loadMonth(month) {
     
     const sales = data.sales || [];
     const filtered = sales.filter(r => isAllowedCategory(r.nganhHang));
-    // Xóa data trùng (cùng tháng) trước khi concat — tránh duplicate
+    // Xóa data trùng (cùng tháng, NHƯNG GIỮ HÔM NAY) trước khi concat
     const monthPrefix = month + '-';
-    RAW_DATA = RAW_DATA.filter(r => !r.ngay || !r.ngay.startsWith(monthPrefix));
-    RAW_DATA = RAW_DATA.concat(filtered);
+    const today = todayString();
+    RAW_DATA = RAW_DATA.filter(r => !r.ngay || !r.ngay.startsWith(monthPrefix) || r.ngay === today);
+    // Loại bỏ data hôm nay khỏi sales (để giữ data hôm nay fresh từ endpoint 'today')
+    const salesNoToday = filtered.filter(r => r.ngay !== today);
+    RAW_DATA = RAW_DATA.concat(salesNoToday);
     LOADED_MONTHS.add(month);
 
     // Cache: tháng cũ vĩnh viễn, tháng hiện tại 6h (vẫn có date suffix)
@@ -5785,15 +5791,18 @@ function nextMonthStr(yyyyMM) {
 function restoreFromCache() {
   if (!META_INFO) return 0;
   let count = 0;
+  const today = todayString();
   META_INFO.archiveMonths.forEach(month => {
     if (LOADED_MONTHS.has(month)) return;
     const cached = cacheGet('month_' + month);
     if (cached) {
       const filtered = cached.filter(r => isAllowedCategory(r.nganhHang));
-      // Xóa data trùng (cùng tháng) trước khi concat — tránh duplicate
+      // Xóa data trùng (cùng tháng, NHƯNG GIỮ HÔM NAY) trước khi concat
       const monthPrefix = month + '-';
-      RAW_DATA = RAW_DATA.filter(r => !r.ngay || !r.ngay.startsWith(monthPrefix));
-      RAW_DATA = RAW_DATA.concat(filtered);
+      RAW_DATA = RAW_DATA.filter(r => !r.ngay || !r.ngay.startsWith(monthPrefix) || r.ngay === today);
+      // Loại data hôm nay khỏi cached
+      const cachedNoToday = filtered.filter(r => r.ngay !== today);
+      RAW_DATA = RAW_DATA.concat(cachedNoToday);
       LOADED_MONTHS.add(month);
       count++;
     }
