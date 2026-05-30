@@ -4519,6 +4519,14 @@ body.workspace-analytics #section-allocation {
         <label class="filter-label">Tìm Mã / Barcode</label>
         <input type="text" id="filter-search" class="filter-input" placeholder="Tìm mã SP..." list="dl-products" autocomplete="off">
       </div>
+      <div class="filter-group">
+        <label class="filter-label">Giá từ (₫)</label>
+        <input type="number" id="filter-price-min" class="filter-input" placeholder="Từ giá" min="0" step="10000" autocomplete="off">
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Giá đến (₫)</label>
+        <input type="number" id="filter-price-max" class="filter-input" placeholder="Đến giá" min="0" step="10000" autocomplete="off">
+      </div>
       <div class="filter-actions">
         <button class="btn-export" onclick="exportCSV()">⬇ CSV</button>
         <button class="btn-clear" onclick="clearFilters()">Xóa lọc</button>
@@ -5448,7 +5456,7 @@ body.workspace-analytics #section-allocation {
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbyZvvlNm_F1kkqJRys8BgsOtN8kVBEPAtMTRfRiIszRbGTc0ahYS9MFAa9r-GvZJ0v-/exec';
-const APP_VERSION = 'v12.9 · Debug tồn · Safety null';
+const APP_VERSION = 'v12.10 · Bộ lọc giá';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -6236,7 +6244,11 @@ async function applyFilters() {
   const saleTypeEl = document.getElementById('filter-saletype');
   const saleType = saleTypeEl ? saleTypeEl.value : '';
   const search = document.getElementById('filter-search').value.trim().toLowerCase();
-  
+  const priceMinEl = document.getElementById('filter-price-min');
+  const priceMaxEl = document.getElementById('filter-price-max');
+  const priceMin = (priceMinEl && priceMinEl.value !== '') ? parseFloat(priceMinEl.value) : null;
+  const priceMax = (priceMaxEl && priceMaxEl.value !== '') ? parseFloat(priceMaxEl.value) : null;
+
   // Lazy load các tháng cần thiết nếu chưa có
   if (dateFrom && dateTo && META_INFO) {
     await ensureMonthsLoaded(dateFrom, dateTo);
@@ -6296,6 +6308,9 @@ async function applyFilters() {
       if (saleType === 'sale' && !isSaleTx) return false;
       if (saleType === 'main' && isSaleTx) return false;
     }
+    // Bộ lọc giá: dùng giá bán niêm yết (cột H = r.giaBan)
+    if (priceMin !== null && (r.giaBan || 0) < priceMin) return false;
+    if (priceMax !== null && (r.giaBan || 0) > priceMax) return false;
     return true;
   });
 
@@ -6354,6 +6369,10 @@ function clearFilters() {
   const saEl = document.getElementById('filter-saletype');
   if (saEl) saEl.value = '';
   document.getElementById('filter-search').value = '';
+  const pMinEl = document.getElementById('filter-price-min');
+  const pMaxEl = document.getElementById('filter-price-max');
+  if (pMinEl) pMinEl.value = '';
+  if (pMaxEl) pMaxEl.value = '';
   document.querySelectorAll('.quick-date-btn').forEach(b => b.classList.remove('active'));
   initFilters();
   applyFilters();
@@ -6435,6 +6454,17 @@ let searchTimeout;
 document.getElementById('filter-search').addEventListener('input', () => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(applyFilters, 300);
+});
+// Bộ lọc giá: debounce 400ms để user gõ xong số rồi mới apply
+let priceTimeout;
+['filter-price-min', 'filter-price-max'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', () => {
+    clearTimeout(priceTimeout);
+    priceTimeout = setTimeout(applyFilters, 400);
+  });
+  el.addEventListener('change', applyFilters);
 });
 
 // ============ TABS ============
@@ -6633,14 +6663,23 @@ function renderKPI() {
     if (matched.length > 0) allowedCodes = new Set(matched);
   }
 
+  // Bộ lọc giá (giá niêm yết)
+  const priceMinEl = document.getElementById('filter-price-min');
+  const priceMaxEl = document.getElementById('filter-price-max');
+  const priceMin = (priceMinEl && priceMinEl.value !== '') ? parseFloat(priceMinEl.value) : null;
+  const priceMax = (priceMaxEl && priceMaxEl.value !== '') ? parseFloat(priceMaxEl.value) : null;
+
   // Tách 2 chỉ số: tồn ở điểm bán (CH/DOISALE/DB) + tồn ở kho (TP/SA)
-  // Áp dụng đầy đủ chain: ngành + khu vực + loại điểm bán + cửa hàng + mã
+  // Áp dụng đầy đủ chain: ngành + khu vực + loại điểm bán + cửa hàng + mã + giá
   let stockSell = 0, stockWarehouse = 0;
   let countSell = 0, countWarehouse = 0;
   STOCK_DATA.forEach(r => {
     if (cat && r.nganhCap1 !== cat) return;
     if (region && r.khuVuc !== region) return;
     if (allowedCodes && !allowedCodes.has(r.maThamChieu)) return;
+    // Filter giá: dùng giá niêm yết của mã SP
+    if (priceMin !== null && (r.giaNiemYet || 0) < priceMin) return;
+    if (priceMax !== null && (r.giaNiemYet || 0) > priceMax) return;
     const u = String(r.maKho || '').toUpperCase();
     const isSellPoint = u.startsWith('CH') || u.startsWith('DOISALE') || u.startsWith('DB');
     const isWarehouse = u.startsWith('TP') || u.startsWith('SA');
