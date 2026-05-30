@@ -4333,6 +4333,29 @@ body.workspace-analytics #section-allocation {
 }
 .cockpit-flash { animation: cockpit-flash 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
+/* ===========================================================
+   STOCK TAB — Expand/collapse button cho grouped rows
+   =========================================================== */
+.stk-expand-btn {
+  display: inline-block;
+  padding: 2px 8px;
+  margin-top: 3px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+.stk-expand-btn:hover {
+  background: var(--accent);
+  color: white;
+}
+
 </style>
 </head>
 <body class="workspace-analytics">
@@ -4781,6 +4804,11 @@ body.workspace-analytics #section-allocation {
           <option value="10">Tồn ≥ 10</option>
           <option value="20">Tồn ≥ 20</option>
           <option value="50">Tồn ≥ 50</option>
+        </select>
+        <select id="stock-group-by" onchange="renderStockAnalysis()" title="Nhóm theo">
+          <option value="none">Không nhóm</option>
+          <option value="code">Nhóm theo Mã SP</option>
+          <option value="store">Nhóm theo Cửa hàng</option>
         </select>
         <div style="margin-left:auto" id="stock-count"></div>
       </div>
@@ -5456,7 +5484,7 @@ body.workspace-analytics #section-allocation {
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbyZvvlNm_F1kkqJRys8BgsOtN8kVBEPAtMTRfRiIszRbGTc0ahYS9MFAa9r-GvZJ0v-/exec';
-const APP_VERSION = 'v12.10 · Bộ lọc giá';
+const APP_VERSION = 'v12.11 · Tồn kho: lọc giá + nhóm + tổng';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -7638,6 +7666,34 @@ function renderStockAnalysis() {
   const filter = document.getElementById('stock-status-filter').value;
   const searchEl = document.getElementById('stock-search');
   const search = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  const groupEl = document.getElementById('stock-group-by');
+  const groupMode = groupEl ? groupEl.value : 'none';
+
+  // ===== Lấy giá filter (từ main chain) =====
+  const priceMinEl = document.getElementById('filter-price-min');
+  const priceMaxEl = document.getElementById('filter-price-max');
+  const priceMin = (priceMinEl && priceMinEl.value !== '') ? parseFloat(priceMinEl.value) : null;
+  const priceMax = (priceMaxEl && priceMaxEl.value !== '') ? parseFloat(priceMaxEl.value) : null;
+
+  // ===== Helper: lookup giá niêm yết của 1 mã =====
+  const priceOf = code => {
+    if (!code) return 0;
+    if (typeof STOCK_BY_CODE !== 'undefined' && STOCK_BY_CODE[code] && STOCK_BY_CODE[code].giaNiemYet) {
+      return STOCK_BY_CODE[code].giaNiemYet;
+    }
+    const p = PRODUCT_AGG.find(x => x.code === code);
+    if (p) return p.lastGiaBan || p.price || 0;
+    return 0;
+  };
+
+  // ===== Helper: filter price =====
+  const passPriceFilter = code => {
+    if (priceMin === null && priceMax === null) return true;
+    const pr = priceOf(code);
+    if (priceMin !== null && pr < priceMin) return false;
+    if (priceMax !== null && pr > priceMax) return false;
+    return true;
+  };
 
   let products = PRODUCT_AGG.filter(p => p.tonHienTai > 0 || p.qty > 0);
 
@@ -7652,6 +7708,7 @@ function renderStockAnalysis() {
       );
       products = masterMatches.map(m => ({
         code: m.code, qty: 0, tonHienTai: m.tonHienTai || 0,
+        tonDuTinh: 0, velocityPerDay: 0,
         image: m.image || IMAGE_MAP[m.code] || null,
         category: m.nganhHang || '', subCategory: '',
         stockStatus: m.tonHienTai > 0 ? 'ok' : 'zero',
@@ -7659,7 +7716,7 @@ function renderStockAnalysis() {
       }));
     }
   }
-  
+
   if (filter === 'critical') products = products.filter(p => p.stockStatus === 'critical');
   else if (filter === 'low') products = products.filter(p => p.stockStatus === 'low');
   else if (filter === 'ok') products = products.filter(p => p.stockStatus === 'ok');
@@ -7672,44 +7729,29 @@ function renderStockAnalysis() {
   if (minStock > 0) {
     products = products.filter(p => (p.tonHienTai || 0) >= minStock);
   }
-  
+
+  // Filter giá (từ main chain)
+  if (priceMin !== null || priceMax !== null) {
+    products = products.filter(p => passPriceFilter(p.code));
+  }
+
   // Sort by urgency: critical first
   const statusOrder = { critical: 1, low: 2, ok: 3, excess: 4, nosale: 5, soldout: 6, nostock: 7 };
   products.sort((a,b) => (statusOrder[a.stockStatus] || 9) - (statusOrder[b.stockStatus] || 9));
-  
-  // Insights
+
+  // Insights (giữ nguyên — tính từ PRODUCT_AGG đầy đủ, không filter)
   const critical = PRODUCT_AGG.filter(p => p.stockStatus === 'critical');
   const low = PRODUCT_AGG.filter(p => p.stockStatus === 'low');
   const excess = PRODUCT_AGG.filter(p => p.stockStatus === 'excess');
   const nosale = PRODUCT_AGG.filter(p => p.stockStatus === 'nosale');
-  
+
   const insights = [
-    {
-      type: 'alert', icon: 'alertCircle',
-      title: 'Cực kỳ thiếu hàng',
-      meta: 'sẽ hết trong < 7 ngày',
-      value: critical.length + ' mã'
-    },
-    {
-      type: 'warn', icon: 'alertTriangle',
-      title: 'Sắp hết hàng',
-      meta: 'sẽ hết trong 7-14 ngày',
-      value: low.length + ' mã'
-    },
-    {
-      type: '', icon: 'package',
-      title: 'Tồn dư',
-      meta: 'còn bán được > 60 ngày',
-      value: excess.length + ' mã'
-    },
-    {
-      type: '', icon: 'pause',
-      title: 'Có hàng nhưng không bán',
-      meta: 'cần đẩy hàng / khuyến mãi',
-      value: nosale.length + ' mã'
-    }
+    { type: 'alert', icon: 'alertCircle', title: 'Cực kỳ thiếu hàng', meta: 'sẽ hết trong < 7 ngày', value: critical.length + ' mã' },
+    { type: 'warn',  icon: 'alertTriangle', title: 'Sắp hết hàng', meta: 'sẽ hết trong 7-14 ngày', value: low.length + ' mã' },
+    { type: '',      icon: 'package', title: 'Tồn dư', meta: 'còn bán được > 60 ngày', value: excess.length + ' mã' },
+    { type: '',      icon: 'pause', title: 'Có hàng nhưng không bán', meta: 'cần đẩy hàng / khuyến mãi', value: nosale.length + ' mã' }
   ];
-  
+
   document.getElementById('stock-insights').innerHTML = insights.map(i => `
     <div class="insight-card ${i.type}">
       <div class="insight-icon">${typeof i.icon === "string" && ICONS[i.icon] ? icon(i.icon, 22) : i.icon}</div>
@@ -7718,44 +7760,368 @@ function renderStockAnalysis() {
       <div class="insight-value">${escapeHtml(i.value)}</div>
     </div>
   `).join('');
-  
+
   document.getElementById('stock-count').textContent = `${products.length} sản phẩm`;
-  
+
+  // ============================================================
+  // RENDER theo group mode
+  // ============================================================
+  if (groupMode === 'store') {
+    renderStockGroupedByStore(products);
+  } else if (groupMode === 'code') {
+    renderStockGroupedByCode(products);
+  } else {
+    renderStockFlat(products);
+  }
+}
+
+// ============================================================
+// HELPER: badge trạng thái
+// ============================================================
+function _stockStatusBadge(status) {
+  const map = {
+    critical: `<span style="color:var(--negative);font-weight:700">${statusDot('var(--negative)')}Cực thiếu</span>`,
+    low: `<span style="color:var(--warn);font-weight:600">${statusDot('var(--warn)')}Sắp hết</span>`,
+    ok: `<span style="color:var(--positive)">${statusDot('var(--positive)')}Đủ</span>`,
+    excess: `<span style="color:var(--ink-muted)">${statusDot('var(--ink-muted)')}Tồn dư</span>`,
+    nosale: `<span style="color:var(--ink-muted)">${statusDot('#cccccc')}Chưa bán</span>`,
+    soldout: `<span style="color:var(--negative)">${statusDot('var(--negative)')}Hết hàng</span>`,
+    nostock: '<span style="color:var(--ink-muted)">— Không tồn</span>'
+  };
+  return map[status] || '—';
+}
+
+function _dosText(p) {
+  return p.daysOfStock >= 9999 ? '∞'
+       : p.velocityPerDay === 0 ? '—'
+       : p.daysOfStock < 1 ? '<1' : p.daysOfStock.toFixed(1);
+}
+
+// ============================================================
+// MODE 1: FLAT (không nhóm) — có TOTALS row
+// ============================================================
+function renderStockFlat(products) {
   const tbody = document.querySelector('#stock-table tbody');
   if (products.length === 0) {
     tbody.innerHTML = '<tr><td colspan="9" class="empty-state">Không có dữ liệu</td></tr>';
     return;
   }
-  
-  tbody.innerHTML = products.slice(0, 200).map(p => {
-    const dosText = p.daysOfStock >= 9999 ? '∞' : 
-                    p.velocityPerDay === 0 ? '—' : 
-                    p.daysOfStock < 1 ? '<1' : p.daysOfStock.toFixed(1);
-    
-    const statusBadge = {
-      critical: `<span style="color:var(--negative);font-weight:700">${statusDot('var(--negative)')}Cực thiếu</span>`,
-      low: `<span style="color:var(--warn);font-weight:600">${statusDot('var(--warn)')}Sắp hết</span>`,
-      ok: `<span style="color:var(--positive)">${statusDot('var(--positive)')}Đủ</span>`,
-      excess: `<span style="color:var(--ink-muted)">${statusDot('var(--ink-muted)')}Tồn dư</span>`,
-      nosale: `<span style="color:var(--ink-muted)">${statusDot('#cccccc')}Chưa bán</span>`,
-      soldout: `<span style="color:var(--negative)">${statusDot('var(--negative)')}Hết hàng</span>`,
-      nostock: '<span style="color:var(--ink-muted)">— Không tồn</span>'
-    };
-    
-    return `
+
+  // Tính TOTALS
+  const totalQty = products.reduce((s, p) => s + (p.qty || 0), 0);
+  const totalTon = products.reduce((s, p) => s + (p.tonHienTai || 0), 0);
+  const totalDuTinh = products.reduce((s, p) => s + (p.tonDuTinh || 0), 0);
+  const totalVel = products.reduce((s, p) => s + (p.velocityPerDay || 0), 0);
+  const avgVel = products.length > 0 ? totalVel / products.length : 0;
+  // Ngày bán còn TB = tổng tồn / tổng velocity (tính trên toàn bộ)
+  const overallDos = totalVel > 0 ? (totalTon / totalVel).toFixed(1) : '—';
+
+  const totalsRow = `
+    <tr style="background:var(--bg-elevated);font-weight:700;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)">
+      <td colspan="2" style="font-family:'IBM Plex Sans',sans-serif;text-transform:uppercase;letter-spacing:0.06em;font-size:11px;color:var(--ink-soft)">
+        TỔNG ${products.length} mã
+      </td>
+      <td></td>
+      <td class="num"><strong>${formatNumber(totalQty)}</strong></td>
+      <td class="num" title="Tổng tốc độ bán: ${totalVel.toFixed(2)} · TB: ${avgVel.toFixed(2)}">Σ ${totalVel.toFixed(1)}</td>
+      <td class="num"><strong>${formatNumber(totalTon)}</strong></td>
+      <td class="num"><strong>${formatNumber(totalDuTinh)}</strong></td>
+      <td class="num" title="Toàn bộ tồn / toàn bộ tốc độ bán">${overallDos}</td>
+      <td style="font-size:11px;color:var(--ink-muted)">trung bình</td>
+    </tr>
+  `;
+
+  const dataRows = products.slice(0, 200).map(p => `
+    <tr style="cursor:pointer" onclick="showProductDetail('${escapeAttr(p.code)}')">
+      <td>${imgCell(p.image, p.code)}</td>
+      <td><code>${escapeHtml(p.code)}</code></td>
+      <td><span class="product-cat ${getCategoryClass(p.category)}">${escapeHtml(p.category || '—')}</span></td>
+      <td class="num">${formatNumber(p.qty)}</td>
+      <td class="num">${(p.velocityPerDay || 0).toFixed(2)}</td>
+      <td class="num"><strong>${formatNumber(p.tonHienTai)}</strong></td>
+      <td class="num">${formatNumber(p.tonDuTinh)}</td>
+      <td class="num"><strong>${_dosText(p)}</strong></td>
+      <td>${_stockStatusBadge(p.stockStatus)}</td>
+    </tr>
+  `).join('');
+
+  tbody.innerHTML = totalsRow + dataRows;
+  if (products.length > 200) {
+    tbody.innerHTML += `<tr><td colspan="9" class="empty-state">+ ${products.length - 200} mã khác — lọc thêm để xem</td></tr>`;
+  }
+}
+
+// ============================================================
+// MODE 2: NHÓM THEO MÃ SP — expand từng mã thấy CH × Tồn
+// ============================================================
+function renderStockGroupedByCode(products) {
+  const tbody = document.querySelector('#stock-table tbody');
+  if (products.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="empty-state">Không có dữ liệu</td></tr>';
+    return;
+  }
+
+  // TOTALS row
+  const totalQty = products.reduce((s, p) => s + (p.qty || 0), 0);
+  const totalTon = products.reduce((s, p) => s + (p.tonHienTai || 0), 0);
+  const totalDuTinh = products.reduce((s, p) => s + (p.tonDuTinh || 0), 0);
+  const totalVel = products.reduce((s, p) => s + (p.velocityPerDay || 0), 0);
+  const overallDos = totalVel > 0 ? (totalTon / totalVel).toFixed(1) : '—';
+
+  const totalsRow = `
+    <tr style="background:var(--bg-elevated);font-weight:700;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)">
+      <td colspan="2" style="font-family:'IBM Plex Sans',sans-serif;text-transform:uppercase;letter-spacing:0.06em;font-size:11px;color:var(--ink-soft)">TỔNG ${products.length} mã</td>
+      <td></td>
+      <td class="num"><strong>${formatNumber(totalQty)}</strong></td>
+      <td class="num">Σ ${totalVel.toFixed(1)}</td>
+      <td class="num"><strong>${formatNumber(totalTon)}</strong></td>
+      <td class="num"><strong>${formatNumber(totalDuTinh)}</strong></td>
+      <td class="num">${overallDos}</td>
+      <td style="font-size:11px;color:var(--ink-muted)">trung bình</td>
+    </tr>
+  `;
+
+  const dataRows = products.slice(0, 200).map((p, idx) => {
+    const grpId = 'stkgrp-c-' + idx;
+    // List CH có tồn cho mã này
+    const stores = STOCK_BY_STORE[p.code] ? Object.values(STOCK_BY_STORE[p.code]) : [];
+    const storesWithStock = stores.filter(s => (s.tonHienTai || 0) > 0)
+      .sort((a, b) => (b.tonHienTai || 0) - (a.tonHienTai || 0));
+
+    const expandable = storesWithStock.length > 0;
+    const expandBtn = expandable
+      ? `<span class="stk-expand-btn" onclick="event.stopPropagation();toggleStockExpand('${grpId}', this)">▶ ${storesWithStock.length} CH</span>`
+      : `<span style="color:var(--ink-muted);font-size:11px">— không tồn</span>`;
+
+    const mainRow = `
       <tr style="cursor:pointer" onclick="showProductDetail('${escapeAttr(p.code)}')">
         <td>${imgCell(p.image, p.code)}</td>
-        <td><code>${escapeHtml(p.code)}</code></td>
+        <td><code>${escapeHtml(p.code)}</code><br>${expandBtn}</td>
         <td><span class="product-cat ${getCategoryClass(p.category)}">${escapeHtml(p.category || '—')}</span></td>
         <td class="num">${formatNumber(p.qty)}</td>
-        <td class="num">${p.velocityPerDay.toFixed(2)}</td>
+        <td class="num">${(p.velocityPerDay || 0).toFixed(2)}</td>
         <td class="num"><strong>${formatNumber(p.tonHienTai)}</strong></td>
         <td class="num">${formatNumber(p.tonDuTinh)}</td>
-        <td class="num"><strong>${dosText}</strong></td>
-        <td>${statusBadge[p.stockStatus] || '—'}</td>
+        <td class="num"><strong>${_dosText(p)}</strong></td>
+        <td>${_stockStatusBadge(p.stockStatus)}</td>
       </tr>
     `;
+
+    // Sub-rows (CH × Tồn) — default hidden
+    const subRows = expandable ? storesWithStock.map(s => `
+      <tr class="${grpId}" style="display:none;background:var(--bg);border-left:3px solid var(--accent)">
+        <td></td>
+        <td colspan="2" style="padding-left:30px;font-size:12px">
+          <span style="color:var(--accent);font-weight:600">${escapeHtml(s.khoHang || s.maKho || '—')}</span>
+          <span style="color:var(--ink-muted);margin-left:6px">${escapeHtml(s.khuVuc || '')}</span>
+        </td>
+        <td></td>
+        <td></td>
+        <td class="num"><strong>${formatNumber(s.tonHienTai)}</strong></td>
+        <td class="num">${formatNumber(s.tonDuTinh)}</td>
+        <td></td>
+        <td style="font-size:11px;color:var(--ink-muted)">${escapeHtml(s.maKho || '')}</td>
+      </tr>
+    `).join('') : '';
+
+    return mainRow + subRows;
   }).join('');
+
+  tbody.innerHTML = totalsRow + dataRows;
+  if (products.length > 200) {
+    tbody.innerHTML += `<tr><td colspan="9" class="empty-state">+ ${products.length - 200} mã khác — lọc thêm để xem</td></tr>`;
+  }
+}
+
+// ============================================================
+// MODE 3: NHÓM THEO CỬA HÀNG — expand từng CH thấy mã SP × Tồn
+// ============================================================
+function renderStockGroupedByStore(products) {
+  const tbody = document.querySelector('#stock-table tbody');
+
+  // Set các mã hợp lệ sau filter
+  const validCodes = new Set(products.map(p => p.code));
+  if (validCodes.size === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="empty-state">Không có dữ liệu</td></tr>';
+    return;
+  }
+
+  // Lookup velocity/qty từ PRODUCT_AGG
+  const aggMap = {};
+  PRODUCT_AGG.forEach(p => { aggMap[p.code] = p; });
+
+  // Lấy main chain filters để apply cho STOCK_DATA
+  const cat = document.getElementById('filter-category')?.value || '';
+  const region = document.getElementById('filter-region')?.value || '';
+  const storeType = document.getElementById('filter-storetype')?.value || '';
+  const storeName = document.getElementById('filter-store')?.value || '';
+
+  // Aggregate STOCK_DATA theo CH
+  const storeAgg = {};  // {key: {name, region, maKho, items: [{code, ton, duTinh, qty, vel}], totals}}
+  STOCK_DATA.forEach(r => {
+    if (!validCodes.has(r.maThamChieu)) return;
+    if (cat && r.nganhCap1 !== cat) return;
+    if (region && r.khuVuc !== region) return;
+    const u = String(r.maKho || '').toUpperCase();
+    if (storeType === 'CH' && !u.startsWith('CH')) return;
+    if (storeType === 'DOISALE' && !u.startsWith('DOISALE')) return;
+    if (storeType === 'DB' && !u.startsWith('DB')) return;
+    if (storeName && r.khoHang !== storeName) return;
+
+    const key = r.maKho || r.khoHang || 'unknown';
+    if (!storeAgg[key]) {
+      storeAgg[key] = {
+        key,
+        name: r.khoHang || key,
+        region: r.khuVuc || '',
+        maKho: r.maKho || '',
+        items: [],
+        totalQty: 0, totalTon: 0, totalDuTinh: 0, totalVel: 0
+      };
+    }
+    const s = storeAgg[key];
+    const ton = r.tonHienTai || 0;
+    const duTinh = r.tonDuTinh || 0;
+    const agg = aggMap[r.maThamChieu] || { qty: 0, velocityPerDay: 0, category: r.nganhCap1 };
+    s.items.push({
+      code: r.maThamChieu,
+      ton, duTinh,
+      qty: agg.qty || 0,
+      vel: agg.velocityPerDay || 0,
+      category: agg.category || r.nganhCap1 || '',
+      image: aggMap[r.maThamChieu] ? aggMap[r.maThamChieu].image : (IMAGE_MAP[r.maThamChieu] || null)
+    });
+    s.totalTon += ton;
+    s.totalDuTinh += duTinh;
+  });
+
+  // Tính totals (qty + vel) per store: tổng theo tất cả mã ở CH đó
+  // Lưu ý: qty/vel của 1 mã không gắn với CH cụ thể (PRODUCT_AGG là toàn hệ thống)
+  // Để chính xác hơn, tính từ FILTERED
+  const salesByStoreCode = {};  // {storeName: {code: qty}}
+  FILTERED.forEach(r => {
+    if (!r.cuaHang || !r.maThamChieu) return;
+    if (!validCodes.has(r.maThamChieu)) return;
+    if (!salesByStoreCode[r.cuaHang]) salesByStoreCode[r.cuaHang] = {};
+    salesByStoreCode[r.cuaHang][r.maThamChieu] = (salesByStoreCode[r.cuaHang][r.maThamChieu] || 0) + (r.soLuong || 0);
+  });
+
+  // Số ngày trong khoảng filter (cho tính velocity)
+  const dates = [...new Set(FILTERED.map(r => r.ngay).filter(Boolean))];
+  const numDays = dates.length || 1;
+
+  // Override per-store qty/vel
+  Object.values(storeAgg).forEach(s => {
+    const storeSales = salesByStoreCode[s.name] || {};
+    let totalQty = 0;
+    s.items.forEach(it => {
+      const q = storeSales[it.code] || 0;
+      it.qty = q;
+      it.vel = q / numDays;
+      totalQty += q;
+    });
+    s.totalQty = totalQty;
+    s.totalVel = totalQty / numDays;
+  });
+
+  // Sort items per store: tồn cao trước
+  Object.values(storeAgg).forEach(s => s.items.sort((a, b) => b.ton - a.ton));
+
+  // Sort stores: tổng tồn giảm dần
+  const stores = Object.values(storeAgg).sort((a, b) => b.totalTon - a.totalTon);
+
+  if (stores.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="empty-state">Không có CH nào chứa các mã đã lọc</td></tr>';
+    return;
+  }
+
+  // Update count display
+  document.getElementById('stock-count').textContent = `${stores.length} cửa hàng · ${validCodes.size} mã`;
+
+  // TOTALS row (tất cả CH)
+  const grandQty = stores.reduce((s, x) => s + x.totalQty, 0);
+  const grandTon = stores.reduce((s, x) => s + x.totalTon, 0);
+  const grandDuTinh = stores.reduce((s, x) => s + x.totalDuTinh, 0);
+  const grandVel = stores.reduce((s, x) => s + x.totalVel, 0);
+  const grandDos = grandVel > 0 ? (grandTon / grandVel).toFixed(1) : '—';
+
+  const totalsRow = `
+    <tr style="background:var(--bg-elevated);font-weight:700;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)">
+      <td colspan="2" style="font-family:'IBM Plex Sans',sans-serif;text-transform:uppercase;letter-spacing:0.06em;font-size:11px;color:var(--ink-soft)">TỔNG ${stores.length} CH · ${validCodes.size} mã</td>
+      <td></td>
+      <td class="num"><strong>${formatNumber(grandQty)}</strong></td>
+      <td class="num">Σ ${grandVel.toFixed(1)}</td>
+      <td class="num"><strong>${formatNumber(grandTon)}</strong></td>
+      <td class="num"><strong>${formatNumber(grandDuTinh)}</strong></td>
+      <td class="num">${grandDos}</td>
+      <td style="font-size:11px;color:var(--ink-muted)">trung bình</td>
+    </tr>
+  `;
+
+  const dataRows = stores.slice(0, 100).map((s, idx) => {
+    const grpId = 'stkgrp-s-' + idx;
+    const itemCount = s.items.length;
+    const dos = s.totalVel > 0 ? (s.totalTon / s.totalVel).toFixed(1) : '—';
+
+    const mainRow = `
+      <tr style="cursor:pointer;background:var(--bg-card)" onclick="toggleStockExpand('${grpId}', this.querySelector('.stk-expand-btn'))">
+        <td></td>
+        <td>
+          <strong style="color:var(--accent)">${escapeHtml(s.name)}</strong>
+          <br>
+          <span class="stk-expand-btn">▶ ${itemCount} mã</span>
+        </td>
+        <td><span style="font-size:11px;color:var(--ink-muted)">${escapeHtml(s.region || '—')}</span><br><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-muted)">${escapeHtml(s.maKho || '')}</span></td>
+        <td class="num"><strong>${formatNumber(s.totalQty)}</strong></td>
+        <td class="num">${s.totalVel.toFixed(2)}</td>
+        <td class="num"><strong>${formatNumber(s.totalTon)}</strong></td>
+        <td class="num">${formatNumber(s.totalDuTinh)}</td>
+        <td class="num">${dos}</td>
+        <td><span style="font-size:11px;color:var(--ink-muted)">${itemCount} mã có tồn</span></td>
+      </tr>
+    `;
+
+    // Sub-rows: mã SP tại CH đó
+    const subRows = s.items.slice(0, 50).map(it => {
+      const subDos = it.vel > 0 ? (it.ton / it.vel).toFixed(1) : (it.ton > 0 ? '∞' : '—');
+      return `
+        <tr class="${grpId}" style="display:none;background:var(--bg);border-left:3px solid var(--accent)" onclick="event.stopPropagation();showProductDetail('${escapeAttr(it.code)}')">
+          <td>${imgCell(it.image, it.code)}</td>
+          <td style="padding-left:30px"><code>${escapeHtml(it.code)}</code></td>
+          <td><span class="product-cat ${getCategoryClass(it.category)}">${escapeHtml(it.category || '—')}</span></td>
+          <td class="num">${formatNumber(it.qty)}</td>
+          <td class="num">${it.vel.toFixed(2)}</td>
+          <td class="num"><strong>${formatNumber(it.ton)}</strong></td>
+          <td class="num">${formatNumber(it.duTinh)}</td>
+          <td class="num">${subDos}</td>
+          <td></td>
+        </tr>
+      `;
+    }).join('');
+    const overflow = s.items.length > 50
+      ? `<tr class="${grpId}" style="display:none;background:var(--bg)"><td colspan="9" style="text-align:center;color:var(--ink-muted);font-style:italic;padding:8px">+ ${s.items.length - 50} mã khác</td></tr>`
+      : '';
+
+    return mainRow + subRows + overflow;
+  }).join('');
+
+  tbody.innerHTML = totalsRow + dataRows;
+  if (stores.length > 100) {
+    tbody.innerHTML += `<tr><td colspan="9" class="empty-state">+ ${stores.length - 100} CH khác — lọc thêm để xem</td></tr>`;
+  }
+}
+
+// ============================================================
+// TOGGLE expand/collapse cho grouped rows
+// ============================================================
+function toggleStockExpand(grpId, btn) {
+  const rows = document.querySelectorAll('tr.' + grpId);
+  if (rows.length === 0) return;
+  const isOpen = rows[0].style.display !== 'none';
+  rows.forEach(r => r.style.display = isOpen ? 'none' : '');
+  if (btn) {
+    btn.textContent = btn.textContent.replace(isOpen ? '▼' : '▶', isOpen ? '▶' : '▼');
+  }
 }
 
 // ============ VELOCITY ANALYSIS ============
