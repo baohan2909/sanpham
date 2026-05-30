@@ -4356,6 +4356,70 @@ body.workspace-analytics #section-allocation {
   color: white;
 }
 
+/* Sortable headers (chỉ áp dụng cho stock table) */
+.stock-sortable-table thead th[data-col] {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  transition: background 0.12s ease;
+}
+.stock-sortable-table thead th[data-col]:hover {
+  background: var(--line);
+  color: var(--ink);
+}
+.stock-sortable-table thead th .sort-icon {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 10px;
+  opacity: 0.35;
+  font-family: 'JetBrains Mono', monospace;
+}
+.stock-sortable-table thead th.sort-active .sort-icon {
+  opacity: 1;
+  color: var(--terracotta);
+  font-weight: 700;
+}
+.stock-sortable-table thead th.sort-active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Override default ::after sort indicators (raw-table) — không apply cho stock */
+.stock-sortable-table thead th.sorted::after,
+.stock-sortable-table thead th.sorted-asc::after { content: '' !important; }
+
+/* Clickable insight cards */
+.insight-card.clickable {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  position: relative;
+}
+.insight-card.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.insight-card.clickable.filter-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 2px var(--accent), var(--shadow-lg);
+}
+.insight-card.clickable.filter-active::after {
+  content: '✓';
+  position: absolute;
+  top: 8px; right: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.insight-card.clickable.alert.filter-active {
+  border-color: var(--negative);
+  box-shadow: 0 0 0 2px var(--negative), var(--shadow-lg);
+}
+.insight-card.clickable.warn.filter-active {
+  border-color: var(--warn);
+  box-shadow: 0 0 0 2px var(--warn), var(--shadow-lg);
+}
+
 </style>
 </head>
 <body class="workspace-analytics">
@@ -4813,18 +4877,18 @@ body.workspace-analytics #section-allocation {
         <div style="margin-left:auto" id="stock-count"></div>
       </div>
       <div class="table-wrapper">
-        <table id="stock-table">
+        <table id="stock-table" class="stock-sortable-table">
           <thead>
             <tr>
               <th>Hình</th>
-              <th>Mã SP</th>
-              <th>Ngành</th>
-              <th class="num">SL bán</th>
-              <th class="num">Tốc độ/ngày</th>
-              <th class="num">Tồn hiện tại</th>
-              <th class="num">Tồn dự tính</th>
-              <th class="num">Số ngày còn</th>
-              <th>Trạng thái</th>
+              <th data-col="code" onclick="setStockSort('code')">Mã SP <span class="sort-icon">↕</span></th>
+              <th data-col="category" onclick="setStockSort('category')">Ngành <span class="sort-icon">↕</span></th>
+              <th class="num" data-col="qty" onclick="setStockSort('qty')">SL bán <span class="sort-icon">↕</span></th>
+              <th class="num" data-col="velocity" onclick="setStockSort('velocity')">Tốc độ/ngày <span class="sort-icon">↕</span></th>
+              <th class="num" data-col="tonHienTai" onclick="setStockSort('tonHienTai')">Tồn hiện tại <span class="sort-icon">↕</span></th>
+              <th class="num" data-col="tonDuTinh" onclick="setStockSort('tonDuTinh')">Tồn dự tính <span class="sort-icon">↕</span></th>
+              <th class="num" data-col="daysOfStock" onclick="setStockSort('daysOfStock')">Số ngày còn <span class="sort-icon">↕</span></th>
+              <th data-col="status" onclick="setStockSort('status')">Trạng thái <span class="sort-icon">↕</span></th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -5484,7 +5548,7 @@ body.workspace-analytics #section-allocation {
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbxV1A53tKta2nKzaFFNo9zmnWdRjcPm4CGFAMKqG9PWbgBl_L7Zl6LCbI44F4ohV17O/exec';
-const APP_VERSION = 'v12.13 · Update endpoint v8';
+const APP_VERSION = 'v12.14 · Insight click + sort header';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -7662,6 +7726,109 @@ function renderProductCards(products, withRank) {
 }
 
 // ============ STOCK ANALYSIS ============
+// ============================================================
+// STATE: sort cho tab Tồn kho
+// ============================================================
+let STOCK_SORT = { col: null, dir: 'asc' };  // null = default (critical first)
+
+function setStockSort(col) {
+  if (STOCK_SORT.col === col) {
+    // Click lần 2 → đổi dir, lần 3 → reset
+    if (STOCK_SORT.dir === 'asc') {
+      STOCK_SORT.dir = 'desc';
+    } else {
+      STOCK_SORT = { col: null, dir: 'asc' };
+    }
+  } else {
+    // Mặc định cột text → asc, cột số → desc
+    const isNumeric = ['qty','velocity','tonHienTai','tonDuTinh','daysOfStock'].includes(col);
+    STOCK_SORT = { col, dir: isNumeric ? 'desc' : 'asc' };
+  }
+  renderStockAnalysis();
+}
+
+// Toggle filter status từ insight card
+function setStockStatusFilter(status) {
+  const sel = document.getElementById('stock-status-filter');
+  if (!sel) return;
+  // Toggle: click lại insight đang active → reset về 'all'
+  sel.value = (sel.value === status) ? 'all' : status;
+  renderStockAnalysis();
+  // Scroll mượt xuống bảng để user thấy kết quả
+  const tbl = document.getElementById('stock-table');
+  if (tbl) tbl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Helper sort cho mode flat + grouped-by-code (data là PRODUCT_AGG)
+function _sortStockProducts(products) {
+  if (!STOCK_SORT.col) {
+    const statusOrder = { critical: 1, low: 2, ok: 3, excess: 4, nosale: 5, soldout: 6, nostock: 7 };
+    return products.sort((a, b) => (statusOrder[a.stockStatus] || 9) - (statusOrder[b.stockStatus] || 9));
+  }
+  const { col, dir } = STOCK_SORT;
+  const sign = dir === 'asc' ? 1 : -1;
+  return products.sort((a, b) => {
+    if (col === 'code')     return sign * String(a.code || '').localeCompare(String(b.code || ''));
+    if (col === 'category') return sign * String(a.category || '').localeCompare(String(b.category || ''));
+    if (col === 'qty')         return sign * ((a.qty || 0) - (b.qty || 0));
+    if (col === 'velocity')    return sign * ((a.velocityPerDay || 0) - (b.velocityPerDay || 0));
+    if (col === 'tonHienTai')  return sign * ((a.tonHienTai || 0) - (b.tonHienTai || 0));
+    if (col === 'tonDuTinh')   return sign * ((a.tonDuTinh || 0) - (b.tonDuTinh || 0));
+    if (col === 'daysOfStock') {
+      const va = (a.velocityPerDay === 0 || a.daysOfStock >= 9999) ? Infinity : a.daysOfStock;
+      const vb = (b.velocityPerDay === 0 || b.daysOfStock >= 9999) ? Infinity : b.daysOfStock;
+      // Treat Infinity carefully — sort asc thì Infinity ra cuối
+      if (va === Infinity && vb === Infinity) return 0;
+      if (va === Infinity) return sign;
+      if (vb === Infinity) return -sign;
+      return sign * (va - vb);
+    }
+    if (col === 'status') {
+      const ord = { critical: 1, low: 2, ok: 3, excess: 4, nosale: 5, soldout: 6, nostock: 7 };
+      return sign * ((ord[a.stockStatus] || 9) - (ord[b.stockStatus] || 9));
+    }
+    return 0;
+  });
+}
+
+// Helper sort cho mode grouped-by-store (data là store object)
+function _sortStockStores(stores) {
+  if (!STOCK_SORT.col) return stores.sort((a, b) => b.totalTon - a.totalTon);
+  const { col, dir } = STOCK_SORT;
+  const sign = dir === 'asc' ? 1 : -1;
+  return stores.sort((a, b) => {
+    if (col === 'code')     return sign * String(a.name || '').localeCompare(String(b.name || ''));
+    if (col === 'category') return sign * String(a.region || '').localeCompare(String(b.region || ''));
+    if (col === 'qty')         return sign * ((a.totalQty || 0) - (b.totalQty || 0));
+    if (col === 'velocity')    return sign * ((a.totalVel || 0) - (b.totalVel || 0));
+    if (col === 'tonHienTai')  return sign * ((a.totalTon || 0) - (b.totalTon || 0));
+    if (col === 'tonDuTinh')   return sign * ((a.totalDuTinh || 0) - (b.totalDuTinh || 0));
+    if (col === 'daysOfStock') {
+      const da = a.totalVel > 0 ? a.totalTon / a.totalVel : Infinity;
+      const db = b.totalVel > 0 ? b.totalTon / b.totalVel : Infinity;
+      if (da === Infinity && db === Infinity) return 0;
+      if (da === Infinity) return sign;
+      if (db === Infinity) return -sign;
+      return sign * (da - db);
+    }
+    return 0;
+  });
+}
+
+// Update visual indicator trên header
+function _updateSortHeaderUI() {
+  document.querySelectorAll('#stock-table thead th[data-col]').forEach(th => {
+    const col = th.dataset.col;
+    th.classList.remove('sort-active');
+    const icon = th.querySelector('.sort-icon');
+    if (icon) icon.textContent = '↕';
+    if (STOCK_SORT.col === col) {
+      th.classList.add('sort-active');
+      if (icon) icon.textContent = STOCK_SORT.dir === 'asc' ? '▲' : '▼';
+    }
+  });
+}
+
 function renderStockAnalysis() {
   const filter = document.getElementById('stock-status-filter').value;
   const searchEl = document.getElementById('stock-search');
@@ -7735,9 +7902,8 @@ function renderStockAnalysis() {
     products = products.filter(p => passPriceFilter(p.code));
   }
 
-  // Sort by urgency: critical first
-  const statusOrder = { critical: 1, low: 2, ok: 3, excess: 4, nosale: 5, soldout: 6, nostock: 7 };
-  products.sort((a,b) => (statusOrder[a.stockStatus] || 9) - (statusOrder[b.stockStatus] || 9));
+  // Sort (theo STOCK_SORT state hoặc default)
+  _sortStockProducts(products);
 
   // Insights (giữ nguyên — tính từ PRODUCT_AGG đầy đủ, không filter)
   const critical = PRODUCT_AGG.filter(p => p.stockStatus === 'critical');
@@ -7745,23 +7911,32 @@ function renderStockAnalysis() {
   const excess = PRODUCT_AGG.filter(p => p.stockStatus === 'excess');
   const nosale = PRODUCT_AGG.filter(p => p.stockStatus === 'nosale');
 
+  const currentFilter = filter;
   const insights = [
-    { type: 'alert', icon: 'alertCircle', title: 'Cực kỳ thiếu hàng', meta: 'sẽ hết trong < 7 ngày', value: critical.length + ' mã' },
-    { type: 'warn',  icon: 'alertTriangle', title: 'Sắp hết hàng', meta: 'sẽ hết trong 7-14 ngày', value: low.length + ' mã' },
-    { type: '',      icon: 'package', title: 'Tồn dư', meta: 'còn bán được > 60 ngày', value: excess.length + ' mã' },
-    { type: '',      icon: 'pause', title: 'Có hàng nhưng không bán', meta: 'cần đẩy hàng / khuyến mãi', value: nosale.length + ' mã' }
+    { type: 'alert', icon: 'alertCircle',   title: 'Cực kỳ thiếu hàng', meta: 'sẽ hết trong < 7 ngày',  value: critical.length + ' mã', status: 'critical' },
+    { type: 'warn',  icon: 'alertTriangle', title: 'Sắp hết hàng',      meta: 'sẽ hết trong 7-14 ngày', value: low.length + ' mã',      status: 'low' },
+    { type: '',      icon: 'package',       title: 'Tồn dư',            meta: 'còn bán được > 60 ngày', value: excess.length + ' mã',   status: 'excess' },
+    { type: '',      icon: 'pause',         title: 'Có hàng nhưng không bán', meta: 'cần đẩy hàng / khuyến mãi', value: nosale.length + ' mã', status: 'nosale' }
   ];
 
-  document.getElementById('stock-insights').innerHTML = insights.map(i => `
-    <div class="insight-card ${i.type}">
-      <div class="insight-icon">${typeof i.icon === "string" && ICONS[i.icon] ? icon(i.icon, 22) : i.icon}</div>
-      <div class="insight-title">${i.title}</div>
-      <div class="insight-meta">${escapeHtml(i.meta)}</div>
-      <div class="insight-value">${escapeHtml(i.value)}</div>
-    </div>
-  `).join('');
+  document.getElementById('stock-insights').innerHTML = insights.map(i => {
+    const isActive = (currentFilter === i.status);
+    return `
+      <div class="insight-card clickable ${i.type} ${isActive ? 'filter-active' : ''}"
+           onclick="setStockStatusFilter('${i.status}')"
+           title="${isActive ? 'Bấm lần nữa để bỏ lọc' : 'Bấm để lọc'} ${escapeAttr(i.title)}">
+        <div class="insight-icon">${typeof i.icon === "string" && ICONS[i.icon] ? icon(i.icon, 22) : i.icon}</div>
+        <div class="insight-title">${i.title}</div>
+        <div class="insight-meta">${escapeHtml(i.meta)}</div>
+        <div class="insight-value">${escapeHtml(i.value)}</div>
+      </div>
+    `;
+  }).join('');
 
   document.getElementById('stock-count').textContent = `${products.length} sản phẩm`;
+
+  // Update sort header indicators
+  _updateSortHeaderUI();
 
   // ============================================================
   // RENDER theo group mode
@@ -8027,8 +8202,8 @@ function renderStockGroupedByStore(products) {
   // Sort items per store: tồn cao trước
   Object.values(storeAgg).forEach(s => s.items.sort((a, b) => b.ton - a.ton));
 
-  // Sort stores: tổng tồn giảm dần
-  const stores = Object.values(storeAgg).sort((a, b) => b.totalTon - a.totalTon);
+  // Sort stores: theo STOCK_SORT state hoặc default (tổng tồn giảm dần)
+  const stores = _sortStockStores(Object.values(storeAgg));
 
   if (stores.length === 0) {
     tbody.innerHTML = '<tr><td colspan="9" class="empty-state">Không có CH nào chứa các mã đã lọc</td></tr>';
