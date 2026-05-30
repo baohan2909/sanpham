@@ -4608,11 +4608,11 @@ body.workspace-analytics #section-allocation {
       </div>
       <div class="filter-group">
         <label class="filter-label">Giá từ (₫)</label>
-        <input type="number" id="filter-price-min" class="filter-input" placeholder="Từ giá" min="0" step="10000" autocomplete="off">
+        <input type="text" id="filter-price-min" class="filter-input" placeholder="Từ giá" inputmode="numeric" autocomplete="off" oninput="formatPriceInputLive(this)">
       </div>
       <div class="filter-group">
         <label class="filter-label">Giá đến (₫)</label>
-        <input type="number" id="filter-price-max" class="filter-input" placeholder="Đến giá" min="0" step="10000" autocomplete="off">
+        <input type="text" id="filter-price-max" class="filter-input" placeholder="Đến giá" inputmode="numeric" autocomplete="off" oninput="formatPriceInputLive(this)">
       </div>
       <div class="filter-actions">
         <button class="btn-export" onclick="exportCSV()">⬇ CSV</button>
@@ -5548,7 +5548,7 @@ body.workspace-analytics #section-allocation {
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbxV1A53tKta2nKzaFFNo9zmnWdRjcPm4CGFAMKqG9PWbgBl_L7Zl6LCbI44F4ohV17O/exec';
-const APP_VERSION = 'v12.14 · Insight click + sort header';
+const APP_VERSION = 'v12.15 · Sort sub-row + giá có dấu phẩy';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -6338,8 +6338,8 @@ async function applyFilters() {
   const search = document.getElementById('filter-search').value.trim().toLowerCase();
   const priceMinEl = document.getElementById('filter-price-min');
   const priceMaxEl = document.getElementById('filter-price-max');
-  const priceMin = (priceMinEl && priceMinEl.value !== '') ? parseFloat(priceMinEl.value) : null;
-  const priceMax = (priceMaxEl && priceMaxEl.value !== '') ? parseFloat(priceMaxEl.value) : null;
+  const priceMin = parsePriceInput(priceMinEl);
+  const priceMax = parsePriceInput(priceMaxEl);
 
   // Lazy load các tháng cần thiết nếu chưa có
   if (dateFrom && dateTo && META_INFO) {
@@ -6758,8 +6758,8 @@ function renderKPI() {
   // Bộ lọc giá (giá niêm yết)
   const priceMinEl = document.getElementById('filter-price-min');
   const priceMaxEl = document.getElementById('filter-price-max');
-  const priceMin = (priceMinEl && priceMinEl.value !== '') ? parseFloat(priceMinEl.value) : null;
-  const priceMax = (priceMaxEl && priceMaxEl.value !== '') ? parseFloat(priceMaxEl.value) : null;
+  const priceMin = parsePriceInput(priceMinEl);
+  const priceMax = parsePriceInput(priceMaxEl);
 
   // Tách 2 chỉ số: tồn ở điểm bán (CH/DOISALE/DB) + tồn ở kho (TP/SA)
   // Áp dụng đầy đủ chain: ngành + khu vực + loại điểm bán + cửa hàng + mã + giá
@@ -7839,8 +7839,8 @@ function renderStockAnalysis() {
   // ===== Lấy giá filter (từ main chain) =====
   const priceMinEl = document.getElementById('filter-price-min');
   const priceMaxEl = document.getElementById('filter-price-max');
-  const priceMin = (priceMinEl && priceMinEl.value !== '') ? parseFloat(priceMinEl.value) : null;
-  const priceMax = (priceMaxEl && priceMaxEl.value !== '') ? parseFloat(priceMaxEl.value) : null;
+  const priceMin = parsePriceInput(priceMinEl);
+  const priceMax = parsePriceInput(priceMaxEl);
 
   // ===== Helper: lookup giá niêm yết của 1 mã =====
   const priceOf = code => {
@@ -8200,7 +8200,11 @@ function renderStockGroupedByStore(products) {
   });
 
   // Sort items per store: tồn cao trước
-  Object.values(storeAgg).forEach(s => s.items.sort((a, b) => b.ton - a.ton));
+  // Sort items per store: SL bán cao trước; mã có sl=0 fallback sort theo tồn hiện tại cao trước
+  Object.values(storeAgg).forEach(s => s.items.sort((a, b) => {
+    if ((b.qty || 0) !== (a.qty || 0)) return (b.qty || 0) - (a.qty || 0);
+    return (b.ton || 0) - (a.ton || 0);
+  }));
 
   // Sort stores: theo STOCK_SORT state hoặc default (tổng tồn giảm dần)
   const stores = _sortStockStores(Object.values(storeAgg));
@@ -9389,8 +9393,8 @@ function renderTransfer() {
   const storeTypeFilter = storeTypeEl ? storeTypeEl.value : '';
   const priceMinEl = document.getElementById('transfer-filter-price-min');
   const priceMaxEl = document.getElementById('transfer-filter-price-max');
-  const priceMin = (priceMinEl && priceMinEl.value) ? parseFloat(priceMinEl.value) : null;
-  const priceMax = (priceMaxEl && priceMaxEl.value) ? parseFloat(priceMaxEl.value) : null;
+  const priceMin = parsePriceInput(priceMinEl);
+  const priceMax = parsePriceInput(priceMaxEl);
   const sortMode = document.getElementById('transfer-sort')?.value || 'emergency-first';
 
   // Populate region filter once if empty
@@ -10437,6 +10441,44 @@ function formatNumber(n) {
   if (n === null || n === undefined || isNaN(n)) return '0';
   return Math.round(n).toLocaleString('vi-VN');
 }
+
+// ===== Helpers cho ô nhập giá có dấu phân cách =====
+// Live format khi user gõ: 3000000 → 3,000,000 (preserve caret position best-effort)
+function formatPriceInputLive(el) {
+  if (!el) return;
+  const caret = el.selectionStart;
+  const before = el.value;
+  const digits = before.replace(/[^\d]/g, '');
+  if (!digits) {
+    el.value = '';
+    applyFilters();
+    return;
+  }
+  // Format với dấu phẩy
+  const formatted = parseInt(digits, 10).toLocaleString('en-US');
+  el.value = formatted;
+  // Restore caret position (đếm digits trước caret cũ, sau format đặt lại vị trí tương ứng)
+  try {
+    const digitsBeforeCaret = before.substring(0, caret).replace(/[^\d]/g, '').length;
+    let newPos = 0, seen = 0;
+    for (let i = 0; i < formatted.length && seen < digitsBeforeCaret; i++) {
+      if (/\d/.test(formatted[i])) seen++;
+      newPos = i + 1;
+    }
+    el.setSelectionRange(newPos, newPos);
+  } catch (e) {}
+  // Debounce apply via existing priceTimeout handler — KHÔNG gọi applyFilters thẳng vì
+  // applyFilters bind ở event listener riêng. Để event 'input' tự fire.
+}
+
+// Parse value của ô giá (text với dấu phẩy/chấm) → number hoặc null
+function parsePriceInput(el) {
+  if (!el || !el.value) return null;
+  const digits = String(el.value).replace(/[^\d]/g, '');
+  if (!digits) return null;
+  return parseInt(digits, 10);
+}
+
 function formatNumberShort(n) {
   if (Math.abs(n) >= 1e9) return (n/1e9).toFixed(1) + 'B';
   if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(1) + 'M';
