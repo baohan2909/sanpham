@@ -5484,7 +5484,7 @@ body.workspace-analytics #section-allocation {
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbxV1A53tKta2nKzaFFNo9zmnWdRjcPm4CGFAMKqG9PWbgBl_L7Zl6LCbI44F4ohV17O/exec';
-const APP_VERSION = 'v12.11 · Tồn kho: lọc giá + nhóm + tổng';
+const APP_VERSION = 'v12.13 · Update endpoint v8';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -10756,7 +10756,7 @@ function renderUserBadge() {
   const slot = document.getElementById('user-badge-slot');
   if (!slot || !CURRENT_USER) return;
 
-  const permLevel = CURRENT_USER.permLevel || 'manager';
+  const permLevel = getEffectivePermLevel(CURRENT_USER);
   let roleLabel = 'Quản lý';
   let dotCls = '';
   if (permLevel === 'admin') { roleLabel = 'Admin'; dotCls = ''; }
@@ -10773,18 +10773,40 @@ function renderUserBadge() {
   `;
 }
 
+// Helper: detect perm level từ nhiều field (backward-compat với backend cũ)
+function getEffectivePermLevel(user) {
+  if (!user) return 'manager';
+  // 1. permLevel trực tiếp (chuẩn mới)
+  const pl = String(user.permLevel || '').toLowerCase();
+  if (pl === 'admin' || pl === 'dphh' || pl === 'manager' || pl === 'store') return pl;
+  // 2. role
+  const r = String(user.role || '').toLowerCase();
+  if (r === 'admin') return 'admin';
+  if (r === 'dphh' || r === 'dieuphoi') return 'dphh';
+  if (r === 'store') return 'store';
+  // 3. rawRole (text in sheet, vd: "ADMIN", "QUẢN LÝ", "ĐIỀU PHỐI HÀNG HÓA", ...)
+  const raw = String(user.rawRole || '').toUpperCase();
+  if (raw.includes('ADMIN')) return 'admin';
+  if (raw.includes('DPHH') || raw.includes('ĐIỀU PHỐI') || raw.includes('DIEU PHOI')) return 'dphh';
+  if (raw.includes('STORE') || raw.includes('CỬA HÀNG')) return 'store';
+  return 'manager';
+}
+
 function applyRolePermissions() {
   if (!CURRENT_USER) return;
 
-  const permLevel = CURRENT_USER.permLevel || 'manager';
+  const permLevel = getEffectivePermLevel(CURRENT_USER);
   const showDphh = (permLevel === 'admin' || permLevel === 'dphh');
+
+  // Debug log để user biết logic đang nhận gì
+  console.log('[AUTH] CURRENT_USER:', CURRENT_USER, '→ effective permLevel:', permLevel, '→ show DPHH:', showDphh);
 
   // Workspace bar: ẩn nút "Điều phối hàng hóa" nếu không có quyền
   const dphhBtn = document.querySelector('.workspace-btn[data-workspace="dphh"]');
   if (dphhBtn) dphhBtn.style.display = showDphh ? '' : 'none';
 
   // Store role (legacy)
-  if (CURRENT_USER.role === 'store') {
+  if (CURRENT_USER.role === 'store' || permLevel === 'store') {
     const transferTab = document.querySelector('.tab[data-tab="transfer"]');
     if (transferTab) transferTab.style.display = 'none';
     if (dphhBtn) dphhBtn.style.display = 'none';
@@ -11574,7 +11596,9 @@ const WAREHOUSE_MAP = {
 
 function cockpitCanUse() {
   if (!CURRENT_USER) return false;
-  const lv = CURRENT_USER.permLevel || 'manager';
+  const lv = (typeof getEffectivePermLevel === 'function')
+    ? getEffectivePermLevel(CURRENT_USER)
+    : (CURRENT_USER.permLevel || 'manager');
   return lv === 'admin' || lv === 'dphh';
 }
 
