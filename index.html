@@ -5349,73 +5349,20 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
       <!-- Filters đặc thù tab Đơn hàng -->
       <div class="orders-filters">
         <div class="filter-group">
-          <label class="filter-label">Số SP / đơn</label>
-          <select id="order-size-filter" class="filter-select">
-            <option value="">Tất cả</option>
-            <option value="1">Đúng 1 SP</option>
-            <option value="2">Đúng 2 SP</option>
-            <option value="3">Đúng 3 SP</option>
-            <option value="4">Đúng 4 SP</option>
-            <option value="5">Đúng 5 SP</option>
-            <option value="2plus">≥ 2 SP</option>
-            <option value="3plus">≥ 3 SP</option>
-            <option value="5plus">≥ 5 SP</option>
-            <option value="10plus">≥ 10 SP</option>
-          </select>
+          <label class="filter-label">Số SP/đơn từ (min)</label>
+          <input type="number" id="order-size-min" class="filter-input" placeholder="Từ" min="1" autocomplete="off">
         </div>
         <div class="filter-group">
-          <label class="filter-label">Tổng tiền/đơn từ (₫)</label>
-          <input type="text" id="order-amount-min" class="filter-input" placeholder="Từ tiền" inputmode="numeric" autocomplete="off" oninput="formatPriceInputLive(this)">
+          <label class="filter-label">Đến (max)</label>
+          <input type="number" id="order-size-max" class="filter-input" placeholder="Đến" min="1" autocomplete="off">
         </div>
         <div class="filter-group">
-          <label class="filter-label">Đến (₫)</label>
-          <input type="text" id="order-amount-max" class="filter-input" placeholder="Đến tiền" inputmode="numeric" autocomplete="off" oninput="formatPriceInputLive(this)">
+          <label class="filter-label">Giờ bắt đầu (0-23)</label>
+          <input type="number" id="order-hour-start" class="filter-input" placeholder="Từ" min="0" max="23" autocomplete="off">
         </div>
         <div class="filter-group">
-          <label class="filter-label">Khoảng giờ</label>
-          <select id="order-hour-filter" class="filter-select">
-            <option value="">Cả ngày</option>
-            <option value="6-11">Sáng (6h–11h)</option>
-            <option value="11-14">Trưa (11h–14h)</option>
-            <option value="14-18">Chiều (14h–18h)</option>
-            <option value="18-22">Tối (18h–22h)</option>
-            <option value="22-6">Đêm (22h–6h)</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label class="filter-label">Thứ trong tuần</label>
-          <select id="order-weekday-filter" class="filter-select">
-            <option value="">Mọi thứ</option>
-            <option value="1">Thứ 2</option>
-            <option value="2">Thứ 3</option>
-            <option value="3">Thứ 4</option>
-            <option value="4">Thứ 5</option>
-            <option value="5">Thứ 6</option>
-            <option value="6">Thứ 7</option>
-            <option value="0">Chủ nhật</option>
-            <option value="weekend">Cuối tuần (T7-CN)</option>
-            <option value="weekday">Trong tuần (T2-T6)</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label class="filter-label">Loại đơn</label>
-          <select id="order-type-filter" class="filter-select">
-            <option value="">Tất cả</option>
-            <option value="main_only">Chỉ hàng chính</option>
-            <option value="sale_only">Chỉ hàng sale</option>
-            <option value="mixed">Có cả 2</option>
-            <option value="single">Đơn 1 SP</option>
-            <option value="multi">Đơn nhiều SP</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label class="filter-label">Ngành</label>
-          <select id="order-category-filter" class="filter-select">
-            <option value="">Tất cả</option>
-            <option value="bh_only">Chỉ Mũ bảo hiểm</option>
-            <option value="nv_only">Chỉ Nón vải</option>
-            <option value="mixed_cat">Đơn hỗn hợp ngành</option>
-          </select>
+          <label class="filter-label">Giờ kết thúc (0-23)</label>
+          <input type="number" id="order-hour-end" class="filter-input" placeholder="Đến" min="0" max="23" autocomplete="off">
         </div>
         <div class="filter-group">
           <label class="filter-label">Sắp xếp</label>
@@ -5879,7 +5826,7 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbxV1A53tKta2nKzaFFNo9zmnWdRjcPm4CGFAMKqG9PWbgBl_L7Zl6LCbI44F4ohV17O/exec';
-const APP_VERSION = 'v13.0 · Tab Đơn hàng (admin)';
+const APP_VERSION = 'v13.1 · Đơn hàng: filter gọn lại';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -10522,53 +10469,22 @@ function computeOrders() {
   return ORDERS_AGG;
 }
 
-function _orderInHourRange(o, range) {
-  if (!range) return true;
-  const [from, to] = range.split('-').map(Number);
+function _orderInHourBounds(o, start, end) {
+  // Cả 2 trống → pass
+  if (start === null && end === null) return true;
   const h = o.hourInt;
-  if (from <= to) return h >= from && h < to;
-  return h >= from || h < to;  // wrap-around vd 22-6
+  if (start !== null && end === null) return h >= start;
+  if (start === null && end !== null) return h <= end;
+  // Cả 2 có giá trị
+  if (start <= end) return h >= start && h <= end;
+  // Wrap-around: vd 22 → 6
+  return h >= start || h <= end;
 }
 
-function _orderMatchSize(o, sizeFilter) {
-  if (!sizeFilter) return true;
+function _orderMatchSizeRange(o, min, max) {
   const n = o.skuCount;
-  if (sizeFilter === '1') return n === 1;
-  if (sizeFilter === '2') return n === 2;
-  if (sizeFilter === '3') return n === 3;
-  if (sizeFilter === '4') return n === 4;
-  if (sizeFilter === '5') return n === 5;
-  if (sizeFilter === '2plus') return n >= 2;
-  if (sizeFilter === '3plus') return n >= 3;
-  if (sizeFilter === '5plus') return n >= 5;
-  if (sizeFilter === '10plus') return n >= 10;
-  return true;
-}
-
-function _orderMatchWeekday(o, wd) {
-  if (!wd) return true;
-  if (wd === 'weekend') return o.weekday === 0 || o.weekday === 6;
-  if (wd === 'weekday') return o.weekday >= 1 && o.weekday <= 5;
-  return o.weekday === parseInt(wd, 10);
-}
-
-function _orderMatchType(o, type) {
-  if (!type) return true;
-  if (type === 'main_only') return o.hasMain && !o.hasSale;
-  if (type === 'sale_only') return o.hasSale && !o.hasMain;
-  if (type === 'mixed') return o.hasMain && o.hasSale;
-  if (type === 'single') return o.skuCount === 1;
-  if (type === 'multi') return o.skuCount > 1;
-  return true;
-}
-
-function _orderMatchCategory(o, cat) {
-  if (!cat) return true;
-  const hasBH = o.categories.some(c => c.includes('bảo hiểm') || c.includes('Bảo hiểm') || c.toLowerCase().includes('bao hiem'));
-  const hasNV = o.categories.some(c => c.toLowerCase().includes('vải') || c.toLowerCase().includes('vai'));
-  if (cat === 'bh_only') return hasBH && !hasNV;
-  if (cat === 'nv_only') return hasNV && !hasBH;
-  if (cat === 'mixed_cat') return hasBH && hasNV;
+  if (min !== null && n < min) return false;
+  if (max !== null && n > max) return false;
   return true;
 }
 
@@ -10609,26 +10525,25 @@ function _sizeBucket(n) {
 function renderOrders() {
   computeOrders();
 
-  // Lấy filter values
-  const sizeF = document.getElementById('order-size-filter').value;
-  const amountMin = parsePriceInput(document.getElementById('order-amount-min'));
-  const amountMax = parsePriceInput(document.getElementById('order-amount-max'));
-  const hourF = document.getElementById('order-hour-filter').value;
-  const wdF = document.getElementById('order-weekday-filter').value;
-  const typeF = document.getElementById('order-type-filter').value;
-  const catF = document.getElementById('order-category-filter').value;
+  // Helper đọc int input, trả null nếu trống
+  const readInt = id => {
+    const el = document.getElementById(id);
+    if (!el || el.value === '') return null;
+    const v = parseInt(el.value, 10);
+    return isNaN(v) ? null : v;
+  };
+
+  const sizeMin = readInt('order-size-min');
+  const sizeMax = readInt('order-size-max');
+  const hourStart = readInt('order-hour-start');
+  const hourEnd = readInt('order-hour-end');
   const sortF = document.getElementById('order-sort').value;
   const groupF = document.getElementById('order-group').value;
 
   // Apply order-level filters
   let orders = ORDERS_AGG.filter(o =>
-    _orderMatchSize(o, sizeF) &&
-    (amountMin === null || o.totalAmount >= amountMin) &&
-    (amountMax === null || o.totalAmount <= amountMax) &&
-    _orderInHourRange(o, hourF) &&
-    _orderMatchWeekday(o, wdF) &&
-    _orderMatchType(o, typeF) &&
-    _orderMatchCategory(o, catF)
+    _orderMatchSizeRange(o, sizeMin, sizeMax) &&
+    _orderInHourBounds(o, hourStart, hourEnd)
   );
 
   // Sort
@@ -10651,7 +10566,6 @@ function renderOrders() {
     return;
   }
 
-  // Group
   if (groupF === 'none') {
     list.innerHTML = renderOrdersFlat(orders);
   } else {
@@ -10807,8 +10721,7 @@ function toggleOrderExpand(soDon) {
 }
 
 function clearOrderFilters() {
-  ['order-size-filter','order-amount-min','order-amount-max','order-hour-filter',
-   'order-weekday-filter','order-type-filter','order-category-filter'].forEach(id => {
+  ['order-size-min','order-size-max','order-hour-start','order-hour-end'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -10819,22 +10732,19 @@ function clearOrderFilters() {
 
 function exportOrdersCSV() {
   if (!ORDERS_AGG.length) computeOrders();
-  // Apply current filters
-  const sizeF = document.getElementById('order-size-filter').value;
-  const amountMin = parsePriceInput(document.getElementById('order-amount-min'));
-  const amountMax = parsePriceInput(document.getElementById('order-amount-max'));
-  const hourF = document.getElementById('order-hour-filter').value;
-  const wdF = document.getElementById('order-weekday-filter').value;
-  const typeF = document.getElementById('order-type-filter').value;
-  const catF = document.getElementById('order-category-filter').value;
+  const readInt = id => {
+    const el = document.getElementById(id);
+    if (!el || el.value === '') return null;
+    const v = parseInt(el.value, 10);
+    return isNaN(v) ? null : v;
+  };
+  const sizeMin = readInt('order-size-min');
+  const sizeMax = readInt('order-size-max');
+  const hourStart = readInt('order-hour-start');
+  const hourEnd = readInt('order-hour-end');
   const orders = ORDERS_AGG.filter(o =>
-    _orderMatchSize(o, sizeF) &&
-    (amountMin === null || o.totalAmount >= amountMin) &&
-    (amountMax === null || o.totalAmount <= amountMax) &&
-    _orderInHourRange(o, hourF) &&
-    _orderMatchWeekday(o, wdF) &&
-    _orderMatchType(o, typeF) &&
-    _orderMatchCategory(o, catF)
+    _orderMatchSizeRange(o, sizeMin, sizeMax) &&
+    _orderInHourBounds(o, hourStart, hourEnd)
   );
 
   const header = ['Số đơn','Ngày','Giờ','Cửa hàng','Khu vực','Nhân viên','Số SP','Số lượng','Tổng tiền','Có Sale','Ngành'];
@@ -11336,19 +11246,19 @@ document.getElementById('stock-status-filter').addEventListener('change', render
 document.getElementById('vel-class').addEventListener('change', renderVelocity);
 
 // ============ ORDERS TAB LISTENERS ============
-let orderAmountTimeout;
-['order-size-filter','order-hour-filter','order-weekday-filter','order-type-filter',
- 'order-category-filter','order-sort','order-group'].forEach(id => {
+let orderInputTimeout;
+['order-sort','order-group'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('change', renderOrders);
 });
-['order-amount-min','order-amount-max'].forEach(id => {
+['order-size-min','order-size-max','order-hour-start','order-hour-end'].forEach(id => {
   const el = document.getElementById(id);
   if (!el) return;
   el.addEventListener('input', () => {
-    clearTimeout(orderAmountTimeout);
-    orderAmountTimeout = setTimeout(renderOrders, 400);
+    clearTimeout(orderInputTimeout);
+    orderInputTimeout = setTimeout(renderOrders, 350);
   });
+  el.addEventListener('change', renderOrders);
 });
 
 // ============ INIT ============
