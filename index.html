@@ -4648,7 +4648,7 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
 .report-tab {
   background: transparent;
   border: none;
-  padding: 10px 18px;
+  padding: 11px 18px;
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 12px;
   font-weight: 600;
@@ -4658,7 +4658,11 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
   margin-bottom: -2px;
   transition: all 0.15s ease;
   letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
+.report-tab .report-tab-icon { display: inline-flex; align-items: center; }
 .report-tab:hover { color: var(--ink); background: var(--bg-elevated); }
 .report-tab.active {
   color: var(--terracotta);
@@ -4692,6 +4696,9 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
   margin-bottom: 4px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .report-program-banner-meta {
   font-size: 11px;
@@ -4710,9 +4717,27 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
   border: 1px solid var(--line);
   border-left: 3px solid var(--accent);
   padding: 14px 16px;
-  border-radius: 4px;
+  border-radius: 6px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  position: relative;
+  overflow: hidden;
+}
+.report-kpi::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 60px; height: 60px;
+  background: radial-gradient(circle at top right, var(--accent-soft), transparent 70%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+.report-kpi:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+  border-color: var(--line);
 }
 .report-kpi.bonus { border-left-color: var(--terracotta); }
+.report-kpi.bonus::after { background: radial-gradient(circle at top right, rgba(220,138,64,0.18), transparent 70%); }
 .report-kpi-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
@@ -4841,6 +4866,37 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
   font-family: 'JetBrains Mono', monospace;
   text-align: right;
   font-weight: 700;
+}
+
+.bonus-store-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 4px 4px 10px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.bonus-store-tag button {
+  background: transparent;
+  border: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--ink-muted);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s;
+}
+.bonus-store-tag button:hover {
+  background: var(--negative);
+  color: white;
 }
 
 </style>
@@ -5554,9 +5610,9 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
       <div class="panel-sub">Theo dõi hiệu quả các chương trình đang triển khai · số liệu so sánh thời gian</div>
 
       <div class="report-nav">
-        <button class="report-tab active" data-report="overview" onclick="switchReportTab('overview')">📊 Tổng quan toàn hệ thống</button>
-        <button class="report-tab" data-report="bonus7" onclick="switchReportTab('bonus7')">⭐ Thưởng nóng 7 CH</button>
-        <button class="report-tab" data-report="gift" onclick="switchReportTab('gift')">🎁 Tặng nón (Tháng 6)</button>
+        <button class="report-tab active" data-report="overview" onclick="switchReportTab('overview')"><span class="report-tab-icon"></span> Tổng quan hệ thống</button>
+        <button class="report-tab" data-report="bonus7" onclick="switchReportTab('bonus7')"><span class="report-tab-icon"></span> Thưởng nóng cửa hàng</button>
+        <button class="report-tab" data-report="gift" onclick="switchReportTab('gift')"><span class="report-tab-icon"></span> Ưu đãi tháng 6</button>
       </div>
 
       <div class="report-controls">
@@ -5590,7 +5646,7 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
           </select>
         </div>
         <div class="filter-group" style="display:flex;align-items:end">
-          <button class="btn-clear" onclick="refreshReport()" style="white-space:nowrap">🔄 Làm mới</button>
+          <button class="btn-clear" onclick="refreshReport()" style="white-space:nowrap;display:flex;align-items:center;gap:6px"><span id="refresh-icon-slot"></span>Làm mới</button>
         </div>
       </div>
 
@@ -6087,7 +6143,7 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbxV1A53tKta2nKzaFFNo9zmnWdRjcPm4CGFAMKqG9PWbgBl_L7Zl6LCbI44F4ohV17O/exec';
-const APP_VERSION = 'v13.2 · Báo cáo chương trình';
+const APP_VERSION = 'v13.3 · Báo cáo: line chart, manage CH, fix Ưu đãi T6';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -11043,16 +11099,58 @@ function exportOrdersCSV() {
 // REPORTS — Báo cáo chương trình (in tab Đơn hàng, admin)
 // ============================================================
 
-// 7 cửa hàng được chương trình thưởng nóng (match qua substring không phân biệt hoa thường)
-const BONUS_STORE_KEYWORDS = [
-  'cần thơ 2', 'nguyễn trãi 3', 'biên hòa 2', 'nha trang 1',
-  'đà nẵng 1', 'thanh hóa', 'nguyễn văn cừ'
+// 7 cửa hàng được chương trình thưởng nóng (mặc định) — user có thể thêm/xóa, lưu localStorage
+const DEFAULT_BONUS_STORES = [
+  'Cần Thơ 2', 'Nguyễn Trãi 3', 'Biên Hòa 2', 'Nha Trang 1',
+  'Đà Nẵng 1', 'Thanh Hóa', 'Nguyễn Văn Cừ'
 ];
+
+function getBonusStores() {
+  try {
+    const raw = localStorage.getItem('bonus_stores_v1');
+    if (raw) {
+      const list = JSON.parse(raw);
+      if (Array.isArray(list) && list.length > 0) return list;
+    }
+  } catch (e) {}
+  return DEFAULT_BONUS_STORES.slice();
+}
+
+function saveBonusStores(list) {
+  try {
+    localStorage.setItem('bonus_stores_v1', JSON.stringify(list));
+  } catch (e) {}
+}
+
+function addBonusStore() {
+  const input = document.getElementById('bonus-store-add-input');
+  if (!input || !input.value.trim()) return;
+  const name = input.value.trim();
+  const list = getBonusStores();
+  if (!list.find(s => s.toLowerCase() === name.toLowerCase())) {
+    list.push(name);
+    saveBonusStores(list);
+  }
+  input.value = '';
+  refreshReport();
+}
+
+function removeBonusStore(name) {
+  const list = getBonusStores().filter(s => s !== name);
+  saveBonusStores(list);
+  refreshReport();
+}
+
+function resetBonusStores() {
+  if (!confirm('Khôi phục danh sách mặc định (7 cửa hàng gốc)?')) return;
+  saveBonusStores(DEFAULT_BONUS_STORES.slice());
+  refreshReport();
+}
 
 function isInBonusStores(storeName) {
   if (!storeName) return false;
   const n = String(storeName).toLowerCase().trim();
-  return BONUS_STORE_KEYWORDS.some(k => n.includes(k));
+  return getBonusStores().some(k => n.includes(k.toLowerCase()));
 }
 
 // Thưởng nóng/SP: 200k nếu 3tr ≤ giá niêm yết < 5tr; 500k nếu ≥ 5tr
@@ -11070,7 +11168,28 @@ function switchReportTab(reportType) {
   document.querySelectorAll('.report-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.report === reportType);
   });
+  // Ẩn panel "Phân tích đơn hàng" + orders-stats khi không ở overview
+  const ordersStats = document.getElementById('orders-stats');
+  const analysisPanel = document.querySelector('#section-orders .panel:nth-of-type(2)');
+  const showList = (reportType === 'overview');
+  if (ordersStats) ordersStats.style.display = showList ? '' : 'none';
+  if (analysisPanel) analysisPanel.style.display = showList ? '' : 'none';
   refreshReport();
+}
+
+// Wire SVG icons vào sub-tabs sau khi DOM ready
+function _wireReportTabIcons() {
+  const map = {
+    overview: 'barChart',
+    bonus7: 'star',
+    gift: 'gift'
+  };
+  document.querySelectorAll('.report-tab').forEach(t => {
+    const slot = t.querySelector('.report-tab-icon');
+    if (slot && map[t.dataset.report]) slot.innerHTML = icon(map[t.dataset.report], 15);
+  });
+  const refreshSlot = document.getElementById('refresh-icon-slot');
+  if (refreshSlot) refreshSlot.innerHTML = icon('refresh', 14);
 }
 
 function applyQuickReportRange(range) {
@@ -11243,59 +11362,127 @@ function renderKpiCard(label, value, valuePrev, formatFn, options) {
   `;
 }
 
-// SVG bar chart theo giờ (24 cột)
+// SVG line chart kiểu chứng khoán — 7:30 → 23:00 với bucket 30 phút
 function renderHourlyChart(ordersA, ordersB, metric) {
-  const a = new Array(24).fill(0);
-  const b = new Array(24).fill(0);
-  const accum = (arr, o) => {
-    const h = o.hourInt;
-    if (metric === 'revenue') arr[h] += o.totalAmount;
-    else if (metric === 'qty') arr[h] += o.totalQty;
-    else arr[h] += 1;
+  // Bucket: 7:30, 8:00, 8:30, ..., 23:00 → 32 điểm
+  const START_MIN = 7 * 60 + 30;   // 7:30
+  const END_MIN   = 23 * 60;        // 23:00
+  const STEP      = 30;             // 30 phút
+  const N = Math.round((END_MIN - START_MIN) / STEP) + 1;  // 32
+
+  const a = new Array(N).fill(0);
+  const b = new Array(N).fill(0);
+
+  const bucketIndex = (h, m) => {
+    const total = h * 60 + m;
+    if (total < START_MIN || total > END_MIN) return -1;
+    return Math.floor((total - START_MIN) / STEP);
   };
+
+  const accum = (arr, o) => {
+    const idx = bucketIndex(o.hourInt, o.minuteInt || 0);
+    if (idx < 0) return;
+    if (metric === 'revenue') arr[idx] += o.totalAmount;
+    else if (metric === 'qty') arr[idx] += o.totalQty;
+    else arr[idx] += 1;
+  };
+
   ordersA.forEach(o => accum(a, o));
   if (ordersB) ordersB.forEach(o => accum(b, o));
 
   const max = Math.max(...a, ...(ordersB ? b : [0]), 1);
-  const W = 720, H = 220;
-  const padL = 56, padR = 14, padT = 14, padB = 32;
+
+  // SVG dimensions
+  const W = 760, H = 240;
+  const padL = 64, padR = 16, padT = 18, padB = 36;
   const chartW = W - padL - padR;
   const chartH = H - padT - padB;
-  const colW = chartW / 24;
-  const barInnerW = colW * 0.68;
 
-  let bars = '';
-  for (let h = 0; h < 24; h++) {
-    const x = padL + h * colW + (colW - barInnerW) / 2;
-    const ha = (a[h] / max) * chartH;
-    const hb = (b[h] / max) * chartH;
-    if (ordersB) {
-      const halfW = barInnerW / 2 - 1;
-      bars += `<rect x="${x}" y="${padT + chartH - hb}" width="${halfW}" height="${hb || 0.5}" fill="var(--ink-muted)" opacity="0.4"><title>So sánh ${h}h: ${formatNumber(b[h])}</title></rect>`;
-      bars += `<rect x="${x + halfW + 2}" y="${padT + chartH - ha}" width="${halfW}" height="${ha || 0.5}" fill="var(--terracotta)"><title>Hiện tại ${h}h: ${formatNumber(a[h])}</title></rect>`;
-    } else {
-      bars += `<rect x="${x}" y="${padT + chartH - ha}" width="${barInnerW}" height="${ha || 0.5}" fill="var(--terracotta)"><title>${h}h: ${formatNumber(a[h])}</title></rect>`;
+  const xOf = i => padL + (i / (N - 1)) * chartW;
+  const yOf = v => padT + chartH - (v / max) * chartH;
+
+  // Build SVG paths
+  const buildPath = (data, smooth = true) => {
+    let path = '';
+    for (let i = 0; i < N; i++) {
+      const x = xOf(i);
+      const y = yOf(data[i]);
+      if (i === 0) path += `M${x.toFixed(1)} ${y.toFixed(1)}`;
+      else {
+        if (smooth) {
+          // Smooth curve dùng bezier control points
+          const px = xOf(i - 1);
+          const py = yOf(data[i - 1]);
+          const cpx = (px + x) / 2;
+          path += ` C${cpx.toFixed(1)} ${py.toFixed(1)} ${cpx.toFixed(1)} ${y.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)}`;
+        } else {
+          path += ` L${x.toFixed(1)} ${y.toFixed(1)}`;
+        }
+      }
     }
-  }
+    return path;
+  };
 
-  // X axis (mỗi 2h)
-  let xLabels = '';
-  for (let h = 0; h < 24; h += 2) {
-    const x = padL + h * colW + colW / 2;
-    xLabels += `<text x="${x}" y="${padT + chartH + 18}" text-anchor="middle" font-size="10" font-family="JetBrains Mono" fill="var(--ink-muted)">${h}h</text>`;
-  }
+  const areaPath = (data) => {
+    return buildPath(data) + ` L${xOf(N - 1).toFixed(1)} ${(padT + chartH).toFixed(1)} L${xOf(0).toFixed(1)} ${(padT + chartH).toFixed(1)} Z`;
+  };
 
-  // Y axis & grid (4 levels)
-  let yLabels = '', grid = '';
+  // Grid + Y labels (5 levels)
+  let grid = '', yLabels = '';
   for (let i = 0; i <= 4; i++) {
     const v = max * (1 - i / 4);
     const y = padT + (chartH * i / 4);
-    grid += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="var(--line)" stroke-width="0.5"/>`;
-    yLabels += `<text x="${padL - 6}" y="${y + 3}" text-anchor="end" font-size="9" font-family="JetBrains Mono" fill="var(--ink-muted)">${formatNumberShort(v)}</text>`;
+    grid += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="var(--line)" stroke-width="0.5" stroke-dasharray="${i === 4 ? '0' : '2,3'}"/>`;
+    yLabels += `<text x="${padL - 8}" y="${y + 3}" text-anchor="end" font-size="9" font-family="JetBrains Mono" fill="var(--ink-muted)">${formatNumberShort(v)}</text>`;
   }
 
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%">
-    ${grid}${yLabels}${bars}${xLabels}
+  // X labels (mỗi giờ, từ 8h → 23h)
+  let xLabels = '';
+  for (let h = 8; h <= 23; h++) {
+    const idx = bucketIndex(h, 0);
+    if (idx < 0) continue;
+    const x = xOf(idx);
+    xLabels += `<line x1="${x}" y1="${padT + chartH}" x2="${x}" y2="${padT + chartH + 3}" stroke="var(--line)"/>`;
+    xLabels += `<text x="${x}" y="${padT + chartH + 18}" text-anchor="middle" font-size="10" font-family="JetBrains Mono" fill="var(--ink-muted)">${h}h</text>`;
+  }
+
+  // Compare line (rendered first, dưới)
+  let compareSvg = '';
+  if (ordersB) {
+    compareSvg = `
+      <path d="${areaPath(b)}" fill="var(--ink-muted)" opacity="0.08"/>
+      <path d="${buildPath(b)}" fill="none" stroke="var(--ink-muted)" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.55"/>
+    `;
+  }
+
+  // Main line + area
+  const mainSvg = `
+    <defs>
+      <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--terracotta)" stop-opacity="0.30"/>
+        <stop offset="100%" stop-color="var(--terracotta)" stop-opacity="0.02"/>
+      </linearGradient>
+    </defs>
+    <path d="${areaPath(a)}" fill="url(#lineGradient)"/>
+    <path d="${buildPath(a)}" fill="none" stroke="var(--terracotta)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+  `;
+
+  // Markers tại điểm có data > 0
+  let markers = '';
+  for (let i = 0; i < N; i++) {
+    if (a[i] > 0) {
+      const x = xOf(i), y = yOf(a[i]);
+      // Time label
+      const totalMin = START_MIN + i * STEP;
+      const hh = Math.floor(totalMin / 60);
+      const mm = totalMin % 60;
+      const timeStr = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+      markers += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.5" fill="var(--terracotta)"><title>${timeStr} — ${formatNumber(a[i])}</title></circle>`;
+    }
+  }
+
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="display:block;max-width:100%">
+    ${grid}${compareSvg}${mainSvg}${markers}${yLabels}${xLabels}
   </svg>`;
 }
 
@@ -11488,13 +11675,21 @@ function renderReport7Stores(ordersA, ordersB) {
   const itemsHighA = inBonusA.reduce((s, o) => s + o.items.filter(it => (it.giaBan || 0) >= 3000000).reduce((q, it) => q + (it.soLuong || 0), 0), 0);
   const itemsHighB = inBonusB ? inBonusB.reduce((s, o) => s + o.items.filter(it => (it.giaBan || 0) >= 3000000).reduce((q, it) => q + (it.soLuong || 0), 0), 0) : null;
 
+  const stores_list = getBonusStores();
   const banner = `
     <div class="report-program-banner">
-      <div class="report-program-banner-title">⭐ Chương trình thưởng nóng · 7 cửa hàng</div>
-      <div class="report-program-banner-meta">Cần Thơ 2 · Nguyễn Trãi 3 · Biên Hòa 2 · Nha Trang 1 · Đà Nẵng 1 · Thanh Hóa · Nguyễn Văn Cừ</div>
+      <div class="report-program-banner-title">${icon('star', 16)} Chương trình thưởng nóng · ${stores_list.length} cửa hàng</div>
       <div style="font-size:11px;color:var(--ink-soft);margin-top:6px">
         SP <strong>3 → dưới 5 triệu</strong>: thưởng <strong style="color:var(--terracotta)">200.000₫/SP</strong> ·
         SP <strong>≥ 5 triệu</strong>: thưởng <strong style="color:var(--terracotta)">500.000₫/SP</strong>
+      </div>
+      <div class="bonus-store-tags" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        ${stores_list.map(s => `<span class="bonus-store-tag">${escapeHtml(s)}<button onclick="removeBonusStore('${escapeAttr(s)}')" title="Bỏ khỏi danh sách">${icon('xClose', 11)}</button></span>`).join('')}
+        <div style="display:flex;gap:4px;align-items:center;margin-left:6px">
+          <input type="text" id="bonus-store-add-input" placeholder="Thêm tên CH..." style="padding:4px 8px;font-size:11px;font-family:inherit;border:1px solid var(--line);border-radius:3px;background:var(--bg);color:var(--ink);width:140px" onkeydown="if(event.key==='Enter'){event.preventDefault();addBonusStore()}">
+          <button onclick="addBonusStore()" title="Thêm CH" style="padding:4px 8px;background:var(--accent);color:white;border:none;border-radius:3px;cursor:pointer;font-size:11px;display:inline-flex;align-items:center;gap:2px">${icon('plus', 12)} Thêm</button>
+          <button onclick="resetBonusStores()" title="Khôi phục 7 CH gốc" style="padding:4px 8px;background:transparent;color:var(--ink-muted);border:1px solid var(--line);border-radius:3px;cursor:pointer;font-size:10px">Reset</button>
+        </div>
       </div>
     </div>
   `;
@@ -11605,62 +11800,83 @@ function renderReport7Stores(ordersA, ordersB) {
 
   return banner + kpis + bonusBars + revBars + chart + table;
 }
-
-// ===== Report 3: Tặng nón (T6) =====
+// ===== Report 3: Ưu đãi tháng 6 =====
+// Logic: đếm đơn ≥N SP mà KHÔNG có sale nào (tức KH chọn KHÔNG nhận giảm 20%)
+// Theo CT: KH mua ≥2 SP giá niêm yết → đủ ĐK nhận quà
 function renderReportGift(ordersA, ordersB) {
-  // Điều kiện: đúng 2 SP (sku), tất cả mua giá niêm yết (không sale)
-  const isEligible = o => {
-    if (o.skuCount !== 2 && o.itemCount !== 2) return false;
-    return o.items.every(it => !(it.giaSale > 0 && it.giaBan && it.giaSale < it.giaBan));
-  };
+  // Đơn "đủ điều kiện": tất cả items giá niêm yết (không sale)
+  const isAllListPrice = o => o.items.every(it => !(it.giaSale > 0 && it.giaBan && it.giaSale < it.giaBan));
 
-  const eligA = ordersA.filter(isEligible);
-  const eligB = ordersB ? ordersB.filter(isEligible) : null;
+  const eligibleA = ordersA.filter(o => o.skuCount >= 2 && isAllListPrice(o));
+  const eligibleB = ordersB ? ordersB.filter(o => o.skuCount >= 2 && isAllListPrice(o)) : null;
 
-  // TB giá / đơn = TB giá 2 nón đã mua → mức trần quà tặng
-  const ceilingOf = o => {
-    if (!o.items.length) return 0;
-    const totalUnits = o.items.reduce((s, it) => s + (it.soLuong || 0), 0);
-    const totalPrice = o.items.reduce((s, it) => s + (it.giaBan || 0) * (it.soLuong || 0), 0);
-    return totalUnits > 0 ? totalPrice / totalUnits : 0;
-  };
-  const ceilingsA = eligA.map(ceilingOf);
-  const ceilingsB = eligB ? eligB.map(ceilingOf) : null;
-  const avgCeilA = ceilingsA.length ? ceilingsA.reduce((s, x) => s + x, 0) / ceilingsA.length : 0;
-  const avgCeilB = ceilingsB && ceilingsB.length ? ceilingsB.reduce((s, x) => s + x, 0) / ceilingsB.length : null;
-  const totGiftValA = ceilingsA.reduce((s, x) => s + x, 0);
-  const totGiftValB = ceilingsB ? ceilingsB.reduce((s, x) => s + x, 0) : null;
+  // Breakdown theo size
+  const bySize = (orders, n, op) => orders.filter(o => op === 'eq' ? o.skuCount === n : o.skuCount >= n);
 
-  const totalRevA = eligA.reduce((s, o) => s + o.totalAmount, 0);
-  const totalRevB = eligB ? eligB.reduce((s, o) => s + o.totalAmount, 0) : null;
+  const e2_A = bySize(eligibleA, 2, 'eq');
+  const e3_A = bySize(eligibleA, 3, 'eq');
+  const e4plus_A = bySize(eligibleA, 4, 'gte');
+
+  const e2_B = eligibleB ? bySize(eligibleB, 2, 'eq') : null;
+  const e3_B = eligibleB ? bySize(eligibleB, 3, 'eq') : null;
+  const e4plus_B = eligibleB ? bySize(eligibleB, 4, 'gte') : null;
+
+  const totalRevA = eligibleA.reduce((s, o) => s + o.totalAmount, 0);
+  const totalRevB = eligibleB ? eligibleB.reduce((s, o) => s + o.totalAmount, 0) : null;
+  const totalQtyA = eligibleA.reduce((s, o) => s + o.totalQty, 0);
+  const totalQtyB = eligibleB ? eligibleB.reduce((s, o) => s + o.totalQty, 0) : null;
 
   const banner = `
     <div class="report-program-banner">
-      <div class="report-program-banner-title">🎁 Chương trình tặng nón · Tháng 6</div>
-      <div style="font-size:11px;color:var(--ink-soft);margin-top:4px">
-        Mua 2 SP <strong>giá niêm yết</strong> (không sale) → tặng 1 nón ≤ <strong>TB giá</strong> 2 nón đã mua.
-        Khách muốn nón cao hơn có thể <strong>bù thêm phần chênh lệch</strong>.
+      <div class="report-program-banner-title">${icon('gift', 16)} Chương trình ưu đãi tháng 6</div>
+      <div style="font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.6">
+        KH mua <strong>≥ 2 SP giá niêm yết</strong> (không nhận giảm 20% / không sale)
+        <strong style="color:var(--accent)"> → được tặng 1 nón ≤ TB giá 2 nón đã mua</strong>.
+        KH muốn lấy nón giá trị cao hơn có thể <strong>bù thêm chênh lệch</strong>.
+      </div>
+      <div style="font-size:10px;color:var(--ink-muted);margin-top:8px;font-family:'JetBrains Mono',monospace;border-top:1px dashed var(--line);padding-top:6px">
+        Báo cáo đếm các đơn có khả năng tham gia chương trình — tức KH đã chọn KHÔNG nhận giảm 20% trên bill.
       </div>
     </div>
   `;
 
   const kpis = `
     <div class="report-kpis">
-      ${renderKpiCard('Đơn đủ điều kiện', eligA.length, eligB?.length ?? null)}
+      ${renderKpiCard('Tổng đơn đủ ĐK', eligibleA.length, eligibleB?.length ?? null)}
+      ${renderKpiCard('Đơn ĐÚNG 2 SP', e2_A.length, e2_B?.length ?? null)}
+      ${renderKpiCard('Đơn ĐÚNG 3 SP', e3_A.length, e3_B?.length ?? null)}
+      ${renderKpiCard('Đơn ≥ 4 SP', e4plus_A.length, e4plus_B?.length ?? null)}
       ${renderKpiCard('Doanh thu các đơn này', totalRevA, totalRevB, n => formatNumber(n) + '₫')}
-      ${renderKpiCard('TB giá nón tặng', avgCeilA, avgCeilB, n => formatNumber(n) + '₫')}
-      ${renderKpiCard('Tổng GT quà dự kiến', totGiftValA, totGiftValB, n => formatNumber(n) + '₫', { bonus: true })}
+      ${renderKpiCard('SL nón đã bán', totalQtyA, totalQtyB)}
     </div>
   `;
 
-  // Top CH có nhiều đơn eligible
+  const chart = `
+    <div class="report-chart-block">
+      <div class="report-chart-title">Số đơn đủ điều kiện theo giờ</div>
+      <div class="report-chart-sub">Đơn ≥ 2 SP và tất cả items giá niêm yết · 7:30 → 23:00</div>
+      ${eligibleB ? `<div class="report-legend">
+        <span><span class="report-legend-dot" style="background:var(--terracotta)"></span>Hiện tại</span>
+        <span><span class="report-legend-dot" style="background:var(--ink-muted);opacity:0.5"></span>So sánh</span>
+      </div>` : ''}
+      ${renderHourlyChart(eligibleA, eligibleB, 'orders')}
+    </div>
+  `;
+
+  const chartRev = `
+    <div class="report-chart-block">
+      <div class="report-chart-title">Doanh thu các đơn đủ ĐK theo giờ</div>
+      ${renderHourlyChart(eligibleA, eligibleB, 'revenue')}
+    </div>
+  `;
+
   const storeMap = {};
-  eligA.forEach(o => {
+  eligibleA.forEach(o => {
     const k = o.cuaHang || '(không có CH)';
     if (!storeMap[k]) storeMap[k] = { name: k, value: 0, valuePrev: 0 };
     storeMap[k].value += 1;
   });
-  if (eligB) eligB.forEach(o => {
+  if (eligibleB) eligibleB.forEach(o => {
     const k = o.cuaHang || '(không có CH)';
     if (!storeMap[k]) storeMap[k] = { name: k, value: 0, valuePrev: 0 };
     storeMap[k].valuePrev += 1;
@@ -11670,49 +11886,34 @@ function renderReportGift(ordersA, ordersB) {
   const storesBlock = topStores.length > 0 ? `
     <div class="report-chart-block">
       <div class="report-chart-title">Top 20 CH có nhiều đơn đủ điều kiện</div>
+      <div class="report-chart-sub">Số đơn ≥ 2 SP không nhận discount</div>
       ${renderHorizontalBars(topStores)}
     </div>
   ` : '';
 
-  // Distribution by ceiling range
-  const buckets = {
-    '< 500k':  { name: '< 500.000₫',          value: 0, valuePrev: 0 },
-    '500-1M':  { name: '500.000₫ – 1 triệu',  value: 0, valuePrev: 0 },
-    '1-2M':    { name: '1 triệu – 2 triệu',   value: 0, valuePrev: 0 },
-    '2-3M':    { name: '2 triệu – 3 triệu',   value: 0, valuePrev: 0 },
-    '3M+':     { name: '≥ 3 triệu',           value: 0, valuePrev: 0 }
-  };
-  const bucketOf = c => {
-    if (c < 500000) return '< 500k';
-    if (c < 1000000) return '500-1M';
-    if (c < 2000000) return '1-2M';
-    if (c < 3000000) return '2-3M';
-    return '3M+';
-  };
-  ceilingsA.forEach(c => buckets[bucketOf(c)].value++);
-  if (ceilingsB) ceilingsB.forEach(c => buckets[bucketOf(c)].valuePrev++);
+  const sizeBreakdown = {};
+  for (let i = 2; i <= 9; i++) sizeBreakdown[i] = { name: i + ' SP', value: 0, valuePrev: 0 };
+  sizeBreakdown['10+'] = { name: '≥ 10 SP', value: 0, valuePrev: 0 };
+  eligibleA.forEach(o => {
+    const k = o.skuCount >= 10 ? '10+' : String(o.skuCount);
+    if (sizeBreakdown[k]) sizeBreakdown[k].value++;
+  });
+  if (eligibleB) eligibleB.forEach(o => {
+    const k = o.skuCount >= 10 ? '10+' : String(o.skuCount);
+    if (sizeBreakdown[k]) sizeBreakdown[k].valuePrev++;
+  });
+  const sizeRows = Object.values(sizeBreakdown).filter(s => s.value > 0 || s.valuePrev > 0);
 
-  const bucketBlock = `
+  const sizeBlock = sizeRows.length > 0 ? `
     <div class="report-chart-block">
-      <div class="report-chart-title">Phân bố mức quà tặng (theo TB giá 2 SP đã mua)</div>
-      <div class="report-chart-sub">Giúp lên kế hoạch tồn kho nón quà phù hợp</div>
-      ${renderHorizontalBars(Object.values(buckets))}
+      <div class="report-chart-title">Phân bố đơn đủ ĐK theo số SP/đơn</div>
+      ${renderHorizontalBars(sizeRows)}
     </div>
-  `;
+  ` : '';
 
-  const chart = `
-    <div class="report-chart-block">
-      <div class="report-chart-title">Đơn đủ điều kiện theo giờ</div>
-      ${eligB ? `<div class="report-legend">
-        <span><span class="report-legend-dot" style="background:var(--terracotta)"></span>Hiện tại</span>
-        <span><span class="report-legend-dot" style="background:var(--ink-muted);opacity:0.4"></span>So sánh</span>
-      </div>` : ''}
-      ${renderHourlyChart(eligA, eligB, 'orders')}
-    </div>
-  `;
-
-  return banner + kpis + bucketBlock + chart + storesBlock;
+  return banner + kpis + chart + chartRev + sizeBlock + storesBlock;
 }
+
 
 // ============ RAW DATA TABLE ============
 function renderRaw() {
@@ -12157,7 +12358,16 @@ const ICONS = {
   flame: '<svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
   cloud: '<svg viewBox="0 0 24 24"><path d="M17.5 19a4.5 4.5 0 1 0 0-9h-1.8A7 7 0 1 0 4 15.9"/></svg>',
   snowflake: '<svg viewBox="0 0 24 24"><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4 4 4"/></svg>',
-  skull: '<svg viewBox="0 0 24 24"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></svg>'
+  skull: '<svg viewBox="0 0 24 24"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></svg>',
+  barChart: '<svg viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>',
+  star: '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  gift: '<svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>',
+  refresh: '<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>',
+  clock: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  plus: '<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  xClose: '<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+  store: '<svg viewBox="0 0 24 24"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/></svg>',
+  trending: '<svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>'
 };
 
 function icon(name, size = 14) {
@@ -12207,6 +12417,8 @@ let orderInputTimeout;
 window.addEventListener('DOMContentLoaded', () => {
   // Theme apply EARLY (đã chạy inline trước, đây chỉ refresh state)
   initThemeFromStorage();
+  // Wire icons cho report tabs + refresh button
+  if (typeof _wireReportTabIcons === 'function') _wireReportTabIcons();
   // Check auth
   initAuthFlow();
 });
