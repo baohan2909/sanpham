@@ -4420,6 +4420,221 @@ body.workspace-analytics #section-allocation {
   box-shadow: 0 0 0 2px var(--warn), var(--shadow-lg);
 }
 
+/* ===========================================================
+   ORDERS TAB — Admin-only, KPI, filters, cards
+   =========================================================== */
+.tab.tab-admin-only { display: none; }
+body.is-admin .tab.tab-admin-only { display: inline-flex; }
+
+.orders-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.order-kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  padding: 12px 14px;
+  border-radius: 4px;
+}
+.order-kpi-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  margin-bottom: 6px;
+}
+.order-kpi-value {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.order-kpi-sub {
+  font-size: 10px;
+  color: var(--ink-soft);
+  margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.orders-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--bg-elevated);
+  border-radius: 6px;
+  margin-bottom: 14px;
+}
+
+.order-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.order-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); }
+.order-card-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+}
+.order-card-no {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 13px;
+  min-width: 90px;
+}
+.order-card-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-muted);
+  min-width: 110px;
+}
+.order-card-store {
+  flex: 1;
+  font-size: 13px;
+  color: var(--ink);
+  font-weight: 500;
+}
+.order-card-store-region {
+  display: block;
+  font-size: 10px;
+  color: var(--ink-muted);
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 1px;
+}
+.order-card-badges {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.order-badge {
+  font-size: 9px;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 2px 6px;
+  border-radius: 8px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.order-badge.size { background: var(--accent-soft); color: var(--accent); }
+.order-badge.sale { background: rgba(220, 138, 64, 0.12); color: var(--terracotta); }
+.order-badge.bh { background: rgba(64, 138, 220, 0.12); color: #408adc; }
+.order-badge.nv { background: rgba(120, 180, 60, 0.12); color: #6a9d2e; }
+.order-card-amount {
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  min-width: 110px;
+  text-align: right;
+}
+.order-card-expand {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 700;
+  padding-left: 4px;
+}
+.order-card-body {
+  display: none;
+  padding: 4px 16px 14px 16px;
+  border-top: 1px solid var(--line);
+}
+.order-card.expanded .order-card-body { display: block; }
+.order-card.expanded .order-card-expand { color: var(--terracotta); }
+
+.order-items-table {
+  width: 100%;
+  font-size: 12px;
+  border-collapse: collapse;
+}
+.order-items-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+.order-items-table tr:last-child td { border-bottom: none; }
+.order-item-img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 3px;
+  background: var(--bg-elevated);
+  display: block;
+}
+.order-item-img-placeholder {
+  width: 48px; height: 48px;
+  background: var(--bg-elevated);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-muted);
+  font-size: 16px;
+}
+.order-item-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: var(--ink);
+}
+.order-item-qty {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent);
+}
+.order-item-price {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--ink);
+}
+.order-item-price-sale {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--terracotta);
+  font-weight: 700;
+}
+.order-item-price-old {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--ink-muted);
+  text-decoration: line-through;
+  font-size: 11px;
+}
+
+.order-group-header {
+  background: var(--bg-elevated);
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  border-left: 3px solid var(--accent);
+  margin: 18px 0 8px 0;
+  border-radius: 3px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.order-group-header-meta {
+  font-size: 10px;
+  color: var(--ink-muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
 </style>
 </head>
 <body class="workspace-analytics">
@@ -4680,6 +4895,7 @@ body.workspace-analytics #section-allocation {
     <button class="tab" data-tab="attributes"><span class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg></span> Màu × Size</button>
     <button class="tab" data-tab="transfer"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg></span> Đề xuất hàng</button>
     <button class="tab" data-tab="lifecycle"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg></span> Vòng đời</button>
+    <button class="tab tab-admin-only" data-tab="orders" data-perm="admin"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span> Đơn hàng</button>
     <button class="tab" data-tab="raw"><span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg></span> Raw data</button>
   </div>
   
@@ -5121,6 +5337,121 @@ body.workspace-analytics #section-allocation {
     </div>
   </div>
   
+  <!-- ============ SECTION: ORDERS (admin only) ============ -->
+  <div class="section" id="section-orders">
+    <!-- KPI Stats -->
+    <div class="orders-stats" id="orders-stats"></div>
+
+    <div class="panel">
+      <div class="panel-title">Phân tích đơn hàng</div>
+      <div class="panel-sub">Mọi đơn bán trong khoảng đã lọc · click ▶ để xem chi tiết SP với hình ảnh</div>
+
+      <!-- Filters đặc thù tab Đơn hàng -->
+      <div class="orders-filters">
+        <div class="filter-group">
+          <label class="filter-label">Số SP / đơn</label>
+          <select id="order-size-filter" class="filter-select">
+            <option value="">Tất cả</option>
+            <option value="1">Đúng 1 SP</option>
+            <option value="2">Đúng 2 SP</option>
+            <option value="3">Đúng 3 SP</option>
+            <option value="4">Đúng 4 SP</option>
+            <option value="5">Đúng 5 SP</option>
+            <option value="2plus">≥ 2 SP</option>
+            <option value="3plus">≥ 3 SP</option>
+            <option value="5plus">≥ 5 SP</option>
+            <option value="10plus">≥ 10 SP</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Tổng tiền/đơn từ (₫)</label>
+          <input type="text" id="order-amount-min" class="filter-input" placeholder="Từ tiền" inputmode="numeric" autocomplete="off" oninput="formatPriceInputLive(this)">
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Đến (₫)</label>
+          <input type="text" id="order-amount-max" class="filter-input" placeholder="Đến tiền" inputmode="numeric" autocomplete="off" oninput="formatPriceInputLive(this)">
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Khoảng giờ</label>
+          <select id="order-hour-filter" class="filter-select">
+            <option value="">Cả ngày</option>
+            <option value="6-11">Sáng (6h–11h)</option>
+            <option value="11-14">Trưa (11h–14h)</option>
+            <option value="14-18">Chiều (14h–18h)</option>
+            <option value="18-22">Tối (18h–22h)</option>
+            <option value="22-6">Đêm (22h–6h)</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Thứ trong tuần</label>
+          <select id="order-weekday-filter" class="filter-select">
+            <option value="">Mọi thứ</option>
+            <option value="1">Thứ 2</option>
+            <option value="2">Thứ 3</option>
+            <option value="3">Thứ 4</option>
+            <option value="4">Thứ 5</option>
+            <option value="5">Thứ 6</option>
+            <option value="6">Thứ 7</option>
+            <option value="0">Chủ nhật</option>
+            <option value="weekend">Cuối tuần (T7-CN)</option>
+            <option value="weekday">Trong tuần (T2-T6)</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Loại đơn</label>
+          <select id="order-type-filter" class="filter-select">
+            <option value="">Tất cả</option>
+            <option value="main_only">Chỉ hàng chính</option>
+            <option value="sale_only">Chỉ hàng sale</option>
+            <option value="mixed">Có cả 2</option>
+            <option value="single">Đơn 1 SP</option>
+            <option value="multi">Đơn nhiều SP</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Ngành</label>
+          <select id="order-category-filter" class="filter-select">
+            <option value="">Tất cả</option>
+            <option value="bh_only">Chỉ Mũ bảo hiểm</option>
+            <option value="nv_only">Chỉ Nón vải</option>
+            <option value="mixed_cat">Đơn hỗn hợp ngành</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Sắp xếp</label>
+          <select id="order-sort" class="filter-select">
+            <option value="time-desc">Mới nhất trước</option>
+            <option value="time-asc">Cũ nhất trước</option>
+            <option value="amount-desc">Tiền cao → thấp</option>
+            <option value="amount-asc">Tiền thấp → cao</option>
+            <option value="size-desc">Nhiều SP nhất</option>
+            <option value="size-asc">Ít SP nhất</option>
+            <option value="qty-desc">SL bán cao → thấp</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Nhóm theo</label>
+          <select id="order-group" class="filter-select">
+            <option value="none">Không nhóm</option>
+            <option value="store">Cửa hàng</option>
+            <option value="region">Khu vực</option>
+            <option value="date">Ngày</option>
+            <option value="hour">Giờ</option>
+            <option value="weekday">Thứ trong tuần</option>
+            <option value="size">Số SP/đơn</option>
+          </select>
+        </div>
+        <div class="filter-group" style="display:flex;align-items:end;gap:6px">
+          <button class="btn-export" onclick="exportOrdersCSV()">⬇ CSV</button>
+          <button class="btn-clear" onclick="clearOrderFilters()">Xóa lọc</button>
+        </div>
+      </div>
+
+      <div id="orders-list-meta" style="font-size:11px;color:var(--ink-muted);font-family:'JetBrains Mono',monospace;margin:8px 0"></div>
+      <div id="orders-list"></div>
+    </div>
+  </div>
+
   <!-- ============ SECTION: RAW ============ -->
   <div class="section" id="section-raw">
     <div class="panel">
@@ -5548,7 +5879,7 @@ body.workspace-analytics #section-allocation {
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbxV1A53tKta2nKzaFFNo9zmnWdRjcPm4CGFAMKqG9PWbgBl_L7Zl6LCbI44F4ohV17O/exec';
-const APP_VERSION = 'v12.15 · Sort sub-row + giá có dấu phẩy';
+const APP_VERSION = 'v13.0 · Tab Đơn hàng (admin)';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -6880,6 +7211,7 @@ function renderAll() {
   if (CURRENT_TAB === 'attributes') renderAttributes();
   if (CURRENT_TAB === 'transfer') renderTransfer();
   if (CURRENT_TAB === 'lifecycle') renderLifecycle();
+  if (CURRENT_TAB === 'orders') renderOrders();
   if (CURRENT_TAB === 'raw') renderRaw();
 }
 
@@ -10112,6 +10444,430 @@ function renderTimeAnalysis() {
   document.getElementById('heatmap-container').innerHTML = html;
 }
 
+// ============================================================
+// ORDERS TAB — admin only
+// ============================================================
+let ORDERS_AGG = [];
+let ORDERS_EXPAND_STATE = {};  // {soDon: true}
+
+function computeOrders() {
+  // Build storeToRegion map từ STOCK_DATA (CH → khu vực)
+  const storeToRegion = {};
+  if (typeof STOCK_DATA !== 'undefined') {
+    STOCK_DATA.forEach(s => {
+      if (s.khoHang && s.khuVuc && !storeToRegion[s.khoHang]) {
+        storeToRegion[s.khoHang] = s.khuVuc;
+      }
+    });
+  }
+  // Bổ sung từ STORES_DATA nếu có
+  if (typeof STORES_DATA !== 'undefined' && Array.isArray(STORES_DATA)) {
+    STORES_DATA.forEach(s => {
+      if (s.ten && s.khuVuc && !storeToRegion[s.ten]) {
+        storeToRegion[s.ten] = s.khuVuc;
+      }
+    });
+  }
+
+  const map = {};
+  FILTERED.forEach(r => {
+    const key = r.soDon || '_no_order_';
+    if (!map[key]) {
+      map[key] = {
+        soDon: r.soDon || '(không có số đơn)',
+        ngay: r.ngay,
+        gio: r.gio,
+        cuaHang: r.cuaHang || '',
+        khuVuc: storeToRegion[r.cuaHang] || '',
+        tenDoi: r.tenDoi || '',
+        items: [],
+        skuSet: new Set(),
+        catSet: new Set(),
+        totalQty: 0,
+        totalAmount: 0,
+        hasSale: false,
+        hasMain: false
+      };
+    }
+    const o = map[key];
+    o.items.push({
+      maThamChieu: r.maThamChieu,
+      barcode: r.barcode,
+      soLuong: r.soLuong || 0,
+      giaSale: r.giaSale || 0,
+      giaBan: r.giaBan || 0,
+      thanhTien: r.thanhTien || 0,
+      nganhHang: r.nganhHang || ''
+    });
+    o.skuSet.add(r.maThamChieu);
+    if (r.nganhHang) o.catSet.add(r.nganhHang);
+    o.totalQty += r.soLuong || 0;
+    o.totalAmount += r.thanhTien || 0;
+    const isSale = (r.giaSale > 0 && r.giaBan && r.giaSale < r.giaBan);
+    if (isSale) o.hasSale = true;
+    else o.hasMain = true;
+    // Lưu giờ sớm nhất
+    if (r.gio && (!o.gio || String(r.gio) < String(o.gio))) o.gio = r.gio;
+  });
+
+  ORDERS_AGG = Object.values(map).map(o => ({
+    ...o,
+    skuCount: o.skuSet.size,
+    itemCount: o.items.length,
+    categories: [...o.catSet],
+    timestamp: (o.ngay || '') + ' ' + (o.gio || ''),
+    weekday: o.ngay ? new Date(o.ngay).getDay() : -1,
+    hourInt: o.gio ? parseInt(String(o.gio).split(':')[0], 10) || 0 : 0
+  }));
+  return ORDERS_AGG;
+}
+
+function _orderInHourRange(o, range) {
+  if (!range) return true;
+  const [from, to] = range.split('-').map(Number);
+  const h = o.hourInt;
+  if (from <= to) return h >= from && h < to;
+  return h >= from || h < to;  // wrap-around vd 22-6
+}
+
+function _orderMatchSize(o, sizeFilter) {
+  if (!sizeFilter) return true;
+  const n = o.skuCount;
+  if (sizeFilter === '1') return n === 1;
+  if (sizeFilter === '2') return n === 2;
+  if (sizeFilter === '3') return n === 3;
+  if (sizeFilter === '4') return n === 4;
+  if (sizeFilter === '5') return n === 5;
+  if (sizeFilter === '2plus') return n >= 2;
+  if (sizeFilter === '3plus') return n >= 3;
+  if (sizeFilter === '5plus') return n >= 5;
+  if (sizeFilter === '10plus') return n >= 10;
+  return true;
+}
+
+function _orderMatchWeekday(o, wd) {
+  if (!wd) return true;
+  if (wd === 'weekend') return o.weekday === 0 || o.weekday === 6;
+  if (wd === 'weekday') return o.weekday >= 1 && o.weekday <= 5;
+  return o.weekday === parseInt(wd, 10);
+}
+
+function _orderMatchType(o, type) {
+  if (!type) return true;
+  if (type === 'main_only') return o.hasMain && !o.hasSale;
+  if (type === 'sale_only') return o.hasSale && !o.hasMain;
+  if (type === 'mixed') return o.hasMain && o.hasSale;
+  if (type === 'single') return o.skuCount === 1;
+  if (type === 'multi') return o.skuCount > 1;
+  return true;
+}
+
+function _orderMatchCategory(o, cat) {
+  if (!cat) return true;
+  const hasBH = o.categories.some(c => c.includes('bảo hiểm') || c.includes('Bảo hiểm') || c.toLowerCase().includes('bao hiem'));
+  const hasNV = o.categories.some(c => c.toLowerCase().includes('vải') || c.toLowerCase().includes('vai'));
+  if (cat === 'bh_only') return hasBH && !hasNV;
+  if (cat === 'nv_only') return hasNV && !hasBH;
+  if (cat === 'mixed_cat') return hasBH && hasNV;
+  return true;
+}
+
+function _orderSort(orders, mode) {
+  const cmp = {
+    'time-desc':  (a, b) => String(b.timestamp).localeCompare(String(a.timestamp)),
+    'time-asc':   (a, b) => String(a.timestamp).localeCompare(String(b.timestamp)),
+    'amount-desc':(a, b) => b.totalAmount - a.totalAmount,
+    'amount-asc': (a, b) => a.totalAmount - b.totalAmount,
+    'size-desc':  (a, b) => b.skuCount - a.skuCount || b.totalAmount - a.totalAmount,
+    'size-asc':   (a, b) => a.skuCount - b.skuCount,
+    'qty-desc':   (a, b) => b.totalQty - a.totalQty
+  };
+  return orders.sort(cmp[mode] || cmp['time-desc']);
+}
+
+function _hourBucket(h) {
+  if (h >= 6 && h < 11) return 'Sáng (6-11)';
+  if (h >= 11 && h < 14) return 'Trưa (11-14)';
+  if (h >= 14 && h < 18) return 'Chiều (14-18)';
+  if (h >= 18 && h < 22) return 'Tối (18-22)';
+  return 'Đêm (22-6)';
+}
+
+function _weekdayName(d) {
+  return ['Chủ nhật','Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7'][d] || '—';
+}
+
+function _sizeBucket(n) {
+  if (n === 1) return '1 SP';
+  if (n === 2) return '2 SP';
+  if (n === 3) return '3 SP';
+  if (n === 4) return '4 SP';
+  if (n >= 5 && n < 10) return '5-9 SP';
+  return '10+ SP';
+}
+
+function renderOrders() {
+  computeOrders();
+
+  // Lấy filter values
+  const sizeF = document.getElementById('order-size-filter').value;
+  const amountMin = parsePriceInput(document.getElementById('order-amount-min'));
+  const amountMax = parsePriceInput(document.getElementById('order-amount-max'));
+  const hourF = document.getElementById('order-hour-filter').value;
+  const wdF = document.getElementById('order-weekday-filter').value;
+  const typeF = document.getElementById('order-type-filter').value;
+  const catF = document.getElementById('order-category-filter').value;
+  const sortF = document.getElementById('order-sort').value;
+  const groupF = document.getElementById('order-group').value;
+
+  // Apply order-level filters
+  let orders = ORDERS_AGG.filter(o =>
+    _orderMatchSize(o, sizeF) &&
+    (amountMin === null || o.totalAmount >= amountMin) &&
+    (amountMax === null || o.totalAmount <= amountMax) &&
+    _orderInHourRange(o, hourF) &&
+    _orderMatchWeekday(o, wdF) &&
+    _orderMatchType(o, typeF) &&
+    _orderMatchCategory(o, catF)
+  );
+
+  // Sort
+  orders = _orderSort(orders, sortF);
+
+  // Render KPI
+  renderOrdersKPI(orders);
+
+  // Meta
+  const meta = document.getElementById('orders-list-meta');
+  if (meta) {
+    meta.textContent = `${orders.length.toLocaleString('vi-VN')} đơn · ${orders.reduce((s,o)=>s+o.totalQty,0).toLocaleString('vi-VN')} SP · ${formatNumber(orders.reduce((s,o)=>s+o.totalAmount,0))}₫`;
+  }
+
+  // Render list
+  const list = document.getElementById('orders-list');
+  if (!list) return;
+  if (orders.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--ink-muted)">Không có đơn nào khớp bộ lọc</div>';
+    return;
+  }
+
+  // Group
+  if (groupF === 'none') {
+    list.innerHTML = renderOrdersFlat(orders);
+  } else {
+    list.innerHTML = renderOrdersGrouped(orders, groupF);
+  }
+}
+
+function renderOrdersKPI(orders) {
+  const target = document.getElementById('orders-stats');
+  if (!target) return;
+  const totalOrders = orders.length;
+  const totalQty = orders.reduce((s, o) => s + o.totalQty, 0);
+  const totalAmount = orders.reduce((s, o) => s + o.totalAmount, 0);
+  const avgAmount = totalOrders > 0 ? totalAmount / totalOrders : 0;
+  const avgSku = totalOrders > 0 ? orders.reduce((s, o) => s + o.skuCount, 0) / totalOrders : 0;
+  const maxOrder = orders.reduce((m, o) => o.totalAmount > (m?.totalAmount || 0) ? o : m, null);
+  const uniqueSku = new Set();
+  orders.forEach(o => o.skuSet.forEach(s => uniqueSku.add(s)));
+  const uniqueStores = new Set(orders.map(o => o.cuaHang).filter(Boolean));
+
+  target.innerHTML = `
+    <div class="order-kpi-card">
+      <div class="order-kpi-label">Tổng đơn</div>
+      <div class="order-kpi-value">${totalOrders.toLocaleString('vi-VN')}</div>
+      <div class="order-kpi-sub">${uniqueStores.size} CH bán</div>
+    </div>
+    <div class="order-kpi-card">
+      <div class="order-kpi-label">Tổng SP bán</div>
+      <div class="order-kpi-value">${totalQty.toLocaleString('vi-VN')}</div>
+      <div class="order-kpi-sub">${uniqueSku.size} mã unique · TB ${avgSku.toFixed(1)} SP/đơn</div>
+    </div>
+    <div class="order-kpi-card">
+      <div class="order-kpi-label">Tổng tiền</div>
+      <div class="order-kpi-value">${formatNumber(totalAmount)}₫</div>
+      <div class="order-kpi-sub">Đơn TB: ${formatNumber(avgAmount)}₫</div>
+    </div>
+    <div class="order-kpi-card">
+      <div class="order-kpi-label">Đơn lớn nhất</div>
+      <div class="order-kpi-value">${formatNumber(maxOrder?.totalAmount || 0)}₫</div>
+      <div class="order-kpi-sub">${maxOrder ? escapeHtml(maxOrder.soDon) + ' · ' + maxOrder.skuCount + ' SP' : '—'}</div>
+    </div>
+  `;
+}
+
+function renderOrdersFlat(orders) {
+  const cap = 200;
+  const shown = orders.slice(0, cap);
+  let html = shown.map(o => renderOrderCard(o)).join('');
+  if (orders.length > cap) {
+    html += `<div style="text-align:center;padding:14px;color:var(--ink-muted);font-style:italic">+ ${(orders.length - cap).toLocaleString('vi-VN')} đơn khác — hãy lọc thêm để xem</div>`;
+  }
+  return html;
+}
+
+function renderOrdersGrouped(orders, groupBy) {
+  const groups = {};
+  orders.forEach(o => {
+    let key, label;
+    if (groupBy === 'store') { key = o.cuaHang || '(không có CH)'; label = key; }
+    else if (groupBy === 'region') { key = o.khuVuc || '(không có khu vực)'; label = key; }
+    else if (groupBy === 'date') { key = o.ngay || '(không ngày)'; label = key; }
+    else if (groupBy === 'hour') { key = _hourBucket(o.hourInt); label = key; }
+    else if (groupBy === 'weekday') { key = String(o.weekday); label = _weekdayName(o.weekday); }
+    else if (groupBy === 'size') { key = _sizeBucket(o.skuCount); label = key; }
+    else { key = '_'; label = '_'; }
+    if (!groups[key]) groups[key] = { label, orders: [], totalAmount: 0, totalQty: 0 };
+    groups[key].orders.push(o);
+    groups[key].totalAmount += o.totalAmount;
+    groups[key].totalQty += o.totalQty;
+  });
+
+  // Sort group keys: lớn nhất theo totalAmount trước
+  const sortedGroups = Object.values(groups).sort((a, b) => b.totalAmount - a.totalAmount);
+
+  const capPerGroup = 50;
+  return sortedGroups.map(g => {
+    const shown = g.orders.slice(0, capPerGroup);
+    const overflow = g.orders.length > capPerGroup
+      ? `<div style="text-align:center;padding:8px;color:var(--ink-muted);font-style:italic;font-size:11px">+ ${(g.orders.length - capPerGroup).toLocaleString('vi-VN')} đơn khác trong nhóm này</div>`
+      : '';
+    return `
+      <div class="order-group-header">
+        <span>${escapeHtml(g.label)} · ${g.orders.length.toLocaleString('vi-VN')} đơn</span>
+        <span class="order-group-header-meta">${g.totalQty.toLocaleString('vi-VN')} SP · ${formatNumber(g.totalAmount)}₫</span>
+      </div>
+      ${shown.map(o => renderOrderCard(o)).join('')}
+      ${overflow}
+    `;
+  }).join('');
+}
+
+function renderOrderCard(o) {
+  const isExpanded = ORDERS_EXPAND_STATE[o.soDon];
+  const sizeBadge = `<span class="order-badge size">${o.skuCount} SP</span>`;
+  const saleBadge = o.hasSale ? `<span class="order-badge sale">SALE</span>` : '';
+  const hasBH = o.categories.some(c => c.toLowerCase().includes('bảo hiểm') || c.toLowerCase().includes('bao hiem'));
+  const hasNV = o.categories.some(c => c.toLowerCase().includes('vải') || c.toLowerCase().includes('vai'));
+  const catBadges = [
+    hasBH ? `<span class="order-badge bh">BH</span>` : '',
+    hasNV ? `<span class="order-badge nv">NV</span>` : ''
+  ].join('');
+
+  // Items table
+  const itemRows = o.items.map(it => {
+    const img = (typeof IMAGE_MAP !== 'undefined' && IMAGE_MAP[it.maThamChieu])
+      ? `<img class="order-item-img" src="${escapeAttr(IMAGE_MAP[it.maThamChieu])}" alt="${escapeAttr(it.maThamChieu)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="order-item-img-placeholder" style="display:none">·</div>`
+      : `<div class="order-item-img-placeholder">·</div>`;
+    const isSaleItem = it.giaSale > 0 && it.giaBan && it.giaSale < it.giaBan;
+    const priceCell = isSaleItem
+      ? `<div class="order-item-price-old">${formatNumber(it.giaBan)}</div><div class="order-item-price-sale">${formatNumber(it.giaSale)}₫</div>`
+      : `<div class="order-item-price">${formatNumber(it.giaBan)}₫</div>`;
+    return `
+      <tr>
+        <td style="width:56px">${img}</td>
+        <td><span class="order-item-code">${escapeHtml(it.maThamChieu)}</span><div style="font-size:10px;color:var(--ink-muted);font-family:monospace;margin-top:2px">${escapeHtml(it.barcode || '')}</div></td>
+        <td><span style="font-size:11px;color:var(--ink-muted)">${escapeHtml(it.nganhHang || '—')}</span></td>
+        <td style="text-align:center"><span class="order-item-qty">×${formatNumber(it.soLuong)}</span></td>
+        <td style="text-align:right">${priceCell}</td>
+        <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700">${formatNumber(it.thanhTien)}₫</td>
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <div class="order-card ${isExpanded ? 'expanded' : ''}" data-sodon="${escapeAttr(o.soDon)}">
+      <div class="order-card-head" onclick="toggleOrderExpand('${escapeAttr(o.soDon)}')">
+        <div class="order-card-no">${escapeHtml(o.soDon)}</div>
+        <div class="order-card-time">${escapeHtml(o.ngay || '—')}<br>${escapeHtml(o.gio || '')}</div>
+        <div class="order-card-store">
+          ${escapeHtml(o.cuaHang || '—')}
+          <span class="order-card-store-region">${escapeHtml(o.khuVuc || '')} ${o.tenDoi ? '· NV: ' + escapeHtml(o.tenDoi) : ''}</span>
+        </div>
+        <div class="order-card-badges">${sizeBadge}${saleBadge}${catBadges}</div>
+        <div class="order-card-amount">${formatNumber(o.totalAmount)}₫<div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--ink-muted);font-weight:500">×${o.totalQty} SP</div></div>
+        <div class="order-card-expand">${isExpanded ? '▼' : '▶'}</div>
+      </div>
+      <div class="order-card-body">
+        <table class="order-items-table">
+          <tbody>${itemRows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function toggleOrderExpand(soDon) {
+  ORDERS_EXPAND_STATE[soDon] = !ORDERS_EXPAND_STATE[soDon];
+  const card = document.querySelector(`.order-card[data-sodon="${CSS.escape(soDon)}"]`);
+  if (!card) return;
+  card.classList.toggle('expanded', ORDERS_EXPAND_STATE[soDon]);
+  const expandBtn = card.querySelector('.order-card-expand');
+  if (expandBtn) expandBtn.textContent = ORDERS_EXPAND_STATE[soDon] ? '▼' : '▶';
+}
+
+function clearOrderFilters() {
+  ['order-size-filter','order-amount-min','order-amount-max','order-hour-filter',
+   'order-weekday-filter','order-type-filter','order-category-filter'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('order-sort').value = 'time-desc';
+  document.getElementById('order-group').value = 'none';
+  renderOrders();
+}
+
+function exportOrdersCSV() {
+  if (!ORDERS_AGG.length) computeOrders();
+  // Apply current filters
+  const sizeF = document.getElementById('order-size-filter').value;
+  const amountMin = parsePriceInput(document.getElementById('order-amount-min'));
+  const amountMax = parsePriceInput(document.getElementById('order-amount-max'));
+  const hourF = document.getElementById('order-hour-filter').value;
+  const wdF = document.getElementById('order-weekday-filter').value;
+  const typeF = document.getElementById('order-type-filter').value;
+  const catF = document.getElementById('order-category-filter').value;
+  const orders = ORDERS_AGG.filter(o =>
+    _orderMatchSize(o, sizeF) &&
+    (amountMin === null || o.totalAmount >= amountMin) &&
+    (amountMax === null || o.totalAmount <= amountMax) &&
+    _orderInHourRange(o, hourF) &&
+    _orderMatchWeekday(o, wdF) &&
+    _orderMatchType(o, typeF) &&
+    _orderMatchCategory(o, catF)
+  );
+
+  const header = ['Số đơn','Ngày','Giờ','Cửa hàng','Khu vực','Nhân viên','Số SP','Số lượng','Tổng tiền','Có Sale','Ngành'];
+  const rows = orders.map(o => [
+    o.soDon, o.ngay, o.gio, o.cuaHang, o.khuVuc, o.tenDoi,
+    o.skuCount, o.totalQty, o.totalAmount,
+    o.hasSale ? 'Có' : 'Không',
+    o.categories.join('; ')
+  ]);
+  // Cũng export items chi tiết
+  const itemHeader = ['Số đơn','Mã SP','Barcode','Ngành','SL','Giá bán','Giá sale','Thành tiền'];
+  const itemRows = [];
+  orders.forEach(o => {
+    o.items.forEach(it => {
+      itemRows.push([o.soDon, it.maThamChieu, it.barcode, it.nganhHang, it.soLuong, it.giaBan, it.giaSale, it.thanhTien]);
+    });
+  });
+
+  const csv1 = [header, ...rows].map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  const csv2 = [itemHeader, ...itemRows].map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  const full = '\uFEFF=== ĐƠN HÀNG ===\r\n' + csv1 + '\r\n\r\n=== CHI TIẾT SẢN PHẨM ===\r\n' + csv2;
+
+  const blob = new Blob([full], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `don-hang-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 // ============ RAW DATA TABLE ============
 function renderRaw() {
   const sorted = [...FILTERED].sort((a, b) => {
@@ -10579,6 +11335,22 @@ function statusDot(color) {
 document.getElementById('stock-status-filter').addEventListener('change', renderStockAnalysis);
 document.getElementById('vel-class').addEventListener('change', renderVelocity);
 
+// ============ ORDERS TAB LISTENERS ============
+let orderAmountTimeout;
+['order-size-filter','order-hour-filter','order-weekday-filter','order-type-filter',
+ 'order-category-filter','order-sort','order-group'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', renderOrders);
+});
+['order-amount-min','order-amount-max'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', () => {
+    clearTimeout(orderAmountTimeout);
+    orderAmountTimeout = setTimeout(renderOrders, 400);
+  });
+});
+
 // ============ INIT ============
 window.addEventListener('DOMContentLoaded', () => {
   // Theme apply EARLY (đã chạy inline trước, đây chỉ refresh state)
@@ -11014,9 +11786,13 @@ function applyRolePermissions() {
 
   const permLevel = getEffectivePermLevel(CURRENT_USER);
   const showDphh = (permLevel === 'admin' || permLevel === 'dphh');
+  const isAdmin = (permLevel === 'admin');
 
   // Debug log để user biết logic đang nhận gì
-  console.log('[AUTH] CURRENT_USER:', CURRENT_USER, '→ effective permLevel:', permLevel, '→ show DPHH:', showDphh);
+  console.log('[AUTH] CURRENT_USER:', CURRENT_USER, '→ effective permLevel:', permLevel, '→ admin:', isAdmin, '→ DPHH:', showDphh);
+
+  // Toggle body class: cho phép CSS show/hide các tab admin-only
+  document.body.classList.toggle('is-admin', isAdmin);
 
   // Workspace bar: ẩn nút "Điều phối hàng hóa" nếu không có quyền
   const dphhBtn = document.querySelector('.workspace-btn[data-workspace="dphh"]');
