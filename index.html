@@ -6143,7 +6143,7 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbxV1A53tKta2nKzaFFNo9zmnWdRjcPm4CGFAMKqG9PWbgBl_L7Zl6LCbI44F4ohV17O/exec';
-const APP_VERSION = 'v13.3 · Báo cáo: line chart, manage CH, fix Ưu đãi T6';
+const APP_VERSION = 'v13.4 · Schema 14 cột + Mã NV/Tên NV';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -10744,6 +10744,8 @@ function computeOrders() {
         cuaHang: r.cuaHang || '',
         khuVuc: storeToRegion[r.cuaHang] || '',
         tenDoi: r.tenDoi || '',
+        maNV: r.maNV || '',
+        tenNV: r.tenNV || '',
         items: [],
         skuSet: new Set(),
         catSet: new Set(),
@@ -11013,7 +11015,7 @@ function renderOrderCard(o) {
         <div class="order-card-time">${escapeHtml(o.ngay || '—')}<br><strong style="color:var(--ink);font-size:13px">${escapeHtml((o.gio || '').slice(0, 5))}</strong></div>
         <div class="order-card-store">
           ${escapeHtml(o.cuaHang || '—')}
-          <span class="order-card-store-region">${escapeHtml(o.khuVuc || '')} ${o.tenDoi ? '· NV: ' + escapeHtml(o.tenDoi) : ''}</span>
+          <span class="order-card-store-region">${escapeHtml(o.khuVuc || '')} ${o.tenNV ? '· NV: ' + escapeHtml(o.tenNV) + (o.maNV ? ' (' + escapeHtml(o.maNV) + ')' : '') : (o.tenDoi ? '· ' + escapeHtml(o.tenDoi) : '')}</span>
         </div>
         <div class="order-card-badges">${sizeBadge}${saleBadge}${catBadges}</div>
         <div class="order-card-amount">${formatNumber(o.totalAmount)}₫<div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--ink-muted);font-weight:500">×${o.totalQty} SP</div></div>
@@ -11285,6 +11287,8 @@ function buildOrdersFromRaw(from, to, hourMinCap) {
         cuaHang: r.cuaHang || '',
         khuVuc: storeToRegion[r.cuaHang] || '',
         tenDoi: r.tenDoi || '',
+        maNV: r.maNV || '',
+        tenNV: r.tenNV || '',
         items: [], skuSet: new Set(),
         totalQty: 0, totalAmount: 0,
         hasMain: false, hasSale: false
