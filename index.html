@@ -6143,7 +6143,7 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbxV1A53tKta2nKzaFFNo9zmnWdRjcPm4CGFAMKqG9PWbgBl_L7Zl6LCbI44F4ohV17O/exec';
-const APP_VERSION = 'v13.4 · Schema 14 cột + Mã NV/Tên NV';
+const APP_VERSION = 'v13.5 · Báo cáo kế thừa filter chính';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -11264,6 +11264,51 @@ function buildOrdersFromRaw(from, to, hourMinCap) {
     });
   }
 
+  // ===== Lấy MAIN filter chain (trừ date — date đã pass qua tham số from/to) =====
+  const cat       = document.getElementById('filter-category')?.value || '';
+  const region    = document.getElementById('filter-region')?.value || '';
+  const storeType = document.getElementById('filter-storetype')?.value || '';
+  const saleType  = document.getElementById('filter-saletype')?.value || '';
+  const storeName = document.getElementById('filter-store')?.value || '';
+  const searchTerm = (document.getElementById('filter-search')?.value || '').trim().toLowerCase();
+  const priceMin  = parsePriceInput(document.getElementById('filter-price-min'));
+  const priceMax  = parsePriceInput(document.getElementById('filter-price-max'));
+
+  // Build allowedStoreNames Set nếu cần lọc theo region + storeType
+  let allowedStoreNames = null;
+  if (region || storeType) {
+    allowedStoreNames = new Set();
+    const hasStores = typeof STORES_DATA !== 'undefined' && Array.isArray(STORES_DATA) && STORES_DATA.length > 0;
+    if (hasStores) {
+      STORES_DATA.forEach(s => {
+        if (!s.ten) return;
+        if (region && s.khuVuc !== region) return;
+        if (storeType) {
+          const u = String(s.maCh || '').toUpperCase();
+          if (storeType === 'CH' && !u.startsWith('CH')) return;
+          if (storeType === 'DOISALE' && !u.startsWith('DOISALE')) return;
+          if (storeType === 'DB' && !u.startsWith('DB')) return;
+        }
+        allowedStoreNames.add(s.ten);
+      });
+    } else {
+      STOCK_DATA.forEach(s => {
+        if (!s.khoHang) return;
+        if (region && s.khuVuc !== region) return;
+        if (storeType) {
+          const u = String(s.maKho || '').toUpperCase();
+          if (storeType === 'CH' && !u.startsWith('CH')) return;
+          if (storeType === 'DOISALE' && !u.startsWith('DOISALE')) return;
+          if (storeType === 'DB' && !u.startsWith('DB')) return;
+        }
+        allowedStoreNames.add(s.khoHang);
+      });
+    }
+    if (storeType === 'DOISALE') {
+      RAW_DATA.forEach(r => { if (r.tenDoi) allowedStoreNames.add(r.tenDoi); });
+    }
+  }
+
   const capMin = hourMinCap ? (hourMinCap.hour * 60 + hourMinCap.minute) : null;
   const map = {};
 
@@ -11278,6 +11323,24 @@ function buildOrdersFromRaw(from, to, hourMinCap) {
       const cur = (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
       if (cur > capMin) continue;
     }
+
+    // ===== Apply MAIN filter chain =====
+    if (cat && r.nganhHang !== cat) continue;
+    if (storeName && r.cuaHang !== storeName) continue;
+    if (allowedStoreNames && (!r.cuaHang || !allowedStoreNames.has(r.cuaHang))) continue;
+    if (saleType) {
+      const isSaleTx = (r.giaSale && r.giaSale > 0 && r.giaBan && r.giaSale < r.giaBan);
+      if (saleType === 'sale' && !isSaleTx) continue;
+      if (saleType === 'main' && isSaleTx) continue;
+    }
+    if (priceMin !== null && (r.giaBan || 0) < priceMin) continue;
+    if (priceMax !== null && (r.giaBan || 0) > priceMax) continue;
+    if (searchTerm) {
+      const code = String(r.maThamChieu || '').toLowerCase();
+      const bc   = String(r.barcode || '').toLowerCase();
+      if (!code.includes(searchTerm) && !bc.includes(searchTerm)) continue;
+    }
+
     const key = r.soDon || ('_nokey_' + i);
     if (!map[key]) {
       map[key] = {
