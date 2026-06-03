@@ -4670,6 +4670,45 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
   font-weight: 700;
 }
 
+/* === Summary report (Báo cáo nhanh) === */
+.summary-section {
+  border-left: 3px solid var(--accent);
+  background: var(--bg-elevated);
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  border-radius: 0 4px 4px 0;
+}
+.summary-section-title {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--terracotta);
+  margin: 0 0 10px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.summary-section-body {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+.summary-section-body p { margin: 5px 0; }
+.summary-section-body strong { color: var(--ink); font-weight: 600; }
+.summary-section-body ul { margin: 6px 0; padding-left: 22px; }
+.summary-section-body ul li { margin: 3px 0; }
+.summary-callout {
+  margin: 8px 0 4px 0 !important;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border-left: 2px solid var(--ink-soft);
+  border-radius: 0 3px 3px 0;
+  font-size: 12.5px;
+}
+.summary-arrow-up { color: #16a34a; font-weight: 700; }
+.summary-arrow-down { color: #dc2626; font-weight: 700; }
+
 .report-controls {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -5613,6 +5652,7 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
         <button class="report-tab active" data-report="overview" onclick="switchReportTab('overview')"><span class="report-tab-icon"></span> Tổng quan hệ thống</button>
         <button class="report-tab" data-report="bonus7" onclick="switchReportTab('bonus7')"><span class="report-tab-icon"></span> Thưởng nóng cửa hàng</button>
         <button class="report-tab" data-report="gift" onclick="switchReportTab('gift')"><span class="report-tab-icon"></span> Ưu đãi tháng 6</button>
+        <button class="report-tab" data-report="summary" onclick="switchReportTab('summary')"><span class="report-tab-icon"></span> Báo cáo nhanh</button>
       </div>
 
       <div class="report-controls">
@@ -6143,7 +6183,7 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbxV1A53tKta2nKzaFFNo9zmnWdRjcPm4CGFAMKqG9PWbgBl_L7Zl6LCbI44F4ohV17O/exec';
-const APP_VERSION = 'v13.5 · Báo cáo kế thừa filter chính';
+const APP_VERSION = 'v13.6 · Báo cáo nhanh (narrative summary)';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -11184,7 +11224,8 @@ function _wireReportTabIcons() {
   const map = {
     overview: 'barChart',
     bonus7: 'star',
-    gift: 'gift'
+    gift: 'gift',
+    summary: 'trending'
   };
   document.querySelectorAll('.report-tab').forEach(t => {
     const slot = t.querySelector('.report-tab-icon');
@@ -11639,6 +11680,8 @@ async function refreshReport() {
     content.innerHTML = renderReport7Stores(ordersCurrent, ordersCompare);
   } else if (CURRENT_REPORT_TYPE === 'gift') {
     content.innerHTML = renderReportGift(ordersCurrent, ordersCompare);
+  } else if (CURRENT_REPORT_TYPE === 'summary') {
+    content.innerHTML = renderReportSummary(ordersCurrent, ordersCompare);
   }
 }
 
@@ -11979,6 +12022,215 @@ function renderReportGift(ordersA, ordersB) {
   ` : '';
 
   return banner + kpis + chart + chartRev + sizeBlock + storesBlock;
+}
+
+
+// ===== Report 4: Báo cáo nhanh (narrative summary) =====
+function _fmtDateShort(day) {
+  if (!day) return '';
+  const p = String(day).split('-');
+  return p.length === 3 ? `${p[2]}/${p[1]}` : day;
+}
+function _weekdayVN(day) {
+  if (!day) return '';
+  const d = new Date(day);
+  return ['Chủ nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'][d.getDay()];
+}
+function _prevWeekDay(day) {
+  const d = new Date(day);
+  d.setDate(d.getDate() - 7);
+  return d.toISOString().slice(0, 10);
+}
+function _analyzeHourly(ordersA, ordersB) {
+  const a = new Array(24).fill(0);
+  const b = new Array(24).fill(0);
+  const cntA = new Array(24).fill(0);
+  ordersA.forEach(o => { a[o.hourInt] += (o.totalAmount || 0); cntA[o.hourInt]++; });
+  ordersB.forEach(o => { b[o.hourInt] += (o.totalAmount || 0); });
+  let peakHour = -1, peakVal = 0;
+  for (let h = 7; h <= 23; h++) {
+    if (a[h] > peakVal) { peakVal = a[h]; peakHour = h; }
+  }
+  const upHours = [], lowHours = [];
+  for (let h = 7; h <= 23; h++) {
+    if (a[h] === 0 && b[h] === 0) continue;
+    if (b[h] > 0 && a[h] > b[h] * 1.2) upHours.push(h);
+    if (b[h] > 0 && a[h] < b[h] * 0.8) lowHours.push(h);
+  }
+  return { a, b, cntA, peakHour, peakVal, upHours, lowHours };
+}
+function _hoursToRangeText(hours) {
+  if (!hours || hours.length === 0) return '';
+  const groups = [];
+  let s = hours[0], e = hours[0];
+  for (let i = 1; i < hours.length; i++) {
+    if (hours[i] === e + 1) e = hours[i];
+    else { groups.push([s, e]); s = e = hours[i]; }
+  }
+  groups.push([s, e]);
+  return groups.map(([a, b]) => `${a}h–${b + 1}h`).join(', ');
+}
+function _countPremiumItems(orders, threshold) {
+  let count = 0;
+  orders.forEach(o => {
+    (o.items || []).forEach(it => {
+      const price = (it.giaSale > 0) ? it.giaSale : (it.giaBan || 0);
+      if (price >= threshold) count += (it.soLuong || 1);
+    });
+  });
+  return count;
+}
+function _bonusStoreMatch(storeName, kw) {
+  if (!storeName || !kw) return false;
+  return String(storeName).toLowerCase().includes(String(kw).toLowerCase());
+}
+
+function renderReportSummary(ordersCurrent, ordersCompare) {
+  const fromEl = document.getElementById('report-from');
+  const toEl = document.getElementById('report-to');
+  if (!fromEl || !toEl) return '<div style="padding:20px;color:var(--ink-soft);">Chọn khoảng ngày để xem báo cáo.</div>';
+  const dayFrom = fromEl.value;
+  const dayTo = toEl.value;
+  if (!dayFrom || !dayTo) return '<div style="padding:20px;color:var(--ink-soft);">Chọn từ ngày / đến ngày.</div>';
+
+  const todayStr = (typeof META_INFO !== 'undefined' && META_INFO?.today) ? META_INFO.today : new Date().toISOString().slice(0, 10);
+  const isLastDayToday = (dayTo === todayStr);
+  const showLastDaySection = (dayTo !== dayFrom);
+
+  const ordersOnDay = (orders, day) => orders.filter(o => o.ngay === day);
+
+  let html = '';
+
+  // ===== SECTION 1: Ngày đầu khoảng (dayFrom) =====
+  const ordersA1 = ordersOnDay(ordersCurrent, dayFrom);
+  const prevA1 = _prevWeekDay(dayFrom);
+  const ordersB1 = ordersOnDay(ordersCompare, prevA1);
+
+  const revA1 = ordersA1.reduce((s, o) => s + (o.totalAmount || 0), 0);
+  const revB1 = ordersB1.reduce((s, o) => s + (o.totalAmount || 0), 0);
+  const diff1 = revA1 - revB1;
+  const pct1 = revB1 > 0 ? (diff1 / revB1) * 100 : 0;
+  const hourly1 = _analyzeHourly(ordersA1, ordersB1);
+  const prevWdName = _weekdayVN(prevA1);
+
+  html += `
+    <div class="summary-section">
+      <h3 class="summary-section-title">Ngày ${_fmtDateShort(dayFrom)} · ${_weekdayVN(dayFrom)}${dayFrom !== dayTo ? ' (đầu khoảng)' : ''}</h3>
+      <div class="summary-section-body">
+        <p>Doanh thu toàn hệ thống đạt <strong>${formatNumber(revA1)}đ</strong>${revB1 > 0 ? `, ${diff1 >= 0 ? 'tăng' : 'giảm'} <strong>${formatNumber(Math.abs(diff1))}đ</strong> so với ${prevWdName} tuần trước (${formatNumber(revB1)}đ), tương đương <span class="${diff1 >= 0 ? 'summary-arrow-up' : 'summary-arrow-down'}">${pct1 >= 0 ? '+' : ''}${pct1.toFixed(1)}%</span>` : ''}.</p>
+        ${hourly1.peakHour >= 0 && hourly1.peakVal > 0 ? `<p>Khung giờ bán tốt nhất: <strong>${hourly1.peakHour}h–${hourly1.peakHour + 1}h</strong> (doanh thu ${formatNumber(hourly1.peakVal)}đ).</p>` : ''}
+        ${hourly1.upHours.length > 0 ? `<p>Khung giờ vượt cùng kỳ tuần trước: <strong>${_hoursToRangeText(hourly1.upHours)}</strong>.</p>` : ''}
+        ${hourly1.lowHours.length > 0 ? `<p>Khung giờ thấp hơn cùng kỳ: <strong>${_hoursToRangeText(hourly1.lowHours)}</strong>.</p>` : ''}
+      </div>
+    </div>
+  `;
+
+  // ===== SECTION 2: Đơn ≥3 SP ngày dayFrom =====
+  const big3A1 = ordersA1.filter(o => o.itemCount >= 3);
+  const big3B1 = ordersB1.filter(o => o.itemCount >= 3);
+  const revBig3A1 = big3A1.reduce((s, o) => s + (o.totalAmount || 0), 0);
+  const diffBig3 = big3A1.length - big3B1.length;
+  const pctBig3 = big3B1.length > 0 ? (diffBig3 / big3B1.length) * 100 : 0;
+
+  html += `
+    <div class="summary-section">
+      <h3 class="summary-section-title">Đơn hàng từ 3 sản phẩm trở lên · ${_fmtDateShort(dayFrom)}</h3>
+      <div class="summary-section-body">
+        <p>${prevWdName} tuần trước: <strong>${formatNumber(big3B1.length)} đơn</strong></p>
+        <p>Ngày ${_fmtDateShort(dayFrom)}: <strong>${formatNumber(big3A1.length)} đơn</strong></p>
+        ${big3B1.length > 0 ? `<p class="summary-callout"><span class="${diffBig3 >= 0 ? 'summary-arrow-up' : 'summary-arrow-down'}">${diffBig3 >= 0 ? '+' : ''}${formatNumber(diffBig3)} đơn (${pctBig3 >= 0 ? '+' : ''}${pctBig3.toFixed(1)}%)</span></p>` : ''}
+        <p>${formatNumber(big3A1.length)} đơn này mang về <strong>${formatNumber(revBig3A1)}đ</strong> doanh thu.</p>
+      </div>
+    </div>
+  `;
+
+  // ===== SECTION 3: SP cao cấp ≥3 triệu ngày dayFrom =====
+  const premA1 = _countPremiumItems(ordersA1, 3000000);
+  const premB1 = _countPremiumItems(ordersB1, 3000000);
+  const diffPrem = premA1 - premB1;
+  const pctPrem = premB1 > 0 ? (diffPrem / premB1) * 100 : 0;
+
+  html += `
+    <div class="summary-section">
+      <h3 class="summary-section-title">Sản phẩm cao cấp từ 3 triệu đồng · ${_fmtDateShort(dayFrom)}</h3>
+      <div class="summary-section-body">
+        <p>${prevWdName} tuần trước: <strong>${formatNumber(premB1)} sản phẩm</strong></p>
+        <p>Ngày ${_fmtDateShort(dayFrom)}: <strong>${formatNumber(premA1)} sản phẩm</strong></p>
+        ${premB1 > 0 ? `<p class="summary-callout"><span class="${diffPrem >= 0 ? 'summary-arrow-up' : 'summary-arrow-down'}">${diffPrem >= 0 ? '+' : ''}${formatNumber(diffPrem)} SP (${pctPrem >= 0 ? '+' : ''}${pctPrem.toFixed(1)}%)</span></p>` : ''}
+      </div>
+    </div>
+  `;
+
+  // ===== SECTION 4: Thưởng nóng CH (toàn khoảng dayFrom → dayTo) =====
+  const bonusStores = (typeof getBonusStores === 'function') ? getBonusStores() : (typeof BONUS_STORE_KEYWORDS !== 'undefined' ? BONUS_STORE_KEYWORDS : []);
+  const bonusBreakdown = bonusStores.map(kw => {
+    const matchOrders = ordersCurrent.filter(o => o.ngay >= dayFrom && o.ngay <= dayTo && _bonusStoreMatch(o.cuaHang, kw));
+    let count3 = 0, count5 = 0;
+    matchOrders.forEach(o => {
+      (o.items || []).forEach(it => {
+        const price = (it.giaSale > 0) ? it.giaSale : (it.giaBan || 0);
+        if (price >= 5000000) count5 += (it.soLuong || 1);
+        else if (price >= 3000000) count3 += (it.soLuong || 1);
+      });
+    });
+    return { store: kw, count3, count5, total: count3 + count5 };
+  });
+  const bonusActive = bonusBreakdown.filter(b => b.total > 0);
+  const bonusEmpty = bonusBreakdown.filter(b => b.total === 0);
+
+  html += `
+    <div class="summary-section">
+      <h3 class="summary-section-title">Chương trình thưởng nóng ${bonusStores.length} cửa hàng · ${_fmtDateShort(dayFrom)} → ${_fmtDateShort(dayTo)}</h3>
+      <div class="summary-section-body">
+        ${bonusActive.length > 0 ? `
+          <p>Cửa hàng đã phát sinh sản phẩm thưởng nóng:</p>
+          <ul>
+            ${bonusActive.map(b => `<li><strong>${escapeHtml(b.store)}</strong>: ${b.count3 > 0 ? `${b.count3} SP từ 3 triệu` : ''}${b.count3 > 0 && b.count5 > 0 ? '; ' : ''}${b.count5 > 0 ? `${b.count5} SP từ 5 triệu` : ''}</li>`).join('')}
+          </ul>
+        ` : '<p>Chưa cửa hàng nào phát sinh sản phẩm thưởng nóng trong khoảng này.</p>'}
+        ${bonusEmpty.length > 0 ? `<p class="summary-callout">${bonusEmpty.length}/${bonusStores.length} CH chưa có thưởng nóng: ${bonusEmpty.map(b => escapeHtml(b.store)).join(', ')}.</p>` : ''}
+      </div>
+    </div>
+  `;
+
+  // ===== SECTION 5 + 6: Ngày cuối khoảng (nếu khác ngày đầu) =====
+  if (showLastDaySection) {
+    const ordersA5 = ordersOnDay(ordersCurrent, dayTo);
+    const prevA5 = _prevWeekDay(dayTo);
+    const ordersB5 = ordersOnDay(ordersCompare, prevA5);
+    const big3A5 = ordersA5.filter(o => o.itemCount >= 3);
+    const big3B5 = ordersB5.filter(o => o.itemCount >= 3);
+    const revBig3A5 = big3A5.reduce((s, o) => s + (o.totalAmount || 0), 0);
+    const diff5 = big3A5.length - big3B5.length;
+    const pct5 = big3B5.length > 0 ? (diff5 / big3B5.length) * 100 : 0;
+    const subtitle5 = isLastDayToday ? '(tính đến thời điểm hiện tại)' : '';
+
+    html += `
+      <div class="summary-section">
+        <h3 class="summary-section-title">Kết quả ngày ${_fmtDateShort(dayTo)} · ${_weekdayVN(dayTo)} ${subtitle5}</h3>
+        <div class="summary-section-body">
+          <p>Đơn hàng từ 3 SP trở lên: <strong>${formatNumber(big3A5.length)} đơn</strong></p>
+          <p>${_weekdayVN(prevA5)} tuần trước (cùng thời điểm): <strong>${formatNumber(big3B5.length)} đơn</strong></p>
+          ${big3B5.length > 0 ? `<p class="summary-callout"><span class="${diff5 >= 0 ? 'summary-arrow-up' : 'summary-arrow-down'}">${diff5 >= 0 ? '+' : ''}${formatNumber(diff5)} đơn (${pct5 >= 0 ? '+' : ''}${pct5.toFixed(1)}%)</span></p>` : ''}
+          <p>${formatNumber(big3A5.length)} đơn này mang về <strong>${formatNumber(revBig3A5)}đ</strong> doanh thu.</p>
+        </div>
+      </div>
+    `;
+
+    const hourly6 = _analyzeHourly(ordersA5, ordersB5);
+    html += `
+      <div class="summary-section">
+        <h3 class="summary-section-title">Diễn biến theo khung giờ · ${_fmtDateShort(dayTo)}</h3>
+        <div class="summary-section-body">
+          ${hourly6.upHours.length > 0 ? `<p>Khung giờ vượt cùng kỳ tuần trước: <strong>${_hoursToRangeText(hourly6.upHours)}</strong>.</p>` : ''}
+          ${hourly6.lowHours.length > 0 ? `<p>Khung giờ thấp hơn cùng kỳ: <strong>${_hoursToRangeText(hourly6.lowHours)}</strong>.</p>` : ''}
+          ${hourly6.upHours.length === 0 && hourly6.lowHours.length === 0 ? '<p>Diễn biến giờ ổn định, không có chênh lệch lớn so với cùng kỳ tuần trước.</p>' : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  return html;
 }
 
 
