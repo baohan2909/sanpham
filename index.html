@@ -5687,6 +5687,7 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
         </div>
         <div class="filter-group" style="display:flex;align-items:end">
           <button class="btn-clear" onclick="refreshReport()" style="white-space:nowrap;display:flex;align-items:center;gap:6px"><span id="refresh-icon-slot"></span>Làm mới</button>
+          <button class="btn-clear" onclick="resyncReportData(this)" style="white-space:nowrap;background:var(--terracotta);color:white;border-color:var(--terracotta);" title="Xóa cache server + tải lại data từ Sheet">Đồng bộ lại data</button>
         </div>
       </div>
 
@@ -6183,7 +6184,7 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbxV1A53tKta2nKzaFFNo9zmnWdRjcPm4CGFAMKqG9PWbgBl_L7Zl6LCbI44F4ohV17O/exec';
-const APP_VERSION = 'v13.6 · Báo cáo nhanh (narrative summary)';
+const APP_VERSION = 'v13.7 · Báo cáo nhanh: văn xuôi + nút Đồng bộ data';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -11620,6 +11621,32 @@ function renderHorizontalBars(rows, fmt) {
   }).join('');
 }
 
+// Resync data: clear server cache + force reload data từ Sheet
+async function resyncReportData(btn) {
+  const origText = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = 'Đang đồng bộ...'; btn.disabled = true; }
+  try {
+    // 1) Clear server cache
+    await fetch(API_URL + '?action=clear-cache', { redirect: 'follow' }).catch(() => {});
+
+    // 2) Clear frontend localStorage cache
+    try {
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith('ns_meta') || k.startsWith('ns_today') || k.startsWith('ns_month_') || k === 'ns_stock' || k === 'ns_images') {
+          localStorage.removeItem(k);
+        }
+      });
+    } catch (e) {}
+
+    // 3) Force reload entire page (đảm bảo fetch fresh)
+    location.reload();
+  } catch (err) {
+    console.error('Resync error:', err);
+    if (btn) { btn.textContent = origText; btn.disabled = false; }
+    alert('Lỗi đồng bộ: ' + err.message);
+  }
+}
+
 // MAIN: refresh report dựa trên control
 async function refreshReport() {
   const fromEl = document.getElementById('report-from');
@@ -12025,7 +12052,7 @@ function renderReportGift(ordersA, ordersB) {
 }
 
 
-// ===== Report 4: Báo cáo nhanh (narrative summary) =====
+// ===== Report 4: Báo cáo nhanh (narrative business report) =====
 function _fmtDateShort(day) {
   if (!day) return '';
   const p = String(day).split('-');
@@ -12041,11 +12068,47 @@ function _prevWeekDay(day) {
   d.setDate(d.getDate() - 7);
   return d.toISOString().slice(0, 10);
 }
+// Format số tiền dạng VN: "953 triệu đồng", "1.25 tỷ", "120 nghìn đồng"
+function _fmtTrieu(n) {
+  if (!n || n === 0) return '0 đồng';
+  const abs = Math.abs(n);
+  if (abs >= 1000000000) {
+    const t = (n / 1000000000).toFixed(2).replace(/\.?0+$/, '');
+    return t + ' tỷ đồng';
+  }
+  if (abs >= 1000000) {
+    return Math.round(n / 1000000) + ' triệu đồng';
+  }
+  if (abs >= 1000) {
+    return Math.round(n / 1000) + ' nghìn đồng';
+  }
+  return n + ' đồng';
+}
+// Format delta % với cách diễn đạt văn nhân tự nhiên
+function _phraseChange(diff, pct) {
+  if (!diff || diff === 0) return 'không thay đổi';
+  const verb = diff > 0 ? 'tăng' : 'giảm';
+  const abs = Math.abs(diff);
+  const pctText = pct ? Math.abs(pct).toFixed(1) + '%' : '';
+  return `${verb} ${_fmtTrieu(abs)}${pctText ? ` (tương đương ${pctText})` : ''}`;
+}
+// So sánh số đơn (đếm count, không phải tiền)
+function _phraseCount(a, b, unit) {
+  unit = unit || 'đơn';
+  const diff = a - b;
+  if (!diff) return `bằng cùng kỳ`;
+  const verb = diff > 0 ? 'tăng' : 'giảm';
+  const pct = b > 0 ? Math.abs((diff / b) * 100).toFixed(1) + '%' : null;
+  const ratio = b > 0 ? (a / b).toFixed(1) : null;
+  let extra = '';
+  if (ratio && parseFloat(ratio) >= 1.8) extra = `, gần gấp ${Math.floor(parseFloat(ratio))} lần`;
+  else if (pct) extra = ` (${pct})`;
+  return `${verb} ${formatNumber(Math.abs(diff))} ${unit}${extra}`;
+}
 function _analyzeHourly(ordersA, ordersB) {
   const a = new Array(24).fill(0);
   const b = new Array(24).fill(0);
-  const cntA = new Array(24).fill(0);
-  ordersA.forEach(o => { a[o.hourInt] += (o.totalAmount || 0); cntA[o.hourInt]++; });
+  ordersA.forEach(o => { a[o.hourInt] += (o.totalAmount || 0); });
   ordersB.forEach(o => { b[o.hourInt] += (o.totalAmount || 0); });
   let peakHour = -1, peakVal = 0;
   for (let h = 7; h <= 23; h++) {
@@ -12057,7 +12120,7 @@ function _analyzeHourly(ordersA, ordersB) {
     if (b[h] > 0 && a[h] > b[h] * 1.2) upHours.push(h);
     if (b[h] > 0 && a[h] < b[h] * 0.8) lowHours.push(h);
   }
-  return { a, b, cntA, peakHour, peakVal, upHours, lowHours };
+  return { a, b, peakHour, peakVal, upHours, lowHours };
 }
 function _hoursToRangeText(hours) {
   if (!hours || hours.length === 0) return '';
@@ -12093,75 +12156,86 @@ function renderReportSummary(ordersCurrent, ordersCompare) {
   const dayTo = toEl.value;
   if (!dayFrom || !dayTo) return '<div style="padding:20px;color:var(--ink-soft);">Chọn từ ngày / đến ngày.</div>';
 
-  const todayStr = (typeof META_INFO !== 'undefined' && META_INFO?.today) ? META_INFO.today : new Date().toISOString().slice(0, 10);
+  const todayStr = (typeof META_INFO !== 'undefined' && META_INFO && META_INFO.today) ? META_INFO.today : new Date().toISOString().slice(0, 10);
   const isLastDayToday = (dayTo === todayStr);
   const showLastDaySection = (dayTo !== dayFrom);
 
   const ordersOnDay = (orders, day) => orders.filter(o => o.ngay === day);
-
   let html = '';
 
-  // ===== SECTION 1: Ngày đầu khoảng (dayFrom) =====
+  // ============ SECTION 1: Ngày đầu khoảng ============
   const ordersA1 = ordersOnDay(ordersCurrent, dayFrom);
-  const prevA1 = _prevWeekDay(dayFrom);
+  const prevA1   = _prevWeekDay(dayFrom);
   const ordersB1 = ordersOnDay(ordersCompare, prevA1);
 
   const revA1 = ordersA1.reduce((s, o) => s + (o.totalAmount || 0), 0);
   const revB1 = ordersB1.reduce((s, o) => s + (o.totalAmount || 0), 0);
   const diff1 = revA1 - revB1;
-  const pct1 = revB1 > 0 ? (diff1 / revB1) * 100 : 0;
+  const pct1  = revB1 > 0 ? (diff1 / revB1) * 100 : 0;
   const hourly1 = _analyzeHourly(ordersA1, ordersB1);
-  const prevWdName = _weekdayVN(prevA1);
+  const prevWdName1 = _weekdayVN(prevA1);
+
+  // Section 1 — narrative văn xuôi
+  let s1 = `<p>Doanh thu bán lẻ toàn hệ thống (bao gồm đội sale) ngày <strong>${_fmtDateShort(dayFrom)}</strong> đạt <strong>${_fmtTrieu(revA1)}</strong>`;
+  if (revB1 > 0) {
+    const cls = diff1 >= 0 ? 'summary-arrow-up' : 'summary-arrow-down';
+    s1 += `, ${diff1 >= 0 ? 'tăng' : 'giảm'} <strong>${_fmtTrieu(Math.abs(diff1))}</strong> so với ${prevWdName1} tuần trước (<strong>${_fmtTrieu(revB1)}</strong>), tương đương <span class="${cls}">${pct1 >= 0 ? '+' : ''}${pct1.toFixed(1)}%</span>`;
+  }
+  s1 += '.</p>';
+
+  if (hourly1.peakHour >= 0 && hourly1.peakVal > 0) {
+    s1 += `<p>Khung giờ bán tốt nhất là <strong>${hourly1.peakHour}h–${hourly1.peakHour + 1}h</strong> (doanh thu <strong>${_fmtTrieu(hourly1.peakVal)}</strong>).`;
+    if (hourly1.upHours.length > 0) {
+      s1 += ` Doanh số duy trì cao hơn cùng kỳ tuần trước ở các khung giờ <strong>${_hoursToRangeText(hourly1.upHours)}</strong>.`;
+    }
+    s1 += '</p>';
+  }
+  if (hourly1.lowHours.length > 0) {
+    s1 += `<p>Khung giờ <strong>${_hoursToRangeText(hourly1.lowHours)}</strong> doanh số chững lại và thấp hơn cùng kỳ tuần trước.</p>`;
+  }
 
   html += `
     <div class="summary-section">
-      <h3 class="summary-section-title">Ngày ${_fmtDateShort(dayFrom)} · ${_weekdayVN(dayFrom)}${dayFrom !== dayTo ? ' (đầu khoảng)' : ''}</h3>
-      <div class="summary-section-body">
-        <p>Doanh thu toàn hệ thống đạt <strong>${formatNumber(revA1)}đ</strong>${revB1 > 0 ? `, ${diff1 >= 0 ? 'tăng' : 'giảm'} <strong>${formatNumber(Math.abs(diff1))}đ</strong> so với ${prevWdName} tuần trước (${formatNumber(revB1)}đ), tương đương <span class="${diff1 >= 0 ? 'summary-arrow-up' : 'summary-arrow-down'}">${pct1 >= 0 ? '+' : ''}${pct1.toFixed(1)}%</span>` : ''}.</p>
-        ${hourly1.peakHour >= 0 && hourly1.peakVal > 0 ? `<p>Khung giờ bán tốt nhất: <strong>${hourly1.peakHour}h–${hourly1.peakHour + 1}h</strong> (doanh thu ${formatNumber(hourly1.peakVal)}đ).</p>` : ''}
-        ${hourly1.upHours.length > 0 ? `<p>Khung giờ vượt cùng kỳ tuần trước: <strong>${_hoursToRangeText(hourly1.upHours)}</strong>.</p>` : ''}
-        ${hourly1.lowHours.length > 0 ? `<p>Khung giờ thấp hơn cùng kỳ: <strong>${_hoursToRangeText(hourly1.lowHours)}</strong>.</p>` : ''}
-      </div>
+      <h3 class="summary-section-title">Ngày ${_fmtDateShort(dayFrom)} · ${_weekdayVN(dayFrom)}${dayFrom !== dayTo ? ' — ngày đầu khoảng' : ''}</h3>
+      <div class="summary-section-body">${s1}</div>
     </div>
   `;
 
-  // ===== SECTION 2: Đơn ≥3 SP ngày dayFrom =====
+  // ============ SECTION 2: Đơn ≥3 SP ngày dayFrom ============
   const big3A1 = ordersA1.filter(o => o.itemCount >= 3);
   const big3B1 = ordersB1.filter(o => o.itemCount >= 3);
   const revBig3A1 = big3A1.reduce((s, o) => s + (o.totalAmount || 0), 0);
-  const diffBig3 = big3A1.length - big3B1.length;
-  const pctBig3 = big3B1.length > 0 ? (diffBig3 / big3B1.length) * 100 : 0;
+  const phrase2 = _phraseCount(big3A1.length, big3B1.length, 'đơn');
+  const cls2 = big3A1.length >= big3B1.length ? 'summary-arrow-up' : 'summary-arrow-down';
+
+  let s2 = `<p>${prevWdName1} tuần trước ghi nhận <strong>${formatNumber(big3B1.length)} đơn</strong>. Ngày ${_fmtDateShort(dayFrom)} đạt <strong>${formatNumber(big3A1.length)} đơn</strong> — <span class="${cls2}">${phrase2}</span>.</p>`;
+  if (big3A1.length > 0) {
+    s2 += `<p>Riêng ${formatNumber(big3A1.length)} đơn hàng từ 3 sản phẩm này đã mang về <strong>${_fmtTrieu(revBig3A1)}</strong> doanh thu.</p>`;
+  }
 
   html += `
     <div class="summary-section">
       <h3 class="summary-section-title">Đơn hàng từ 3 sản phẩm trở lên · ${_fmtDateShort(dayFrom)}</h3>
-      <div class="summary-section-body">
-        <p>${prevWdName} tuần trước: <strong>${formatNumber(big3B1.length)} đơn</strong></p>
-        <p>Ngày ${_fmtDateShort(dayFrom)}: <strong>${formatNumber(big3A1.length)} đơn</strong></p>
-        ${big3B1.length > 0 ? `<p class="summary-callout"><span class="${diffBig3 >= 0 ? 'summary-arrow-up' : 'summary-arrow-down'}">${diffBig3 >= 0 ? '+' : ''}${formatNumber(diffBig3)} đơn (${pctBig3 >= 0 ? '+' : ''}${pctBig3.toFixed(1)}%)</span></p>` : ''}
-        <p>${formatNumber(big3A1.length)} đơn này mang về <strong>${formatNumber(revBig3A1)}đ</strong> doanh thu.</p>
-      </div>
+      <div class="summary-section-body">${s2}</div>
     </div>
   `;
 
-  // ===== SECTION 3: SP cao cấp ≥3 triệu ngày dayFrom =====
+  // ============ SECTION 3: SP cao cấp ≥3tr ngày dayFrom ============
   const premA1 = _countPremiumItems(ordersA1, 3000000);
   const premB1 = _countPremiumItems(ordersB1, 3000000);
-  const diffPrem = premA1 - premB1;
-  const pctPrem = premB1 > 0 ? (diffPrem / premB1) * 100 : 0;
+  const phrase3 = _phraseCount(premA1, premB1, 'sản phẩm');
+  const cls3 = premA1 >= premB1 ? 'summary-arrow-up' : 'summary-arrow-down';
+
+  let s3 = `<p>${prevWdName1} tuần trước bán được <strong>${formatNumber(premB1)} sản phẩm</strong> từ 3 triệu đồng. Ngày ${_fmtDateShort(dayFrom)} đạt <strong>${formatNumber(premA1)} sản phẩm</strong> — <span class="${cls3}">${phrase3}</span>.</p>`;
 
   html += `
     <div class="summary-section">
       <h3 class="summary-section-title">Sản phẩm cao cấp từ 3 triệu đồng · ${_fmtDateShort(dayFrom)}</h3>
-      <div class="summary-section-body">
-        <p>${prevWdName} tuần trước: <strong>${formatNumber(premB1)} sản phẩm</strong></p>
-        <p>Ngày ${_fmtDateShort(dayFrom)}: <strong>${formatNumber(premA1)} sản phẩm</strong></p>
-        ${premB1 > 0 ? `<p class="summary-callout"><span class="${diffPrem >= 0 ? 'summary-arrow-up' : 'summary-arrow-down'}">${diffPrem >= 0 ? '+' : ''}${formatNumber(diffPrem)} SP (${pctPrem >= 0 ? '+' : ''}${pctPrem.toFixed(1)}%)</span></p>` : ''}
-      </div>
+      <div class="summary-section-body">${s3}</div>
     </div>
   `;
 
-  // ===== SECTION 4: Thưởng nóng CH (toàn khoảng dayFrom → dayTo) =====
+  // ============ SECTION 4: Thưởng nóng CH (toàn khoảng) ============
   const bonusStores = (typeof getBonusStores === 'function') ? getBonusStores() : (typeof BONUS_STORE_KEYWORDS !== 'undefined' ? BONUS_STORE_KEYWORDS : []);
   const bonusBreakdown = bonusStores.map(kw => {
     const matchOrders = ordersCurrent.filter(o => o.ngay >= dayFrom && o.ngay <= dayTo && _bonusStoreMatch(o.cuaHang, kw));
@@ -12176,62 +12250,81 @@ function renderReportSummary(ordersCurrent, ordersCompare) {
     return { store: kw, count3, count5, total: count3 + count5 };
   });
   const bonusActive = bonusBreakdown.filter(b => b.total > 0);
-  const bonusEmpty = bonusBreakdown.filter(b => b.total === 0);
+  const bonusEmpty  = bonusBreakdown.filter(b => b.total === 0);
+
+  let s4 = '';
+  if (bonusActive.length > 0) {
+    s4 += `<p>Trong khoảng từ ${_fmtDateShort(dayFrom)} đến ${_fmtDateShort(dayTo)}, có <strong>${bonusActive.length}/${bonusStores.length}</strong> cửa hàng đã phát sinh sản phẩm thưởng nóng:</p><ul>`;
+    bonusActive.forEach(b => {
+      const parts = [];
+      if (b.count3 > 0) parts.push(`<strong>${b.count3}</strong> sản phẩm từ 3 triệu`);
+      if (b.count5 > 0) parts.push(`<strong>${b.count5}</strong> sản phẩm từ 5 triệu`);
+      s4 += `<li><strong>${escapeHtml(b.store)}</strong>: ${parts.join('; ')}</li>`;
+    });
+    s4 += '</ul>';
+    if (bonusEmpty.length > 0) {
+      s4 += `<p>Đến thời điểm hiện tại, <strong>${bonusEmpty.length}</strong> cửa hàng còn lại chưa phát sinh thêm sản phẩm thưởng nóng: ${bonusEmpty.map(b => escapeHtml(b.store)).join(', ')}.</p>`;
+    }
+  } else {
+    s4 = `<p>Trong khoảng từ ${_fmtDateShort(dayFrom)} đến ${_fmtDateShort(dayTo)}, chưa có cửa hàng nào trong ${bonusStores.length} cửa hàng thử nghiệm phát sinh sản phẩm thưởng nóng.</p>`;
+  }
 
   html += `
     <div class="summary-section">
-      <h3 class="summary-section-title">Chương trình thưởng nóng ${bonusStores.length} cửa hàng · ${_fmtDateShort(dayFrom)} → ${_fmtDateShort(dayTo)}</h3>
-      <div class="summary-section-body">
-        ${bonusActive.length > 0 ? `
-          <p>Cửa hàng đã phát sinh sản phẩm thưởng nóng:</p>
-          <ul>
-            ${bonusActive.map(b => `<li><strong>${escapeHtml(b.store)}</strong>: ${b.count3 > 0 ? `${b.count3} SP từ 3 triệu` : ''}${b.count3 > 0 && b.count5 > 0 ? '; ' : ''}${b.count5 > 0 ? `${b.count5} SP từ 5 triệu` : ''}</li>`).join('')}
-          </ul>
-        ` : '<p>Chưa cửa hàng nào phát sinh sản phẩm thưởng nóng trong khoảng này.</p>'}
-        ${bonusEmpty.length > 0 ? `<p class="summary-callout">${bonusEmpty.length}/${bonusStores.length} CH chưa có thưởng nóng: ${bonusEmpty.map(b => escapeHtml(b.store)).join(', ')}.</p>` : ''}
-      </div>
+      <h3 class="summary-section-title">Chương trình thưởng nóng ${bonusStores.length} cửa hàng thử nghiệm</h3>
+      <div class="summary-section-body">${s4}</div>
     </div>
   `;
 
-  // ===== SECTION 5 + 6: Ngày cuối khoảng (nếu khác ngày đầu) =====
+  // ============ SECTION 5 + 6: Ngày cuối khoảng (nếu khác ngày đầu) ============
   if (showLastDaySection) {
     const ordersA5 = ordersOnDay(ordersCurrent, dayTo);
-    const prevA5 = _prevWeekDay(dayTo);
+    const prevA5   = _prevWeekDay(dayTo);
     const ordersB5 = ordersOnDay(ordersCompare, prevA5);
     const big3A5 = ordersA5.filter(o => o.itemCount >= 3);
     const big3B5 = ordersB5.filter(o => o.itemCount >= 3);
     const revBig3A5 = big3A5.reduce((s, o) => s + (o.totalAmount || 0), 0);
-    const diff5 = big3A5.length - big3B5.length;
-    const pct5 = big3B5.length > 0 ? (diff5 / big3B5.length) * 100 : 0;
-    const subtitle5 = isLastDayToday ? '(tính đến thời điểm hiện tại)' : '';
+    const phrase5 = _phraseCount(big3A5.length, big3B5.length, 'đơn');
+    const cls5 = big3A5.length >= big3B5.length ? 'summary-arrow-up' : 'summary-arrow-down';
+    const timeContext = isLastDayToday ? ' (tính đến thời điểm hiện tại)' : '';
+    const prevTimeContext = isLastDayToday ? ' tại cùng thời điểm trong ngày' : '';
+
+    let s5 = `<p>Đến thời điểm hiện tại của ngày <strong>${_fmtDateShort(dayTo)}</strong>${timeContext}, đơn hàng từ 3 sản phẩm trở lên đạt <strong>${formatNumber(big3A5.length)} đơn</strong>. Cùng ${_weekdayVN(prevA5)} tuần trước${prevTimeContext} đạt <strong>${formatNumber(big3B5.length)} đơn</strong> — <span class="${cls5}">${phrase5}</span>.</p>`;
+    if (big3A5.length > 0) {
+      s5 += `<p>${formatNumber(big3A5.length)} đơn này đã mang về khoảng <strong>${_fmtTrieu(revBig3A5)}</strong> doanh thu.</p>`;
+    }
 
     html += `
       <div class="summary-section">
-        <h3 class="summary-section-title">Kết quả ngày ${_fmtDateShort(dayTo)} · ${_weekdayVN(dayTo)} ${subtitle5}</h3>
-        <div class="summary-section-body">
-          <p>Đơn hàng từ 3 SP trở lên: <strong>${formatNumber(big3A5.length)} đơn</strong></p>
-          <p>${_weekdayVN(prevA5)} tuần trước (cùng thời điểm): <strong>${formatNumber(big3B5.length)} đơn</strong></p>
-          ${big3B5.length > 0 ? `<p class="summary-callout"><span class="${diff5 >= 0 ? 'summary-arrow-up' : 'summary-arrow-down'}">${diff5 >= 0 ? '+' : ''}${formatNumber(diff5)} đơn (${pct5 >= 0 ? '+' : ''}${pct5.toFixed(1)}%)</span></p>` : ''}
-          <p>${formatNumber(big3A5.length)} đơn này mang về <strong>${formatNumber(revBig3A5)}đ</strong> doanh thu.</p>
-        </div>
+        <h3 class="summary-section-title">Kết quả ngày ${_fmtDateShort(dayTo)} · ${_weekdayVN(dayTo)}${timeContext}</h3>
+        <div class="summary-section-body">${s5}</div>
       </div>
     `;
 
     const hourly6 = _analyzeHourly(ordersA5, ordersB5);
+    let s6 = '';
+    if (hourly6.upHours.length > 0) {
+      s6 += `<p>Khung giờ <strong>${_hoursToRangeText(hourly6.upHours)}</strong>, doanh số cao hơn đáng kể so với cùng kỳ tuần trước.</p>`;
+    }
+    if (hourly6.lowHours.length > 0) {
+      s6 += `<p>Khung giờ <strong>${_hoursToRangeText(hourly6.lowHours)}</strong>, tốc độ bán hàng chậm lại và thấp hơn cùng kỳ.</p>`;
+    }
+    if (!s6) {
+      s6 = '<p>Diễn biến trong ngày ổn định, không có chênh lệch đáng kể giữa các khung giờ so với cùng kỳ tuần trước.</p>';
+    }
+
     html += `
       <div class="summary-section">
         <h3 class="summary-section-title">Diễn biến theo khung giờ · ${_fmtDateShort(dayTo)}</h3>
-        <div class="summary-section-body">
-          ${hourly6.upHours.length > 0 ? `<p>Khung giờ vượt cùng kỳ tuần trước: <strong>${_hoursToRangeText(hourly6.upHours)}</strong>.</p>` : ''}
-          ${hourly6.lowHours.length > 0 ? `<p>Khung giờ thấp hơn cùng kỳ: <strong>${_hoursToRangeText(hourly6.lowHours)}</strong>.</p>` : ''}
-          ${hourly6.upHours.length === 0 && hourly6.lowHours.length === 0 ? '<p>Diễn biến giờ ổn định, không có chênh lệch lớn so với cùng kỳ tuần trước.</p>' : ''}
-        </div>
+        <div class="summary-section-body">${s6}</div>
       </div>
     `;
   }
 
   return html;
 }
+
+
 
 
 // ============ RAW DATA TABLE ============
