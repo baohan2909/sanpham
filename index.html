@@ -5090,6 +5090,12 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
           <option value="">Tất cả ngành</option>
         </select>
       </div>
+      <div class="filter-group">
+        <label class="filter-label">Ngành cấp 3</label>
+        <select id="filter-category3" class="filter-select">
+          <option value="">Tất cả ngành cấp 3</option>
+        </select>
+      </div>
       <!-- Shared datalist for all product code searches -->
       <datalist id="dl-products"></datalist>
       <div class="filter-group">
@@ -6184,7 +6190,7 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbxV1A53tKta2nKzaFFNo9zmnWdRjcPm4CGFAMKqG9PWbgBl_L7Zl6LCbI44F4ohV17O/exec';
-const APP_VERSION = 'v13.7 · Báo cáo nhanh: văn xuôi + nút Đồng bộ data';
+const APP_VERSION = 'v13.8 · Filter Ngành hàng cấp 3';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -6206,6 +6212,7 @@ let STOCK_BY_CODE = {};      // tổng tồn theo mã SP
 let STOCK_BY_REGION = {};    // tổng tồn theo khu vực
 let STOCK_BY_STORE = {};     // {code: {storeCode: {tonHienTai, tonDuTinh, ...}}}
 let PRODUCT_AGG = [];        // sản phẩm tổng hợp đã có thông tin tồn
+let CODE_TO_CAT3 = {};       // {maThamChieu: nganhCap3} — lookup từ STOCK_DATA cho filter & report
 
 // Index toàn bộ mã SP (KHÔNG phụ thuộc filter khoảng) — built từ STOCK_DATA + RAW_DATA
 // {code: {code, nganhHang, image, tonHienTai, lastSeen}}
@@ -6696,6 +6703,7 @@ function indexStock() {
   STOCK_BY_CODE = {};
   STOCK_BY_REGION = {};
   STOCK_BY_STORE = {};
+  CODE_TO_CAT3 = {};  // v13.8: lookup nganhCap3 by maThamChieu
   // v8 NEW: stock by barcode + per-maKho detail
   window.STOCK_BY_BARCODE = {};
   window.STOCK_DETAIL_BY_CODE = {};  // {maThamChieu: [{maKho, barcode, tonHienTai, ...}]}
@@ -6712,6 +6720,8 @@ function indexStock() {
         stores: 0
       };
     }
+    // v13.8: build CODE_TO_CAT3 lookup
+    if (r.nganhCap3 && !CODE_TO_CAT3[key]) CODE_TO_CAT3[key] = r.nganhCap3;
     STOCK_BY_CODE[key].tonHienTai += r.tonHienTai;
     STOCK_BY_CODE[key].tonDuTinh += r.tonDuTinh;
     STOCK_BY_CODE[key].giuHang += r.giuHang;
@@ -6801,6 +6811,16 @@ function initFilters() {
     catSel.innerHTML = '<option value="">Tất cả ngành</option>' +
       cats.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
     catSel.value = currentCat;
+  }
+
+  // Filter Ngành cấp 3 — lấy từ STOCK_DATA (nguồn truth duy nhất)
+  const cats3 = [...new Set((STOCK_DATA || []).map(s => s.nganhCap3).filter(Boolean))].sort();
+  const cat3Sel = document.getElementById('filter-category3');
+  if (cat3Sel) {
+    const currentCat3 = cat3Sel.value;
+    cat3Sel.innerHTML = '<option value="">Tất cả ngành cấp 3</option>' +
+      cats3.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
+    cat3Sel.value = currentCat3;
   }
 
   // Danh sách CH-tên (cột B sheet DANH SÁCH CỬA HÀNG) — ưu tiên STORES_DATA
@@ -6965,6 +6985,7 @@ async function applyFilters() {
   const dateFrom = document.getElementById('filter-date-from').value;
   const dateTo = document.getElementById('filter-date-to').value;
   const cat = document.getElementById('filter-category').value;
+  const cat3 = document.getElementById('filter-category3')?.value || '';
   const store = document.getElementById('filter-store').value;
   const region = document.getElementById('filter-region').value;
   const storeTypeEl = document.getElementById('filter-storetype');
@@ -7028,6 +7049,10 @@ async function applyFilters() {
     if (dateFrom && r.ngay < dateFrom) return false;
     if (dateTo && r.ngay > dateTo) return false;
     if (cat && r.nganhHang !== cat) return false;
+    if (cat3) {
+      const c3 = CODE_TO_CAT3[r.maThamChieu];
+      if (c3 !== cat3) return false;
+    }
     if (store && r.cuaHang !== store) return false;
     if (allowedStoreNames && (!r.cuaHang || !allowedStoreNames.has(r.cuaHang))) return false;
     // Loại hàng: hàng chính (giaSale=0 hoặc giaSale>=giaBan) vs hàng sale (giaSale>0 và <giaBan)
@@ -7090,6 +7115,8 @@ async function applyFilters() {
 
 function clearFilters() {
   document.getElementById('filter-category').value = '';
+  const cat3El = document.getElementById('filter-category3');
+  if (cat3El) cat3El.value = '';
   document.getElementById('filter-store').value = '';
   document.getElementById('filter-region').value = '';
   const stEl = document.getElementById('filter-storetype');
@@ -7171,7 +7198,7 @@ document.querySelectorAll('.quick-date-btn').forEach(btn => {
   if (el) el.addEventListener('change', applyFilters);
 });
 // Combobox filters: change for select-completion + debounced input for typing
-['filter-category', 'filter-store', 'filter-region'].forEach(id => {
+['filter-category', 'filter-category3', 'filter-store', 'filter-region'].forEach(id => {
   const el = document.getElementById(id);
   if (!el) return;
   let t;
@@ -11308,6 +11335,7 @@ function buildOrdersFromRaw(from, to, hourMinCap) {
 
   // ===== Lấy MAIN filter chain (trừ date — date đã pass qua tham số from/to) =====
   const cat       = document.getElementById('filter-category')?.value || '';
+  const cat3      = document.getElementById('filter-category3')?.value || '';
   const region    = document.getElementById('filter-region')?.value || '';
   const storeType = document.getElementById('filter-storetype')?.value || '';
   const saleType  = document.getElementById('filter-saletype')?.value || '';
@@ -11368,6 +11396,10 @@ function buildOrdersFromRaw(from, to, hourMinCap) {
 
     // ===== Apply MAIN filter chain =====
     if (cat && r.nganhHang !== cat) continue;
+    if (cat3) {
+      const c3 = CODE_TO_CAT3[r.maThamChieu];
+      if (c3 !== cat3) continue;
+    }
     if (storeName && r.cuaHang !== storeName) continue;
     if (allowedStoreNames && (!r.cuaHang || !allowedStoreNames.has(r.cuaHang))) continue;
     if (saleType) {
