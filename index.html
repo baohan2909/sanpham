@@ -4709,6 +4709,137 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
 .summary-arrow-up { color: #16a34a; font-weight: 700; }
 .summary-arrow-down { color: #dc2626; font-weight: 700; }
 
+/* === Multi-dimension analysis === */
+.multi-dim-picker {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.multi-dim-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+.multi-dim-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  min-height: 36px;
+  align-items: center;
+}
+.multi-dim-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: grab;
+  user-select: none;
+  transition: opacity 0.15s, border-color 0.15s, background 0.15s;
+}
+.multi-dim-item:active { cursor: grabbing; }
+.multi-dim-item.multi-dragging { opacity: 0.35; }
+.multi-dim-item.multi-drop-target {
+  border-color: var(--terracotta);
+  border-style: dashed;
+  background: var(--accent-soft);
+  transform: scale(1.03);
+}
+.multi-dim-grip {
+  display: inline-block;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1;
+  cursor: grab;
+  padding-right: 2px;
+}
+.multi-dim-order {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: var(--terracotta);
+  color: white;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+}
+.multi-dim-name { font-weight: 600; color: var(--ink); }
+.multi-dim-item button {
+  border: 1px solid var(--border-soft);
+  background: transparent;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--ink);
+}
+.multi-dim-item button:hover:not(:disabled) { background: var(--ink); color: var(--bg); }
+.multi-dim-item button:disabled { opacity: 0.3; cursor: not-allowed; }
+.multi-dim-available { display: flex; flex-wrap: wrap; gap: 6px; }
+.multi-dim-add {
+  border: 1px dashed var(--ink-soft);
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  color: var(--ink-soft);
+}
+.multi-dim-add:hover { background: var(--terracotta); color: white; border-color: var(--terracotta); border-style: solid; }
+
+.multi-tree-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+  padding: 8px 0;
+}
+.multi-node-row {
+  display: grid;
+  grid-template-columns: 16px auto 1fr auto auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border-soft);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.multi-node-row:hover { background: var(--bg-elevated); }
+.multi-node-row.leaf { cursor: default; }
+.multi-toggle { font-size: 10px; color: var(--ink-soft); width: 16px; display: inline-block; text-align: center; transition: transform 0.15s; }
+.multi-node.collapsed > .multi-node-row > .multi-toggle { transform: rotate(-90deg); }
+.multi-node.collapsed > .multi-children { display: none; }
+.multi-dim-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 3px;
+}
+.multi-node-name { color: var(--ink); font-weight: 600; }
+.multi-node-stat { color: var(--ink-soft); font-size: 12px; white-space: nowrap; }
+.multi-node-stat strong { color: var(--ink); font-weight: 600; }
+.multi-children {
+  padding-left: 24px;
+  border-left: 2px solid var(--border-soft);
+  margin-left: 18px;
+}
+
 .report-controls {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -5659,6 +5790,7 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
         <button class="report-tab" data-report="bonus7" onclick="switchReportTab('bonus7')"><span class="report-tab-icon"></span> Thưởng nóng cửa hàng</button>
         <button class="report-tab" data-report="gift" onclick="switchReportTab('gift')"><span class="report-tab-icon"></span> Ưu đãi tháng 6</button>
         <button class="report-tab" data-report="summary" onclick="switchReportTab('summary')"><span class="report-tab-icon"></span> Báo cáo nhanh</button>
+        <button class="report-tab" data-report="multi" onclick="switchReportTab('multi')"><span class="report-tab-icon"></span> Phân tích đa chiều</button>
       </div>
 
       <div class="report-controls">
@@ -6190,7 +6322,7 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbxV1A53tKta2nKzaFFNo9zmnWdRjcPm4CGFAMKqG9PWbgBl_L7Zl6LCbI44F4ohV17O/exec';
-const APP_VERSION = 'v13.8 · Filter Ngành hàng cấp 3';
+const APP_VERSION = 'v13.10 · Phân tích đa chiều + drag-drop reorder';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -6213,6 +6345,7 @@ let STOCK_BY_REGION = {};    // tổng tồn theo khu vực
 let STOCK_BY_STORE = {};     // {code: {storeCode: {tonHienTai, tonDuTinh, ...}}}
 let PRODUCT_AGG = [];        // sản phẩm tổng hợp đã có thông tin tồn
 let CODE_TO_CAT3 = {};       // {maThamChieu: nganhCap3} — lookup từ STOCK_DATA cho filter & report
+let CODE_TO_CAT1 = {};       // {maThamChieu: nganhCap1} — lookup cho phân tích đa chiều
 
 // Index toàn bộ mã SP (KHÔNG phụ thuộc filter khoảng) — built từ STOCK_DATA + RAW_DATA
 // {code: {code, nganhHang, image, tonHienTai, lastSeen}}
@@ -6704,6 +6837,7 @@ function indexStock() {
   STOCK_BY_REGION = {};
   STOCK_BY_STORE = {};
   CODE_TO_CAT3 = {};  // v13.8: lookup nganhCap3 by maThamChieu
+  CODE_TO_CAT1 = {};  // v13.9: lookup nganhCap1 by maThamChieu
   // v8 NEW: stock by barcode + per-maKho detail
   window.STOCK_BY_BARCODE = {};
   window.STOCK_DETAIL_BY_CODE = {};  // {maThamChieu: [{maKho, barcode, tonHienTai, ...}]}
@@ -6722,6 +6856,8 @@ function indexStock() {
     }
     // v13.8: build CODE_TO_CAT3 lookup
     if (r.nganhCap3 && !CODE_TO_CAT3[key]) CODE_TO_CAT3[key] = r.nganhCap3;
+    // v13.9: build CODE_TO_CAT1 lookup
+    if (r.nganhCap1 && !CODE_TO_CAT1[key]) CODE_TO_CAT1[key] = r.nganhCap1;
     STOCK_BY_CODE[key].tonHienTai += r.tonHienTai;
     STOCK_BY_CODE[key].tonDuTinh += r.tonDuTinh;
     STOCK_BY_CODE[key].giuHang += r.giuHang;
@@ -11253,7 +11389,8 @@ function _wireReportTabIcons() {
     overview: 'barChart',
     bonus7: 'star',
     gift: 'gift',
-    summary: 'trending'
+    summary: 'trending',
+    multi: 'store'
   };
   document.querySelectorAll('.report-tab').forEach(t => {
     const slot = t.querySelector('.report-tab-icon');
@@ -11741,6 +11878,8 @@ async function refreshReport() {
     content.innerHTML = renderReportGift(ordersCurrent, ordersCompare);
   } else if (CURRENT_REPORT_TYPE === 'summary') {
     content.innerHTML = renderReportSummary(ordersCurrent, ordersCompare);
+  } else if (CURRENT_REPORT_TYPE === 'multi') {
+    content.innerHTML = renderReportMulti(ordersCurrent);
   }
 }
 
@@ -12357,6 +12496,257 @@ function renderReportSummary(ordersCurrent, ordersCompare) {
 }
 
 
+
+
+// ===== Report 5: Phân tích đa chiều =====
+let MULTI_DIMS = [];
+
+(function _loadMultiDims() {
+  try {
+    const s = localStorage.getItem('multi_dims_v1');
+    if (s) MULTI_DIMS = JSON.parse(s) || [];
+  } catch (e) {}
+})();
+
+function _saveMultiDims() {
+  try { localStorage.setItem('multi_dims_v1', JSON.stringify(MULTI_DIMS)); } catch (e) {}
+}
+
+const MULTI_DIM_OPTIONS = [
+  { key: 'store',  label: 'Cửa hàng',      get: line => line.cuaHang || '—' },
+  { key: 'type',   label: 'Điểm bán',       get: line => _multiStoreType(line.cuaHang) },
+  { key: 'cat1',   label: 'Ngành cấp 1',    get: line => CODE_TO_CAT1[line.maThamChieu] || line.nganhHang || '—' },
+  { key: 'cat3',   label: 'Ngành cấp 3',    get: line => CODE_TO_CAT3[line.maThamChieu] || '—' },
+  { key: 'price',  label: 'Khoảng giá',     get: line => _multiPriceBucket(line.giaBan) }
+];
+
+function _multiPriceBucket(price) {
+  const p = price || 0;
+  if (p < 500000) return '< 500K';
+  if (p < 1000000) return '500K – 1tr';
+  if (p < 3000000) return '1tr – 3tr';
+  if (p < 5000000) return '3tr – 5tr';
+  return '≥ 5tr';
+}
+
+function _multiStoreType(storeName) {
+  if (!storeName) return '—';
+  if (typeof STORES_DATA !== 'undefined' && Array.isArray(STORES_DATA)) {
+    const s = STORES_DATA.find(x => x.ten === storeName);
+    if (s) {
+      if (s.storeType === 'CH') return 'Cửa hàng (CH)';
+      if (s.storeType === 'DOISALE') return 'Đội Sale';
+      if (s.storeType === 'DB') return 'Đại lý (DB)';
+      if (s.storeType === 'WAREHOUSE') return 'Kho';
+      return 'Khác';
+    }
+  }
+  if (/^đội\s*sale/i.test(storeName)) return 'Đội Sale';
+  return 'Cửa hàng (CH)';
+}
+
+function toggleMultiDim(key) {
+  const idx = MULTI_DIMS.indexOf(key);
+  if (idx >= 0) MULTI_DIMS.splice(idx, 1);
+  else MULTI_DIMS.push(key);
+  _saveMultiDims();
+  refreshReport();
+}
+
+function moveMultiDim(key, dir) {
+  const idx = MULTI_DIMS.indexOf(key);
+  if (idx < 0) return;
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= MULTI_DIMS.length) return;
+  [MULTI_DIMS[idx], MULTI_DIMS[newIdx]] = [MULTI_DIMS[newIdx], MULTI_DIMS[idx]];
+  _saveMultiDims();
+  refreshReport();
+}
+
+function toggleMultiNode(nodeId) {
+  const el = document.getElementById(nodeId);
+  if (el) el.classList.toggle('collapsed');
+}
+
+// === Drag-drop handlers cho dimension reorder ===
+let _multiDragSrcIdx = null;
+function _multiDragStart(e, idx) {
+  _multiDragSrcIdx = idx;
+  e.dataTransfer.effectAllowed = 'move';
+  try { e.dataTransfer.setData('text/plain', String(idx)); } catch(_) {}
+  e.target.classList.add('multi-dragging');
+}
+function _multiDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+}
+function _multiDragEnter(e, idx) {
+  e.preventDefault();
+  const el = e.target.closest('.multi-dim-item');
+  if (el && _multiDragSrcIdx !== idx) el.classList.add('multi-drop-target');
+}
+function _multiDragLeave(e) {
+  const el = e.target.closest('.multi-dim-item');
+  if (el) el.classList.remove('multi-drop-target');
+}
+function _multiDrop(e, dstIdx) {
+  e.preventDefault();
+  if (_multiDragSrcIdx === null || _multiDragSrcIdx === dstIdx) {
+    _multiDragEnd();
+    return;
+  }
+  const moved = MULTI_DIMS.splice(_multiDragSrcIdx, 1)[0];
+  MULTI_DIMS.splice(dstIdx, 0, moved);
+  _saveMultiDims();
+  _multiDragSrcIdx = null;
+  refreshReport();
+}
+function _multiDragEnd() {
+  document.querySelectorAll('.multi-dim-item').forEach(el => {
+    el.classList.remove('multi-dragging', 'multi-drop-target');
+  });
+  _multiDragSrcIdx = null;
+}
+
+function renderReportMulti(ordersCurrent) {
+  // Picker UI luôn hiển thị
+  const selectedHtml = MULTI_DIMS.length === 0
+    ? '<span style="color:var(--ink-soft);font-size:13px;font-style:italic;">Chưa chọn tiêu chí. Thêm ít nhất 1 tiêu chí bên dưới để bắt đầu.</span>'
+    : MULTI_DIMS.map((k, i) => {
+        const opt = MULTI_DIM_OPTIONS.find(o => o.key === k);
+        if (!opt) return '';
+        return `
+          <div class="multi-dim-item"
+               draggable="true"
+               ondragstart="_multiDragStart(event, ${i})"
+               ondragover="_multiDragOver(event)"
+               ondragenter="_multiDragEnter(event, ${i})"
+               ondragleave="_multiDragLeave(event)"
+               ondrop="_multiDrop(event, ${i})"
+               ondragend="_multiDragEnd()">
+            <span class="multi-dim-grip" title="Kéo để đổi thứ tự">⋮⋮</span>
+            <span class="multi-dim-order">${i + 1}</span>
+            <span class="multi-dim-name">${escapeHtml(opt.label)}</span>
+            <button onclick="moveMultiDim('${k}', -1)" ${i === 0 ? 'disabled' : ''} title="Lên">↑</button>
+            <button onclick="moveMultiDim('${k}', 1)" ${i === MULTI_DIMS.length - 1 ? 'disabled' : ''} title="Xuống">↓</button>
+            <button onclick="toggleMultiDim('${k}')" title="Xóa">×</button>
+          </div>
+        `;
+      }).join('');
+
+  const available = MULTI_DIM_OPTIONS.filter(o => !MULTI_DIMS.includes(o.key));
+  const addBtns = available.length === 0
+    ? '<span style="font-size:12px;color:var(--ink-soft);">Đã chọn tất cả tiêu chí.</span>'
+    : available.map(o => `<button class="multi-dim-add" onclick="toggleMultiDim('${o.key}')">+ ${escapeHtml(o.label)}</button>`).join('');
+
+  const picker = `
+    <div class="multi-dim-picker">
+      <div class="multi-dim-label">Tiêu chí nhóm (theo thứ tự ưu tiên — số 1 là nhóm chính)</div>
+      <div class="multi-dim-list">${selectedHtml}</div>
+      <div class="multi-dim-available">${addBtns}</div>
+    </div>
+  `;
+
+  if (MULTI_DIMS.length === 0) {
+    return picker;
+  }
+
+  // Expand orders → lines
+  const lines = [];
+  ordersCurrent.forEach(o => {
+    (o.items || []).forEach(it => {
+      lines.push({
+        soDon: o.soDon,
+        cuaHang: o.cuaHang || '—',
+        maThamChieu: it.maThamChieu,
+        nganhHang: it.nganhHang || '',
+        giaBan: it.giaBan || 0,
+        soLuong: it.soLuong || 0,
+        thanhTien: it.thanhTien || 0
+      });
+    });
+  });
+
+  if (lines.length === 0) {
+    return picker + '<div style="padding:24px;text-align:center;color:var(--ink-soft);">Không có dữ liệu trong khoảng đã chọn.</div>';
+  }
+
+  const tree = _buildMultiTree(lines, MULTI_DIMS, 0);
+
+  // Header KPI tổng
+  const totalOrders = tree.totals.orderSet.size;
+  const totalQty = tree.totals.qty;
+  const totalRev = tree.totals.revenue;
+  const headerKpi = `
+    <div style="display:flex;gap:20px;padding:12px 16px;background:var(--bg-elevated);border-radius:4px;margin-bottom:12px;font-size:13px;">
+      <div><span style="color:var(--ink-soft);">Tổng đơn:</span> <strong>${formatNumber(totalOrders)}</strong></div>
+      <div><span style="color:var(--ink-soft);">Tổng SP:</span> <strong>${formatNumber(totalQty)}</strong></div>
+      <div><span style="color:var(--ink-soft);">Tổng DT:</span> <strong>${_fmtTrieu(totalRev)}</strong></div>
+    </div>
+  `;
+
+  const treeHtml = `<div class="multi-tree-wrap">${_renderMultiTree(tree, 0, totalRev)}</div>`;
+
+  return picker + headerKpi + treeHtml;
+}
+
+function _buildMultiTree(lines, dims, depth) {
+  const totals = { orderSet: new Set(), qty: 0, revenue: 0 };
+  lines.forEach(l => {
+    if (l.soDon) totals.orderSet.add(l.soDon);
+    totals.qty += l.soLuong || 0;
+    totals.revenue += l.thanhTien || 0;
+  });
+
+  if (depth >= dims.length) {
+    return { totals, leaf: true };
+  }
+
+  const dimOpt = MULTI_DIM_OPTIONS.find(o => o.key === dims[depth]);
+  if (!dimOpt) return { totals, leaf: true };
+
+  const groups = {};
+  lines.forEach(l => {
+    const k = dimOpt.get(l) || '—';
+    if (!groups[k]) groups[k] = [];
+    groups[k].push(l);
+  });
+
+  const children = Object.keys(groups).map(k => ({
+    key: k,
+    dimLabel: dimOpt.label,
+    sub: _buildMultiTree(groups[k], dims, depth + 1)
+  })).sort((a, b) => b.sub.totals.revenue - a.sub.totals.revenue);
+
+  return { totals, children, leaf: false };
+}
+
+let _multiNodeIdCounter = 0;
+function _renderMultiTree(node, depth, grandTotalRev) {
+  if (node.leaf || !node.children) return '';
+  return node.children.map(child => {
+    const ordersCount = child.sub.totals.orderSet.size;
+    const qty = child.sub.totals.qty;
+    const rev = child.sub.totals.revenue;
+    const pct = grandTotalRev > 0 ? (rev / grandTotalRev * 100) : 0;
+    const hasChildren = !child.sub.leaf && child.sub.children && child.sub.children.length > 0;
+    const nodeId = 'mn_' + (++_multiNodeIdCounter);
+    const collapseDefault = depth >= 1 ? 'collapsed' : '';
+    return `
+      <div class="multi-node ${collapseDefault}" id="${nodeId}">
+        <div class="multi-node-row ${!hasChildren ? 'leaf' : ''}" ${hasChildren ? `onclick="toggleMultiNode('${nodeId}')"` : ''}>
+          <span class="multi-toggle">${hasChildren ? '▼' : ''}</span>
+          <span class="multi-dim-tag">${escapeHtml(child.dimLabel)}</span>
+          <span class="multi-node-name">${escapeHtml(child.key)}</span>
+          <span class="multi-node-stat"><strong>${formatNumber(ordersCount)}</strong> đơn</span>
+          <span class="multi-node-stat"><strong>${formatNumber(qty)}</strong> SP</span>
+          <span class="multi-node-stat"><strong>${_fmtTrieu(rev)}</strong> · ${pct.toFixed(1)}%</span>
+        </div>
+        ${hasChildren ? `<div class="multi-children">${_renderMultiTree(child.sub, depth + 1, grandTotalRev)}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
 
 
 // ============ RAW DATA TABLE ============
