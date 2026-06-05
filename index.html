@@ -4962,6 +4962,103 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
 .multi-node-daily strong { color: var(--ink); font-size: 11.5px; font-weight: 600; }
 .multi-daily-zero { opacity: 0.3; }
 
+/* === Multi-tree table layout (v13.12) === */
+.multi-tree-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+  background: var(--bg-card);
+}
+.multi-tree-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12.5px;
+}
+.multi-tree-table thead {
+  background: var(--bg-elevated);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.multi-tree-table thead th {
+  padding: 8px 10px;
+  text-align: right;
+  font-weight: 600;
+  color: var(--ink);
+  border-bottom: 1px solid var(--border-soft);
+  white-space: nowrap;
+  font-size: 11.5px;
+}
+.multi-tree-table thead th.col-toggle,
+.multi-tree-table thead th.col-tag,
+.multi-tree-table thead th.col-name { text-align: left; }
+.multi-tree-table .multi-thead-group th.metric-group {
+  text-align: center;
+  background: var(--accent-soft);
+  color: var(--terracotta);
+  text-transform: uppercase;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  border-right: 1px solid var(--border-soft);
+}
+.multi-tree-table .multi-thead-group th.col-meta { background: transparent; }
+.multi-tree-table thead th.col-day {
+  font-weight: 500;
+  font-size: 11px;
+  color: var(--ink-soft);
+  min-width: 56px;
+}
+.multi-tree-table thead th.col-avg {
+  background: rgba(0,0,0,0.03);
+  font-style: italic;
+  color: var(--ink-soft);
+}
+.multi-tree-table thead th.col-total {
+  font-weight: 700;
+}
+.multi-tree-table tbody tr.multi-row {
+  cursor: default;
+  transition: background 0.1s;
+}
+.multi-tree-table tbody tr.multi-row.has-children { cursor: pointer; }
+.multi-tree-table tbody tr.multi-row:hover { background: var(--bg-elevated); }
+.multi-tree-table tbody tr.multi-row-hidden { display: none; }
+.multi-tree-table tbody td {
+  padding: 7px 10px;
+  text-align: right;
+  border-bottom: 1px solid var(--border-soft);
+  white-space: nowrap;
+}
+.multi-tree-table tbody td.col-toggle,
+.multi-tree-table tbody td.col-tag,
+.multi-tree-table tbody td.col-name { text-align: left; }
+.multi-tree-table tbody td.col-name { font-weight: 600; color: var(--ink); }
+.multi-tree-table tbody td.col-toggle {
+  color: var(--ink-soft);
+  font-size: 10px;
+  width: 30px;
+}
+.multi-tree-table .cell-day {
+  color: var(--ink);
+  font-size: 11.5px;
+}
+.multi-tree-table .cell-day-zero {
+  color: var(--ink-soft);
+  opacity: 0.4;
+}
+.multi-tree-table .cell-avg {
+  background: rgba(0,0,0,0.025);
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 11.5px;
+  border-left: 1px dashed var(--border-soft);
+}
+.multi-tree-table .cell-total {
+  font-weight: 600;
+  border-left: 2px solid var(--accent-soft);
+}
+
 .report-controls {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -6455,7 +6552,7 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbxV1A53tKta2nKzaFFNo9zmnWdRjcPm4CGFAMKqG9PWbgBl_L7Zl6LCbI44F4ohV17O/exec';
-const APP_VERSION = 'v13.11 · Multi-select cấp 3 + metrics & daily phân tích';
+const APP_VERSION = 'v13.12 · Phân tích đa chiều: table có header ngày, tổng, TB';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -12890,7 +12987,7 @@ function _multiDatesRange(from, to) {
 }
 
 function renderReportMulti(ordersCurrent) {
-  // Options toolbar
+  // Toolbar metrics
   const metricCheckboxes = MULTI_METRIC_OPTIONS.map(opt => {
     const checked = MULTI_METRICS.includes(opt.key) ? 'checked' : '';
     return `<label><input type="checkbox" ${checked} onchange="toggleMultiMetric('${opt.key}')"> ${escapeHtml(opt.label)}</label>`;
@@ -12905,7 +13002,7 @@ function renderReportMulti(ordersCurrent) {
     </div>
   `;
 
-  // Picker UI
+  // Picker
   const selectedHtml = MULTI_DIMS.length === 0
     ? '<span style="color:var(--ink-soft);font-size:13px;font-style:italic;">Chưa chọn tiêu chí. Thêm ít nhất 1 tiêu chí bên dưới để bắt đầu.</span>'
     : MULTI_DIMS.map((k, i) => {
@@ -12943,11 +13040,8 @@ function renderReportMulti(ordersCurrent) {
     </div>
   `;
 
-  if (MULTI_DIMS.length === 0) {
-    return optionsRow + picker;
-  }
+  if (MULTI_DIMS.length === 0) return optionsRow + picker;
 
-  // Lấy khoảng ngày từ filter báo cáo
   const fromEl = document.getElementById('report-from');
   const toEl = document.getElementById('report-to');
   const dateFrom = fromEl ? fromEl.value : '';
@@ -12976,43 +13070,45 @@ function renderReportMulti(ordersCurrent) {
   }
 
   const tree = _buildMultiTree(lines, MULTI_DIMS, 0, allDates);
-
-  // Header KPI tổng
-  const totalOrders = tree.totals.orderSet.size;
+  const grandTotal = tree.totals.revenue;
+  const totalOrders = tree.totals.orders.size;
   const totalQty = tree.totals.qty;
-  const totalRev = tree.totals.revenue;
+
   const headerKpi = `
     <div style="display:flex;gap:20px;padding:12px 16px;background:var(--bg-elevated);border-radius:4px;margin-bottom:12px;font-size:13px;">
       <div><span style="color:var(--ink-soft);">Tổng đơn:</span> <strong>${formatNumber(totalOrders)}</strong></div>
       <div><span style="color:var(--ink-soft);">Tổng SP:</span> <strong>${formatNumber(totalQty)}</strong></div>
-      <div><span style="color:var(--ink-soft);">Tổng DT:</span> <strong>${_fmtTrieu(totalRev)}</strong></div>
+      <div><span style="color:var(--ink-soft);">Tổng DT:</span> <strong>${_fmtTrieu(grandTotal)}</strong></div>
       ${allDates.length > 0 ? `<div><span style="color:var(--ink-soft);">Khoảng:</span> <strong>${allDates.length} ngày</strong></div>` : ''}
     </div>
   `;
 
-  const treeHtml = `<div class="multi-tree-wrap">${_renderMultiTree(tree, 0, totalRev, allDates)}</div>`;
+  const table = _renderMultiTable(tree, allDates, grandTotal);
 
-  return optionsRow + picker + headerKpi + treeHtml;
+  return optionsRow + picker + headerKpi + table;
 }
 
+
 function _buildMultiTree(lines, dims, depth, allDates) {
-  const totals = { orderSet: new Set(), qty: 0, revenue: 0, byDay: {} };
-  // Initialize byDay buckets nếu có allDates
+  const totals = { orders: new Set(), qty: 0, revenue: 0, byDay: {} };
   if (allDates && allDates.length > 0) {
-    allDates.forEach(d => { totals.byDay[d] = 0; });
+    allDates.forEach(d => {
+      totals.byDay[d] = { orders: new Set(), qty: 0, revenue: 0 };
+    });
   }
   lines.forEach(l => {
-    if (l.soDon) totals.orderSet.add(l.soDon);
+    if (l.soDon) totals.orders.add(l.soDon);
     totals.qty += l.soLuong || 0;
     totals.revenue += l.thanhTien || 0;
-    if (allDates && allDates.length > 0 && l.ngay && totals.byDay[l.ngay] !== undefined) {
-      totals.byDay[l.ngay] += (l.thanhTien || 0);
+    if (allDates && allDates.length > 0 && totals.byDay[l.ngay]) {
+      const d = totals.byDay[l.ngay];
+      if (l.soDon) d.orders.add(l.soDon);
+      d.qty += l.soLuong || 0;
+      d.revenue += l.thanhTien || 0;
     }
   });
 
-  if (depth >= dims.length) {
-    return { totals, leaf: true };
-  }
+  if (depth >= dims.length) return { totals, leaf: true };
 
   const dimOpt = MULTI_DIM_OPTIONS.find(o => o.key === dims[depth]);
   if (!dimOpt) return { totals, leaf: true };
@@ -13033,51 +13129,164 @@ function _buildMultiTree(lines, dims, depth, allDates) {
   return { totals, children, leaf: false };
 }
 
-let _multiNodeIdCounter = 0;
-function _renderMultiTree(node, depth, grandTotalRev, allDates) {
-  if (node.leaf || !node.children) return '';
-  return node.children.map(child => {
-    const t = child.sub.totals;
-    const m = {
-      orders:  t.orderSet.size,
-      qty:     t.qty,
-      revenue: t.revenue,
-      pct:     grandTotalRev > 0 ? (t.revenue / grandTotalRev * 100) : 0
-    };
-    const hasChildren = !child.sub.leaf && child.sub.children && child.sub.children.length > 0;
-    const nodeId = 'mn_' + (++_multiNodeIdCounter);
-    const collapseDefault = depth >= 1 ? 'collapsed' : '';
 
-    // Build metric cells
-    const metricCells = MULTI_METRICS.map(mkey => {
-      const opt = MULTI_METRIC_OPTIONS.find(o => o.key === mkey);
-      if (!opt) return '';
-      return `<span class="multi-node-stat">${opt.fmt(m)}</span>`;
-    }).join('');
+// Helpers cho metric formatting
+const _expandableMetrics = ['orders', 'qty', 'revenue'];
 
-    // Build daily cells nếu có
-    let dailyCells = '';
-    if (allDates && allDates.length > 0) {
-      dailyCells = allDates.map(d => {
-        const v = t.byDay[d] || 0;
-        const cls = v === 0 ? 'multi-node-daily multi-daily-zero' : 'multi-node-daily';
-        return `<span class="${cls}" title="${d}">${v > 0 ? '<strong>' + _fmtTrieu(v) + '</strong>' : '—'}</span>`;
-      }).join('');
+function _renderMultiTable(tree, allDates, grandTotal) {
+  const useDaily = allDates.length > 0;
+  const dayCount = useDaily ? allDates.length : 0;
+  const activeMetrics = MULTI_METRICS.slice();
+
+  // ===== Header row 1: group header (chỉ khi daily on, có expandable metric) =====
+  let h1 = '';
+  const hasExpandableActive = useDaily && activeMetrics.some(m => _expandableMetrics.includes(m));
+  if (hasExpandableActive) {
+    h1 = '<tr class="multi-thead-group"><th colspan="3" class="col-meta"></th>';
+    activeMetrics.forEach(m => {
+      const opt = MULTI_METRIC_OPTIONS.find(o => o.key === m);
+      if (!opt) return;
+      if (_expandableMetrics.includes(m)) {
+        h1 += `<th colspan="${2 + dayCount}" class="metric-group">${escapeHtml(opt.label)}</th>`;
+      } else {
+        h1 += `<th class="metric-group">${escapeHtml(opt.label)}</th>`;
+      }
+    });
+    h1 += '</tr>';
+  }
+
+  // ===== Header row 2: detail =====
+  let h2 = '<tr class="multi-thead">';
+  h2 += '<th class="col-toggle"></th>';
+  h2 += '<th class="col-tag">Loại</th>';
+  h2 += '<th class="col-name">Tên</th>';
+  activeMetrics.forEach(m => {
+    const opt = MULTI_METRIC_OPTIONS.find(o => o.key === m);
+    if (!opt) return;
+    if (_expandableMetrics.includes(m) && useDaily) {
+      h2 += `<th class="col-total">Tổng</th>`;
+      h2 += `<th class="col-avg">TB/ngày</th>`;
+      allDates.forEach(d => {
+        const p = d.split('-');
+        h2 += `<th class="col-day" title="${d}">${p[2]}/${p[1]}</th>`;
+      });
+    } else {
+      h2 += `<th>${escapeHtml(opt.label)}</th>`;
     }
+  });
+  h2 += '</tr>';
 
-    return `
-      <div class="multi-node ${collapseDefault}" id="${nodeId}">
-        <div class="multi-node-row ${!hasChildren ? 'leaf' : ''}" ${hasChildren ? `onclick="toggleMultiNode('${nodeId}')"` : ''}>
-          <span class="multi-toggle">${hasChildren ? '▼' : ''}</span>
-          <span class="multi-dim-tag">${escapeHtml(child.dimLabel)}</span>
-          <span class="multi-node-name">${escapeHtml(child.key)}</span>
-          ${metricCells}
-          ${dailyCells}
-        </div>
-        ${hasChildren ? `<div class="multi-children">${_renderMultiTree(child.sub, depth + 1, grandTotalRev, allDates)}</div>` : ''}
-      </div>
-    `;
-  }).join('');
+  // ===== Body =====
+  const allRows = [];
+  _flattenMultiTree(tree, 0, '', allRows);
+
+  const body = allRows.map(r => _renderMultiTableRow(r, grandTotal, activeMetrics, allDates, dayCount, useDaily)).join('');
+
+  return `<div class="multi-tree-table-wrap"><table class="multi-tree-table"><thead>${h1}${h2}</thead><tbody>${body}</tbody></table></div>`;
+}
+
+let _multiRowIdCounter = 0;
+function _flattenMultiTree(node, depth, parentId, list) {
+  if (node.leaf || !node.children) return;
+  node.children.forEach(child => {
+    const rowId = 'mr_' + (++_multiRowIdCounter);
+    list.push({ id: rowId, parentId, depth, child });
+    _flattenMultiTree(child.sub, depth + 1, rowId, list);
+  });
+}
+
+function _renderMultiTableRow(r, grandTotal, metrics, allDates, dayCount, useDaily) {
+  const t = r.child.sub.totals;
+  const ordersCount = t.orders.size;
+  const v = {
+    orders: ordersCount,
+    qty: t.qty,
+    revenue: t.revenue,
+    pct: grandTotal > 0 ? (t.revenue / grandTotal * 100) : 0,
+    avgQty: ordersCount > 0 ? (t.qty / ordersCount) : 0,
+    avgRev: ordersCount > 0 ? (t.revenue / ordersCount) : 0
+  };
+  const tb = {
+    orders: dayCount > 0 ? ordersCount / dayCount : 0,
+    qty:    dayCount > 0 ? t.qty / dayCount : 0,
+    revenue:dayCount > 0 ? t.revenue / dayCount : 0
+  };
+
+  let cells = '';
+  metrics.forEach(m => {
+    if (m === 'orders' && useDaily) {
+      cells += `<td class="cell-total"><strong>${formatNumber(v.orders)}</strong></td>`;
+      cells += `<td class="cell-avg">${tb.orders.toFixed(1)}</td>`;
+      allDates.forEach(d => {
+        const dv = t.byDay[d] ? t.byDay[d].orders.size : 0;
+        cells += `<td class="cell-day ${dv === 0 ? 'cell-day-zero' : ''}">${dv > 0 ? formatNumber(dv) : '—'}</td>`;
+      });
+    } else if (m === 'qty' && useDaily) {
+      cells += `<td class="cell-total"><strong>${formatNumber(v.qty)}</strong></td>`;
+      cells += `<td class="cell-avg">${tb.qty.toFixed(1)}</td>`;
+      allDates.forEach(d => {
+        const dv = t.byDay[d] ? t.byDay[d].qty : 0;
+        cells += `<td class="cell-day ${dv === 0 ? 'cell-day-zero' : ''}">${dv > 0 ? formatNumber(dv) : '—'}</td>`;
+      });
+    } else if (m === 'revenue' && useDaily) {
+      cells += `<td class="cell-total"><strong>${_fmtTrieu(v.revenue)}</strong></td>`;
+      cells += `<td class="cell-avg">${_fmtTrieu(tb.revenue)}</td>`;
+      allDates.forEach(d => {
+        const dv = t.byDay[d] ? t.byDay[d].revenue : 0;
+        cells += `<td class="cell-day ${dv === 0 ? 'cell-day-zero' : ''}">${dv > 0 ? _fmtTrieu(dv) : '—'}</td>`;
+      });
+    } else if (m === 'orders')  cells += `<td><strong>${formatNumber(v.orders)}</strong></td>`;
+    else if (m === 'qty')       cells += `<td><strong>${formatNumber(v.qty)}</strong></td>`;
+    else if (m === 'revenue')   cells += `<td><strong>${_fmtTrieu(v.revenue)}</strong></td>`;
+    else if (m === 'pct')       cells += `<td>${v.pct.toFixed(1)}%</td>`;
+    else if (m === 'avgQty')    cells += `<td>${v.avgQty.toFixed(1)}</td>`;
+    else if (m === 'avgRev')    cells += `<td>${_fmtTrieu(v.avgRev)}</td>`;
+  });
+
+  const hasChildren = !r.child.sub.leaf && r.child.sub.children && r.child.sub.children.length > 0;
+  const hiddenClass = r.depth >= 1 ? 'multi-row-hidden' : '';
+  const collapsedClass = hasChildren ? 'row-collapsed has-children' : '';
+  const indent = r.depth * 16;
+  const onclick = hasChildren ? `onclick="_toggleMultiRow('${r.id}', event)"` : '';
+
+  return `
+    <tr class="multi-row ${hiddenClass} ${collapsedClass}"
+        data-id="${r.id}" data-parent="${r.parentId}" data-depth="${r.depth}"
+        ${onclick}>
+      <td class="col-toggle">${hasChildren ? '<span class="toggle">▶</span>' : ''}</td>
+      <td class="col-tag"><span class="multi-dim-tag">${escapeHtml(r.child.dimLabel)}</span></td>
+      <td class="col-name" style="padding-left:${indent + 8}px">${escapeHtml(r.child.key)}</td>
+      ${cells}
+    </tr>
+  `;
+}
+
+function _toggleMultiRow(rowId, e) {
+  if (e) e.stopPropagation();
+  const row = document.querySelector('.multi-row[data-id="' + rowId + '"]');
+  if (!row) return;
+  const isCollapsed = row.classList.contains('row-collapsed');
+  if (isCollapsed) {
+    row.classList.remove('row-collapsed');
+    document.querySelectorAll('.multi-row[data-parent="' + rowId + '"]').forEach(child => {
+      child.classList.remove('multi-row-hidden');
+    });
+  } else {
+    row.classList.add('row-collapsed');
+    _hideMultiDescendants(rowId);
+  }
+  const toggle = row.querySelector('.toggle');
+  if (toggle) toggle.textContent = row.classList.contains('row-collapsed') ? '▶' : '▼';
+}
+
+function _hideMultiDescendants(parentId) {
+  document.querySelectorAll('.multi-row[data-parent="' + parentId + '"]').forEach(child => {
+    child.classList.add('multi-row-hidden');
+    child.classList.add('row-collapsed');
+    const t = child.querySelector('.toggle');
+    if (t) t.textContent = '▶';
+    _hideMultiDescendants(child.dataset.id);
+  });
 }
 
 
