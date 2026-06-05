@@ -4805,16 +4805,21 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
   padding: 8px 0;
 }
 .multi-node-row {
-  display: grid;
-  grid-template-columns: 16px auto 1fr auto auto auto;
-  gap: 12px;
+  display: flex;
   align-items: center;
+  gap: 12px;
   padding: 8px 14px;
   font-size: 13px;
   border-bottom: 1px solid var(--border-soft);
   cursor: pointer;
   transition: background 0.1s;
+  overflow-x: auto;
 }
+.multi-node-row > .multi-toggle { flex: 0 0 16px; }
+.multi-node-row > .multi-dim-tag { flex: 0 0 auto; }
+.multi-node-row > .multi-node-name { flex: 1 1 180px; min-width: 140px; }
+.multi-node-row > .multi-node-stat { flex: 0 0 auto; min-width: 70px; text-align: right; }
+.multi-node-row > .multi-node-daily { flex: 0 0 auto; }
 .multi-node-row:hover { background: var(--bg-elevated); }
 .multi-node-row.leaf { cursor: default; }
 .multi-toggle { font-size: 10px; color: var(--ink-soft); width: 16px; display: inline-block; text-align: center; transition: transform 0.15s; }
@@ -4839,6 +4844,123 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
   border-left: 2px solid var(--border-soft);
   margin-left: 18px;
 }
+
+/* === Multi-select filter dropdown === */
+.filter-multi { position: relative; }
+.filter-multi-btn {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-card);
+  border-radius: 4px;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--ink);
+  min-height: 32px;
+}
+.filter-multi-btn:hover { border-color: var(--ink-soft); }
+.filter-multi-btn.has-selection { border-color: var(--terracotta); background: var(--accent-soft); }
+.filter-multi-arrow { font-size: 10px; color: var(--ink-soft); }
+.filter-multi-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 100;
+  width: 280px;
+  max-width: 90vw;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  display: none;
+  flex-direction: column;
+}
+.filter-multi.open .filter-multi-panel { display: flex; }
+.filter-multi-search {
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-bottom: 1px solid var(--border-soft);
+  outline: none;
+  font-size: 13px;
+  background: transparent;
+  color: var(--ink);
+}
+.filter-multi-options {
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.filter-multi-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--ink);
+}
+.filter-multi-option:hover { background: var(--bg-elevated); }
+.filter-multi-option.hidden { display: none; }
+.filter-multi-option input { margin: 0; cursor: pointer; }
+.filter-multi-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--border-soft);
+  background: var(--bg-elevated);
+}
+.filter-multi-footer button {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-card);
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--ink);
+}
+.filter-multi-footer button:hover { background: var(--ink); color: var(--bg); }
+
+/* === Multi-tab options row === */
+.multi-options-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+  margin-bottom: 12px;
+  font-size: 12.5px;
+}
+.multi-options-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  color: var(--ink);
+}
+.multi-options-row input[type="checkbox"] { cursor: pointer; margin: 0; }
+.multi-options-row .multi-options-label {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-size: 11px;
+}
+.multi-divider { color: var(--border-soft); margin: 0 4px; }
+
+/* Daily column compact style */
+.multi-node-daily { color: var(--ink-soft); font-size: 11px; white-space: nowrap; min-width: 60px; text-align: right; }
+.multi-node-daily strong { color: var(--ink); font-size: 11.5px; font-weight: 600; }
+.multi-daily-zero { opacity: 0.3; }
 
 .report-controls {
   display: grid;
@@ -5223,9 +5345,20 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
       </div>
       <div class="filter-group">
         <label class="filter-label">Ngành cấp 3</label>
-        <select id="filter-category3" class="filter-select">
-          <option value="">Tất cả ngành cấp 3</option>
-        </select>
+        <div class="filter-multi" data-filter="cat3">
+          <button type="button" class="filter-multi-btn" id="filter-category3-btn" onclick="toggleMultiSelect(event, 'cat3')">
+            <span id="filter-category3-text">Tất cả ngành cấp 3</span>
+            <span class="filter-multi-arrow">▾</span>
+          </button>
+          <div class="filter-multi-panel" id="filter-category3-panel">
+            <input type="text" class="filter-multi-search" placeholder="Tìm ngành cấp 3..." oninput="filterMultiOptions('cat3', this.value)">
+            <div class="filter-multi-options" id="filter-category3-options"></div>
+            <div class="filter-multi-footer">
+              <button type="button" onclick="clearMultiSelect('cat3')">Xóa chọn</button>
+              <button type="button" onclick="closeMultiSelect('cat3')">Đóng</button>
+            </div>
+          </div>
+        </div>
       </div>
       <!-- Shared datalist for all product code searches -->
       <datalist id="dl-products"></datalist>
@@ -6322,7 +6455,7 @@ body.is-admin .tab.tab-admin-only { display: inline-flex; }
 <script>
 // ============ STATE ============
 const API_URL = 'https://script.google.com/macros/s/AKfycbxV1A53tKta2nKzaFFNo9zmnWdRjcPm4CGFAMKqG9PWbgBl_L7Zl6LCbI44F4ohV17O/exec';
-const APP_VERSION = 'v13.10 · Phân tích đa chiều + drag-drop reorder';
+const APP_VERSION = 'v13.11 · Multi-select cấp 3 + metrics & daily phân tích';
 
 let RAW_DATA = [];     // Sales data
 let IMAGE_MAP = {};    // {oldCode: imageUrl}
@@ -6346,6 +6479,11 @@ let STOCK_BY_STORE = {};     // {code: {storeCode: {tonHienTai, tonDuTinh, ...}}
 let PRODUCT_AGG = [];        // sản phẩm tổng hợp đã có thông tin tồn
 let CODE_TO_CAT3 = {};       // {maThamChieu: nganhCap3} — lookup từ STOCK_DATA cho filter & report
 let CODE_TO_CAT1 = {};       // {maThamChieu: nganhCap1} — lookup cho phân tích đa chiều
+
+// v13.11: Multi-select filter state
+const MULTI_FILTERS = {
+  cat3: new Set()
+};
 
 // Index toàn bộ mã SP (KHÔNG phụ thuộc filter khoảng) — built từ STOCK_DATA + RAW_DATA
 // {code: {code, nganhHang, image, tonHienTai, lastSeen}}
@@ -6930,6 +7068,103 @@ function indexStock() {
 }
 
 // ============ FILTERS ============
+// ============ MULTI-SELECT DROPDOWN HELPERS (v13.11) ============
+function toggleMultiSelect(e, key) {
+  if (e) e.stopPropagation();
+  const wrap = document.querySelector(`.filter-multi[data-filter="${key}"]`);
+  if (!wrap) return;
+  // Close other panels
+  document.querySelectorAll('.filter-multi.open').forEach(el => {
+    if (el !== wrap) el.classList.remove('open');
+  });
+  wrap.classList.toggle('open');
+}
+
+function closeMultiSelect(key) {
+  const wrap = document.querySelector(`.filter-multi[data-filter="${key}"]`);
+  if (wrap) wrap.classList.remove('open');
+}
+
+function clearMultiSelect(key) {
+  if (!MULTI_FILTERS[key]) return;
+  MULTI_FILTERS[key].clear();
+  _syncMultiCheckboxes(key);
+  _updateMultiButtonText(key);
+  applyFilters();
+}
+
+function filterMultiOptions(key, query) {
+  const q = String(query || '').trim().toLowerCase();
+  const opts = document.querySelectorAll(`#filter-${_keyToId(key)}-options .filter-multi-option`);
+  opts.forEach(opt => {
+    const label = (opt.textContent || '').toLowerCase();
+    opt.classList.toggle('hidden', q && !label.includes(q));
+  });
+}
+
+function _keyToId(key) {
+  if (key === 'cat3') return 'category3';
+  return key;
+}
+
+function _populateMultiOptions(key, values) {
+  const container = document.getElementById(`filter-${_keyToId(key)}-options`);
+  if (!container) return;
+  const sel = MULTI_FILTERS[key];
+  container.innerHTML = values.map(v => {
+    const checked = sel.has(v) ? 'checked' : '';
+    return `<label class="filter-multi-option">
+      <input type="checkbox" value="${escapeAttr(v)}" ${checked} onchange="_onMultiChange('${key}', this)">
+      <span>${escapeHtml(v)}</span>
+    </label>`;
+  }).join('');
+  _updateMultiButtonText(key);
+}
+
+function _onMultiChange(key, checkbox) {
+  const sel = MULTI_FILTERS[key];
+  const val = checkbox.value;
+  if (checkbox.checked) sel.add(val);
+  else sel.delete(val);
+  _updateMultiButtonText(key);
+  applyFilters();
+}
+
+function _syncMultiCheckboxes(key) {
+  const container = document.getElementById(`filter-${_keyToId(key)}-options`);
+  if (!container) return;
+  const sel = MULTI_FILTERS[key];
+  container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.checked = sel.has(cb.value);
+  });
+}
+
+function _updateMultiButtonText(key) {
+  const btn = document.getElementById(`filter-${_keyToId(key)}-btn`);
+  const txt = document.getElementById(`filter-${_keyToId(key)}-text`);
+  if (!btn || !txt) return;
+  const sel = MULTI_FILTERS[key];
+  const labelMap = { cat3: 'ngành cấp 3' };
+  if (sel.size === 0) {
+    txt.textContent = 'Tất cả ' + (labelMap[key] || key);
+    btn.classList.remove('has-selection');
+  } else if (sel.size === 1) {
+    txt.textContent = [...sel][0];
+    btn.classList.add('has-selection');
+  } else {
+    txt.textContent = sel.size + ' ' + (labelMap[key] || key) + ' đã chọn';
+    btn.classList.add('has-selection');
+  }
+}
+
+// Click outside to close
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.filter-multi')) {
+    document.querySelectorAll('.filter-multi.open').forEach(el => el.classList.remove('open'));
+  }
+});
+
+
 function initFilters() {
   // Helper populate datalist (input + datalist combo)
   const fillDataList = (datalistId, items) => {
@@ -6949,15 +7184,9 @@ function initFilters() {
     catSel.value = currentCat;
   }
 
-  // Filter Ngành cấp 3 — lấy từ STOCK_DATA (nguồn truth duy nhất)
+  // Filter Ngành cấp 3 — multi-select dropdown (lấy từ STOCK_DATA)
   const cats3 = [...new Set((STOCK_DATA || []).map(s => s.nganhCap3).filter(Boolean))].sort();
-  const cat3Sel = document.getElementById('filter-category3');
-  if (cat3Sel) {
-    const currentCat3 = cat3Sel.value;
-    cat3Sel.innerHTML = '<option value="">Tất cả ngành cấp 3</option>' +
-      cats3.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
-    cat3Sel.value = currentCat3;
-  }
+  _populateMultiOptions('cat3', cats3);
 
   // Danh sách CH-tên (cột B sheet DANH SÁCH CỬA HÀNG) — ưu tiên STORES_DATA
   let stores;
@@ -7121,7 +7350,7 @@ async function applyFilters() {
   const dateFrom = document.getElementById('filter-date-from').value;
   const dateTo = document.getElementById('filter-date-to').value;
   const cat = document.getElementById('filter-category').value;
-  const cat3 = document.getElementById('filter-category3')?.value || '';
+  const cat3Set = MULTI_FILTERS.cat3;  // Set of selected ngành cấp 3
   const store = document.getElementById('filter-store').value;
   const region = document.getElementById('filter-region').value;
   const storeTypeEl = document.getElementById('filter-storetype');
@@ -7185,9 +7414,9 @@ async function applyFilters() {
     if (dateFrom && r.ngay < dateFrom) return false;
     if (dateTo && r.ngay > dateTo) return false;
     if (cat && r.nganhHang !== cat) return false;
-    if (cat3) {
+    if (cat3Set && cat3Set.size > 0) {
       const c3 = CODE_TO_CAT3[r.maThamChieu];
-      if (c3 !== cat3) return false;
+      if (!cat3Set.has(c3)) return false;
     }
     if (store && r.cuaHang !== store) return false;
     if (allowedStoreNames && (!r.cuaHang || !allowedStoreNames.has(r.cuaHang))) return false;
@@ -7251,8 +7480,11 @@ async function applyFilters() {
 
 function clearFilters() {
   document.getElementById('filter-category').value = '';
-  const cat3El = document.getElementById('filter-category3');
-  if (cat3El) cat3El.value = '';
+  if (MULTI_FILTERS && MULTI_FILTERS.cat3) {
+    MULTI_FILTERS.cat3.clear();
+    _updateMultiButtonText('cat3');
+    _syncMultiCheckboxes('cat3');
+  }
   document.getElementById('filter-store').value = '';
   document.getElementById('filter-region').value = '';
   const stEl = document.getElementById('filter-storetype');
@@ -7334,7 +7566,7 @@ document.querySelectorAll('.quick-date-btn').forEach(btn => {
   if (el) el.addEventListener('change', applyFilters);
 });
 // Combobox filters: change for select-completion + debounced input for typing
-['filter-category', 'filter-category3', 'filter-store', 'filter-region'].forEach(id => {
+['filter-category', 'filter-store', 'filter-region'].forEach(id => {
   const el = document.getElementById(id);
   if (!el) return;
   let t;
@@ -11472,7 +11704,7 @@ function buildOrdersFromRaw(from, to, hourMinCap) {
 
   // ===== Lấy MAIN filter chain (trừ date — date đã pass qua tham số from/to) =====
   const cat       = document.getElementById('filter-category')?.value || '';
-  const cat3      = document.getElementById('filter-category3')?.value || '';
+  const cat3Set   = MULTI_FILTERS.cat3;  // Set of selected ngành cấp 3
   const region    = document.getElementById('filter-region')?.value || '';
   const storeType = document.getElementById('filter-storetype')?.value || '';
   const saleType  = document.getElementById('filter-saletype')?.value || '';
@@ -11533,9 +11765,9 @@ function buildOrdersFromRaw(from, to, hourMinCap) {
 
     // ===== Apply MAIN filter chain =====
     if (cat && r.nganhHang !== cat) continue;
-    if (cat3) {
+    if (cat3Set && cat3Set.size > 0) {
       const c3 = CODE_TO_CAT3[r.maThamChieu];
-      if (c3 !== cat3) continue;
+      if (!cat3Set.has(c3)) continue;
     }
     if (storeName && r.cuaHang !== storeName) continue;
     if (allowedStoreNames && (!r.cuaHang || !allowedStoreNames.has(r.cuaHang))) continue;
@@ -12500,17 +12732,38 @@ function renderReportSummary(ordersCurrent, ordersCompare) {
 
 // ===== Report 5: Phân tích đa chiều =====
 let MULTI_DIMS = [];
+let MULTI_METRICS = ['orders', 'qty', 'revenue', 'pct'];
+let MULTI_SHOW_DAILY = false;
 
-(function _loadMultiDims() {
+(function _loadMultiPrefs() {
   try {
     const s = localStorage.getItem('multi_dims_v1');
     if (s) MULTI_DIMS = JSON.parse(s) || [];
+    const m = localStorage.getItem('multi_metrics_v1');
+    if (m) MULTI_METRICS = JSON.parse(m) || MULTI_METRICS;
+    const d = localStorage.getItem('multi_show_daily_v1');
+    if (d) MULTI_SHOW_DAILY = (d === 'true');
   } catch (e) {}
 })();
 
 function _saveMultiDims() {
   try { localStorage.setItem('multi_dims_v1', JSON.stringify(MULTI_DIMS)); } catch (e) {}
 }
+function _saveMultiMetrics() {
+  try { localStorage.setItem('multi_metrics_v1', JSON.stringify(MULTI_METRICS)); } catch (e) {}
+}
+function _saveMultiDaily() {
+  try { localStorage.setItem('multi_show_daily_v1', String(MULTI_SHOW_DAILY)); } catch (e) {}
+}
+
+const MULTI_METRIC_OPTIONS = [
+  { key: 'orders',  label: 'Số đơn',     fmt: (m) => `<strong>${formatNumber(m.orders)}</strong> đơn` },
+  { key: 'qty',     label: 'Số SP',      fmt: (m) => `<strong>${formatNumber(m.qty)}</strong> SP` },
+  { key: 'revenue', label: 'Doanh thu',  fmt: (m) => `<strong>${_fmtTrieu(m.revenue)}</strong>` },
+  { key: 'pct',     label: '% của tổng', fmt: (m) => `${m.pct.toFixed(1)}%` },
+  { key: 'avgQty',  label: 'SP TB/đơn',  fmt: (m) => `<strong>${m.orders > 0 ? (m.qty / m.orders).toFixed(1) : '0'}</strong> SP/đơn` },
+  { key: 'avgRev',  label: 'DT TB/đơn',  fmt: (m) => `<strong>${m.orders > 0 ? _fmtTrieu(m.revenue / m.orders) : '0'}</strong>/đơn` }
+];
 
 const MULTI_DIM_OPTIONS = [
   { key: 'store',  label: 'Cửa hàng',      get: line => line.cuaHang || '—' },
@@ -12563,6 +12816,20 @@ function moveMultiDim(key, dir) {
   refreshReport();
 }
 
+function toggleMultiMetric(key) {
+  const idx = MULTI_METRICS.indexOf(key);
+  if (idx >= 0) MULTI_METRICS.splice(idx, 1);
+  else MULTI_METRICS.push(key);
+  _saveMultiMetrics();
+  refreshReport();
+}
+
+function toggleMultiDaily() {
+  MULTI_SHOW_DAILY = !MULTI_SHOW_DAILY;
+  _saveMultiDaily();
+  refreshReport();
+}
+
 function toggleMultiNode(nodeId) {
   const el = document.getElementById(nodeId);
   if (el) el.classList.toggle('collapsed');
@@ -12608,8 +12875,37 @@ function _multiDragEnd() {
   _multiDragSrcIdx = null;
 }
 
+// List tất cả ngày trong khoảng from-to
+function _multiDatesRange(from, to) {
+  const dates = [];
+  if (!from || !to) return dates;
+  const cur = new Date(from + 'T00:00:00');
+  const end = new Date(to + 'T00:00:00');
+  while (cur <= end) {
+    dates.push(cur.toISOString().slice(0, 10));
+    cur.setDate(cur.getDate() + 1);
+  }
+  if (dates.length > 31) dates.length = 31;  // hard cap
+  return dates;
+}
+
 function renderReportMulti(ordersCurrent) {
-  // Picker UI luôn hiển thị
+  // Options toolbar
+  const metricCheckboxes = MULTI_METRIC_OPTIONS.map(opt => {
+    const checked = MULTI_METRICS.includes(opt.key) ? 'checked' : '';
+    return `<label><input type="checkbox" ${checked} onchange="toggleMultiMetric('${opt.key}')"> ${escapeHtml(opt.label)}</label>`;
+  }).join('');
+  const dailyChecked = MULTI_SHOW_DAILY ? 'checked' : '';
+  const optionsRow = `
+    <div class="multi-options-row">
+      <span class="multi-options-label">Hiển thị:</span>
+      ${metricCheckboxes}
+      <span class="multi-divider">|</span>
+      <label><input type="checkbox" ${dailyChecked} onchange="toggleMultiDaily()"> Phân theo ngày</label>
+    </div>
+  `;
+
+  // Picker UI
   const selectedHtml = MULTI_DIMS.length === 0
     ? '<span style="color:var(--ink-soft);font-size:13px;font-style:italic;">Chưa chọn tiêu chí. Thêm ít nhất 1 tiêu chí bên dưới để bắt đầu.</span>'
     : MULTI_DIMS.map((k, i) => {
@@ -12648,8 +12944,15 @@ function renderReportMulti(ordersCurrent) {
   `;
 
   if (MULTI_DIMS.length === 0) {
-    return picker;
+    return optionsRow + picker;
   }
+
+  // Lấy khoảng ngày từ filter báo cáo
+  const fromEl = document.getElementById('report-from');
+  const toEl = document.getElementById('report-to');
+  const dateFrom = fromEl ? fromEl.value : '';
+  const dateTo = toEl ? toEl.value : '';
+  const allDates = MULTI_SHOW_DAILY ? _multiDatesRange(dateFrom, dateTo) : [];
 
   // Expand orders → lines
   const lines = [];
@@ -12657,6 +12960,7 @@ function renderReportMulti(ordersCurrent) {
     (o.items || []).forEach(it => {
       lines.push({
         soDon: o.soDon,
+        ngay: o.ngay,
         cuaHang: o.cuaHang || '—',
         maThamChieu: it.maThamChieu,
         nganhHang: it.nganhHang || '',
@@ -12668,10 +12972,10 @@ function renderReportMulti(ordersCurrent) {
   });
 
   if (lines.length === 0) {
-    return picker + '<div style="padding:24px;text-align:center;color:var(--ink-soft);">Không có dữ liệu trong khoảng đã chọn.</div>';
+    return optionsRow + picker + '<div style="padding:24px;text-align:center;color:var(--ink-soft);">Không có dữ liệu trong khoảng đã chọn.</div>';
   }
 
-  const tree = _buildMultiTree(lines, MULTI_DIMS, 0);
+  const tree = _buildMultiTree(lines, MULTI_DIMS, 0, allDates);
 
   // Header KPI tổng
   const totalOrders = tree.totals.orderSet.size;
@@ -12682,20 +12986,28 @@ function renderReportMulti(ordersCurrent) {
       <div><span style="color:var(--ink-soft);">Tổng đơn:</span> <strong>${formatNumber(totalOrders)}</strong></div>
       <div><span style="color:var(--ink-soft);">Tổng SP:</span> <strong>${formatNumber(totalQty)}</strong></div>
       <div><span style="color:var(--ink-soft);">Tổng DT:</span> <strong>${_fmtTrieu(totalRev)}</strong></div>
+      ${allDates.length > 0 ? `<div><span style="color:var(--ink-soft);">Khoảng:</span> <strong>${allDates.length} ngày</strong></div>` : ''}
     </div>
   `;
 
-  const treeHtml = `<div class="multi-tree-wrap">${_renderMultiTree(tree, 0, totalRev)}</div>`;
+  const treeHtml = `<div class="multi-tree-wrap">${_renderMultiTree(tree, 0, totalRev, allDates)}</div>`;
 
-  return picker + headerKpi + treeHtml;
+  return optionsRow + picker + headerKpi + treeHtml;
 }
 
-function _buildMultiTree(lines, dims, depth) {
-  const totals = { orderSet: new Set(), qty: 0, revenue: 0 };
+function _buildMultiTree(lines, dims, depth, allDates) {
+  const totals = { orderSet: new Set(), qty: 0, revenue: 0, byDay: {} };
+  // Initialize byDay buckets nếu có allDates
+  if (allDates && allDates.length > 0) {
+    allDates.forEach(d => { totals.byDay[d] = 0; });
+  }
   lines.forEach(l => {
     if (l.soDon) totals.orderSet.add(l.soDon);
     totals.qty += l.soLuong || 0;
     totals.revenue += l.thanhTien || 0;
+    if (allDates && allDates.length > 0 && l.ngay && totals.byDay[l.ngay] !== undefined) {
+      totals.byDay[l.ngay] += (l.thanhTien || 0);
+    }
   });
 
   if (depth >= dims.length) {
@@ -12715,34 +13027,54 @@ function _buildMultiTree(lines, dims, depth) {
   const children = Object.keys(groups).map(k => ({
     key: k,
     dimLabel: dimOpt.label,
-    sub: _buildMultiTree(groups[k], dims, depth + 1)
+    sub: _buildMultiTree(groups[k], dims, depth + 1, allDates)
   })).sort((a, b) => b.sub.totals.revenue - a.sub.totals.revenue);
 
   return { totals, children, leaf: false };
 }
 
 let _multiNodeIdCounter = 0;
-function _renderMultiTree(node, depth, grandTotalRev) {
+function _renderMultiTree(node, depth, grandTotalRev, allDates) {
   if (node.leaf || !node.children) return '';
   return node.children.map(child => {
-    const ordersCount = child.sub.totals.orderSet.size;
-    const qty = child.sub.totals.qty;
-    const rev = child.sub.totals.revenue;
-    const pct = grandTotalRev > 0 ? (rev / grandTotalRev * 100) : 0;
+    const t = child.sub.totals;
+    const m = {
+      orders:  t.orderSet.size,
+      qty:     t.qty,
+      revenue: t.revenue,
+      pct:     grandTotalRev > 0 ? (t.revenue / grandTotalRev * 100) : 0
+    };
     const hasChildren = !child.sub.leaf && child.sub.children && child.sub.children.length > 0;
     const nodeId = 'mn_' + (++_multiNodeIdCounter);
     const collapseDefault = depth >= 1 ? 'collapsed' : '';
+
+    // Build metric cells
+    const metricCells = MULTI_METRICS.map(mkey => {
+      const opt = MULTI_METRIC_OPTIONS.find(o => o.key === mkey);
+      if (!opt) return '';
+      return `<span class="multi-node-stat">${opt.fmt(m)}</span>`;
+    }).join('');
+
+    // Build daily cells nếu có
+    let dailyCells = '';
+    if (allDates && allDates.length > 0) {
+      dailyCells = allDates.map(d => {
+        const v = t.byDay[d] || 0;
+        const cls = v === 0 ? 'multi-node-daily multi-daily-zero' : 'multi-node-daily';
+        return `<span class="${cls}" title="${d}">${v > 0 ? '<strong>' + _fmtTrieu(v) + '</strong>' : '—'}</span>`;
+      }).join('');
+    }
+
     return `
       <div class="multi-node ${collapseDefault}" id="${nodeId}">
         <div class="multi-node-row ${!hasChildren ? 'leaf' : ''}" ${hasChildren ? `onclick="toggleMultiNode('${nodeId}')"` : ''}>
           <span class="multi-toggle">${hasChildren ? '▼' : ''}</span>
           <span class="multi-dim-tag">${escapeHtml(child.dimLabel)}</span>
           <span class="multi-node-name">${escapeHtml(child.key)}</span>
-          <span class="multi-node-stat"><strong>${formatNumber(ordersCount)}</strong> đơn</span>
-          <span class="multi-node-stat"><strong>${formatNumber(qty)}</strong> SP</span>
-          <span class="multi-node-stat"><strong>${_fmtTrieu(rev)}</strong> · ${pct.toFixed(1)}%</span>
+          ${metricCells}
+          ${dailyCells}
         </div>
-        ${hasChildren ? `<div class="multi-children">${_renderMultiTree(child.sub, depth + 1, grandTotalRev)}</div>` : ''}
+        ${hasChildren ? `<div class="multi-children">${_renderMultiTree(child.sub, depth + 1, grandTotalRev, allDates)}</div>` : ''}
       </div>
     `;
   }).join('');
